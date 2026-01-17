@@ -608,31 +608,6 @@ export async function registerRoutes(
               payload: messageWithSender,
             })
           );
-        } else {
-          // If not online via WS, try push notification
-          const subscriptions = await storage.getPushSubscriptions(participant.id);
-          for (const sub of subscriptions) {
-            try {
-              await webpush.sendNotification(
-                {
-                  endpoint: sub.endpoint,
-                  keys: {
-                    p256dh: sub.p256dh,
-                    auth: sub.auth,
-                  },
-                },
-                JSON.stringify({
-                  title: `New message from ${user.displayName || user.username}`,
-                  body: "You have a new encrypted message",
-                  url: `/chat/${id}`,
-                })
-              );
-            } catch (err: any) {
-              if (err.statusCode === 410 || err.statusCode === 404) {
-                await storage.deletePushSubscription(sub.endpoint);
-              }
-            }
-          }
         }
       }
 
