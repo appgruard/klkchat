@@ -248,6 +248,79 @@ export async function registerRoutes(
     }
   });
 
+  // Update profile
+  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { displayName } = req.body;
+
+      if (!displayName || typeof displayName !== "string") {
+        return res.status(400).json({ message: "Invalid display name" });
+      }
+
+      const trimmedName = displayName.trim();
+      if (trimmedName.length === 0 || trimmedName.length > 50) {
+        return res.status(400).json({ message: "Display name must be between 1 and 50 characters" });
+      }
+
+      const updatedUser = await storage.updateUser(user.id, { displayName: trimmedName });
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to update profile" });
+      }
+
+      res.json(sanitizeUser(updatedUser));
+    } catch (error) {
+      console.error("Update profile error:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
+  // Change password
+  app.post("/api/auth/change-password", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+
+      // Verify current password
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+      const updatedUser = await storage.updateUser(user.id, { password: hashedPassword });
+      
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to change password" });
+      }
+
+      // Regenerate session to invalidate old sessions after password change
+      req.session.regenerate((err) => {
+        if (err) {
+          console.error("Session regeneration error:", err);
+        }
+        req.login(updatedUser, (loginErr) => {
+          if (loginErr) {
+            console.error("Re-login error:", loginErr);
+            return res.json({ message: "Password changed successfully. Please log in again." });
+          }
+          res.json({ message: "Password changed successfully" });
+        });
+      });
+    } catch (error) {
+      console.error("Change password error:", error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
+
   // User routes
   app.get("/api/users/search/:query", requireAuth, async (req, res) => {
     try {

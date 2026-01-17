@@ -47,7 +47,8 @@
     "usernameChars": "Solo letras, números y guiones bajos",
     "passwordMin": "La contraseña debe tener al menos 6 caracteres",
     "passwordsMatch": "Las contraseñas no coinciden",
-    "displayNameRequired": "El nombre es requerido"
+    "displayNameRequired": "El nombre es requerido",
+    "currentPasswordRequired": "La contraseña actual es requerida"
   },
   "chat": {
     "searchOrStart": "Buscar o iniciar chat",
@@ -68,7 +69,38 @@
     "createPermanentAccount": "Crear Cuenta Permanente",
     "convertAccountDesc": "Convierte tu sesión anónima en una cuenta permanente para conservar tu historial de chat.",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "creating": "Creando..."
+  },
+  "profile": {
+    "title": "Perfil",
+    "description": "Ver y editar tu información de perfil",
+    "updated": "Perfil actualizado",
+    "updatedDesc": "Tu perfil ha sido actualizado correctamente.",
+    "updateFailed": "Error al actualizar perfil",
+    "save": "Guardar",
+    "saving": "Guardando..."
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Personaliza tu experiencia en la app",
+    "theme": "Tema",
+    "darkMode": "Modo oscuro",
+    "lightMode": "Modo claro"
+  },
+  "security": {
+    "title": "Seguridad",
+    "description": "Administra la seguridad de tu cuenta",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "enterCurrentPassword": "Ingresa tu contraseña actual",
+    "enterNewPassword": "Ingresa tu nueva contraseña",
+    "changePassword": "Cambiar Contraseña",
+    "changing": "Cambiando...",
+    "passwordChanged": "Contraseña cambiada",
+    "passwordChangedDesc": "Tu contraseña ha sido cambiada correctamente.",
+    "changeFailed": "Error al cambiar contraseña",
+    "anonymousWarning": "Crea una cuenta permanente para acceder a la configuración de seguridad."
   },
   "menu": {
     "anonymous": "Anónimo",

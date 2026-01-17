@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LogOut, Settings, User, Shield, AlertTriangle } from "lucide-react";
 import {
@@ -15,6 +16,9 @@ import type { UserPublic } from "@shared/schema";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
+import { ProfileDialog } from "./profile-dialog";
+import { SettingsDialog } from "./settings-dialog";
+import { SecurityDialog } from "./security-dialog";
 
 interface UserMenuProps {
   user: UserPublic;
@@ -24,6 +28,9 @@ interface UserMenuProps {
 export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
   const { t } = useTranslation();
   const { logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [securityOpen, setSecurityOpen] = useState(false);
   const name = user.displayName || user.username;
 
   const getInitials = (name: string) => {
@@ -80,15 +87,15 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
             </>
           )}
           
-          <DropdownMenuItem data-testid="menu-item-profile">
+          <DropdownMenuItem onClick={() => setProfileOpen(true)} data-testid="menu-item-profile">
             <User className="mr-2 h-4 w-4" />
             {t("menu.profile")}
           </DropdownMenuItem>
-          <DropdownMenuItem data-testid="menu-item-settings">
+          <DropdownMenuItem onClick={() => setSettingsOpen(true)} data-testid="menu-item-settings">
             <Settings className="mr-2 h-4 w-4" />
             {t("menu.settings")}
           </DropdownMenuItem>
-          <DropdownMenuItem data-testid="menu-item-security">
+          <DropdownMenuItem onClick={() => setSecurityOpen(true)} data-testid="menu-item-security">
             <Shield className="mr-2 h-4 w-4" />
             {t("menu.security")}
           </DropdownMenuItem>
@@ -106,6 +113,21 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
       
       <LanguageToggle />
       <ThemeToggle />
+
+      <ProfileDialog
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        user={user}
+      />
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+      />
+      <SecurityDialog
+        open={securityOpen}
+        onOpenChange={setSecurityOpen}
+        isAnonymous={user.isAnonymous}
+      />
     </div>
   );
 }

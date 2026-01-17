@@ -47,7 +47,8 @@
     "usernameChars": "Only letters, numbers, and underscores",
     "passwordMin": "Password must be at least 6 characters",
     "passwordsMatch": "Passwords don't match",
-    "displayNameRequired": "Display name is required"
+    "displayNameRequired": "Display name is required",
+    "currentPasswordRequired": "Current password is required"
   },
   "chat": {
     "searchOrStart": "Search or start new chat",
@@ -68,7 +69,38 @@
     "createPermanentAccount": "Create Permanent Account",
     "convertAccountDesc": "Convert your anonymous session to a permanent account to keep your chat history.",
     "cancel": "Cancel",
+    "close": "Close",
     "creating": "Creating..."
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "View and edit your profile information",
+    "updated": "Profile updated",
+    "updatedDesc": "Your profile has been updated successfully.",
+    "updateFailed": "Failed to update profile",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Customize your app experience",
+    "theme": "Theme",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode"
+  },
+  "security": {
+    "title": "Security",
+    "description": "Manage your account security",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "enterCurrentPassword": "Enter your current password",
+    "enterNewPassword": "Enter your new password",
+    "changePassword": "Change Password",
+    "changing": "Changing...",
+    "passwordChanged": "Password changed",
+    "passwordChangedDesc": "Your password has been changed successfully.",
+    "changeFailed": "Failed to change password",
+    "anonymousWarning": "Create a permanent account to access security settings."
   },
   "menu": {
     "anonymous": "Anonymous",
