@@ -17,7 +17,22 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
+import nodemailer from "nodemailer";
+
 const SALT_ROUNDS = 12;
+
+// Configure nodemailer
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp.fourone.com.do",
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: process.env.SMTP_SECURE === "true",
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
+const FROM_EMAIL = "info@fourone.com.do";
 
 // Configure multer for file uploads
 const uploadDir = path.resolve(process.cwd(), "uploads");
@@ -293,10 +308,10 @@ export async function registerRoutes(
       const updates: Partial<User> = {};
       
       if (displayName !== undefined) {
-        if (typeof displayName !== "string") {
-          return res.status(400).json({ message: "Invalid display name" });
-        }
         const trimmedName = displayName.trim();
+        if (trimmedName.length === 0) {
+          return res.status(400).json({ message: "Display name is required" });
+        }
         if (trimmedName.length > 50) {
           return res.status(400).json({ message: "Display name must be less than 50 characters" });
         }
@@ -304,10 +319,22 @@ export async function registerRoutes(
       }
 
       if (email !== undefined) {
-        if (email !== "" && !z.string().email().safeParse(email).success) {
-          return res.status(400).json({ message: "Invalid email" });
+        if (email && email.trim() !== "") {
+          const emailSchema = z.string().email();
+          const parseResult = emailSchema.safeParse(email.trim());
+          if (!parseResult.success) {
+            return res.status(400).json({ message: "Invalid email" });
+          }
+          const trimmedEmail = email.trim();
+          if (user.email !== trimmedEmail) {
+            updates.email = trimmedEmail;
+            updates.emailVerified = false;
+          }
+        } else {
+          // If email is explicitly empty or null, we clear it
+          updates.email = null;
+          updates.emailVerified = false;
         }
-        updates.email = email || null;
       }
 
       if (avatarUrl !== undefined) {
@@ -373,6 +400,73 @@ export async function registerRoutes(
   });
 
   // User routes
+  app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!user.email) return res.status(400).json({ message: "No email set" });
+      
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      await storage.createRecoveryCode({
+        userId: user.id,
+        code: verificationCode,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
+      });
+
+      await transporter.sendMail({
+        from: FROM_EMAIL,
+        to: user.email,
+        subject: "Verificación de Correo - KLK! Chat",
+        text: `Tu código de verificación es: ${verificationCode}`,
+        html: `<b>Tu código de verificación es: ${verificationCode}</b>`,
+      });
+
+      res.json({ message: "Verification code sent" });
+    } catch (error) {
+      console.error("Email verification error:", error);
+      res.status(500).json({ message: "Failed to send verification email" });
+    }
+  });
+
+  app.post("/api/auth/confirm-email", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { code } = req.body;
+      const validCode = await storage.getValidRecoveryCode(user.id, code);
+      if (!validCode) return res.status(400).json({ message: "Código inválido o expirado" });
+
+      await storage.markRecoveryCodeUsed(validCode.id);
+      await storage.updateUser(user.id, { emailVerified: true });
+      res.json({ message: "Email verified successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Verification failed" });
+    }
+  });
+
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+      const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+      await storage.createRecoveryCode({
+        userId: user.id,
+        code: resetCode,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+      });
+
+      await transporter.sendMail({
+        from: FROM_EMAIL,
+        to: email,
+        subject: "Recuperación de Contraseña - KLK! Chat",
+        text: `Tu código para restablecer la contraseña es: ${resetCode}`,
+      });
+
+      res.json({ message: "Reset code sent" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send reset code" });
+    }
+  });
   app.get("/api/users/search/:query", requireAuth, async (req, res) => {
     try {
       const { query } = req.params as { query: string };

@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   displayName: text("display_name"),
   email: text("email"),
+  emailVerified: boolean("email_verified").default(false).notNull(),
   avatarUrl: text("avatar_url"),
   isAnonymous: boolean("is_anonymous").default(false).notNull(),
   isOnline: boolean("is_online").default(false).notNull(),

@@ -79,7 +79,14 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
       
       const { url } = await res.json();
       await apiRequest("PATCH", "/api/auth/profile", { avatarUrl: url });
+      
+      // Force reload image by adding cache buster if necessary, 
+      // but invalidating query should be enough if the URL is unique.
+      // Mullter unique suffix already handles this.
+      
+      e.target.value = "";
       await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      
       toast({
         title: t("profile.updated"),
         description: t("profile.avatarUpdated"),
