@@ -1,19 +1,4 @@
 {
-  "image": "node:20-bookworm-slim",
-  "ports": [80],
-  "envVars": [
-    {
-      "key": "NODE_ENV",
-      "value": "production"
-    },
-    {
-      "key": "PORT",
-      "value": "80"
-    }
-  ],
-  "instruction": {
-    "install": "npm ci",
-    "build": "npm run build",
-    "run": "npm start"
-  }
+  "schemaVersion": 2,
+  "dockerfilePath": "./Dockerfile"
 }
