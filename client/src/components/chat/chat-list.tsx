@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ConversationWithParticipants, UserPublic } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
-import logoPath from "@assets/generated_images/klk!_logo_black_white.png";
+import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
 
 interface ChatListProps {
   currentUser: UserPublic;

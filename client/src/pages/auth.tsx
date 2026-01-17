@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
-import logoPath from "@assets/generated_images/klk!_logo_black_white.png";
+import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -160,8 +160,8 @@ export default function AuthPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <div className="relative flex items-center">
+                            <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
@@ -169,20 +169,18 @@ export default function AuthPage() {
                               className="pl-10 pr-10"
                               data-testid="input-password"
                             />
-                            <Button
+                            <button
                               type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-0 top-0 h-full px-3"
+                              className="absolute right-3 text-muted-foreground hover:text-foreground"
                               onClick={() => setShowPassword(!showPassword)}
                               data-testid="button-toggle-password"
                             >
                               {showPassword ? (
-                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                <EyeOff className="h-4 w-4" />
                               ) : (
-                                <Eye className="h-4 w-4 text-muted-foreground" />
+                                <Eye className="h-4 w-4" />
                               )}
-                            </Button>
+                            </button>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -250,8 +248,8 @@ export default function AuthPage() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <div className="relative flex items-center">
+                            <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
@@ -259,19 +257,17 @@ export default function AuthPage() {
                               className="pl-10 pr-10"
                               data-testid="input-register-password"
                             />
-                            <Button
+                            <button
                               type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-0 top-0 h-full px-3"
+                              className="absolute right-3 text-muted-foreground hover:text-foreground"
                               onClick={() => setShowPassword(!showPassword)}
                             >
                               {showPassword ? (
-                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                <EyeOff className="h-4 w-4" />
                               ) : (
-                                <Eye className="h-4 w-4 text-muted-foreground" />
+                                <Eye className="h-4 w-4" />
                               )}
-                            </Button>
+                            </button>
                           </div>
                         </FormControl>
                         <FormMessage />
@@ -286,12 +282,16 @@ export default function AuthPage() {
                       <FormItem>
                         <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Confirm your password"
-                            data-testid="input-confirm-password"
-                          />
+                          <div className="relative flex items-center">
+                            <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input
+                              {...field}
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Confirm your password"
+                              className="pl-10"
+                              data-testid="input-confirm-password"
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
