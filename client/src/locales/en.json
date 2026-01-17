@@ -148,6 +148,11 @@
   "language": {
     "language": "Language",
     "english": "English",
-    "spanish": "Spanish"
+    "spanish": "Spanish",
+    "french": "French",
+    "german": "German",
+    "russian": "Russian",
+    "chinese": "Chinese",
+    "japanese": "Japanese"
   }
 }

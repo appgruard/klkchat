@@ -2,15 +2,15 @@
   "app": {
     "name": "KLK!",
     "tagline": "Mensajería privada segura",
-    "encryptedChat": "Chat Encriptado",
-    "e2eEncrypted": "Cifrado de extremo a extremo"
+    "encryptedChat": "Chat encriptado",
+    "e2eEncrypted": "Encriptado de extremo a extremo"
   },
   "auth": {
-    "signIn": "Iniciar Sesión",
+    "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
     "signingIn": "Iniciando sesión...",
     "creatingAccount": "Creando cuenta...",
-    "createAccount": "Crear Cuenta",
+    "createAccount": "Crear cuenta",
     "signInToContinue": "Inicia sesión para continuar chateando",
     "createYourAccount": "Crea tu cuenta",
     "welcomeBack": "¡Bienvenido de nuevo!",
@@ -19,46 +19,46 @@
     "invalidCredentials": "Credenciales inválidas",
     "accountCreated": "¡Cuenta creada!",
     "welcomeToApp": "Bienvenido a KLK! Chat.",
-    "registrationFailed": "Error en el registro",
-    "pleaseRetry": "Por favor, intenta de nuevo",
+    "registrationFailed": "Error al registrarse",
+    "pleaseRetry": "Por favor, inténtalo de nuevo",
     "anonymousStarted": "Sesión anónima iniciada",
-    "anonymousWarning": "Tus mensajes no se guardarán después de salir. ¡Considera crear una cuenta!",
+    "anonymousWarning": "Tus mensajes no se guardarán después de que te vayas. ¡Considera crear una cuenta!",
     "anonymousFailed": "Error al iniciar sesión anónima",
-    "continueAnonymously": "Continuar Anónimamente",
-    "noAccount": "¿No tienes cuenta? Regístrate",
-    "hasAccount": "¿Ya tienes cuenta? Inicia sesión",
+    "continueAnonymously": "Continuar anónimamente",
+    "noAccount": "¿No tienes una cuenta? Regístrate",
+    "hasAccount": "¿Ya tienes una cuenta? Inicia sesión",
     "or": "O"
   },
   "form": {
-    "username": "Usuario",
+    "username": "Nombre de usuario",
     "password": "Contraseña",
-    "confirmPassword": "Confirmar Contraseña",
-    "displayName": "Nombre",
-    "enterUsername": "Ingresa tu usuario",
+    "confirmPassword": "Confirmar contraseña",
+    "displayName": "Nombre para mostrar",
+    "enterUsername": "Ingresa tu nombre de usuario",
     "enterPassword": "Ingresa tu contraseña",
-    "chooseUsername": "Elige un usuario",
+    "chooseUsername": "Elige un nombre de usuario",
     "createPassword": "Crea una contraseña",
     "confirmYourPassword": "Confirma tu contraseña",
-    "howToCallYou": "¿Cómo te llamamos?"
+    "howToCallYou": "¿Cómo deberíamos llamarte?"
   },
   "validation": {
-    "usernameMin": "El usuario debe tener al menos 3 caracteres",
-    "usernameMax": "El usuario debe tener máximo 30 caracteres",
+    "usernameMin": "El nombre de usuario debe tener al menos 3 caracteres",
+    "usernameMax": "El nombre de usuario debe tener como máximo 30 caracteres",
     "usernameChars": "Solo letras, números y guiones bajos",
     "passwordMin": "La contraseña debe tener al menos 6 caracteres",
     "passwordsMatch": "Las contraseñas no coinciden",
-    "displayNameRequired": "El nombre es requerido",
-    "currentPasswordRequired": "La contraseña actual es requerida"
+    "displayNameRequired": "El nombre para mostrar es obligatorio",
+    "currentPasswordRequired": "La contraseña actual es obligatoria"
   },
   "chat": {
-    "searchOrStart": "Buscar o iniciar chat",
-    "noConversations": "Sin conversaciones",
-    "startNewChat": "Inicia un nuevo chat para comenzar a chatear",
-    "newChat": "Nuevo Chat",
-    "selectConversation": "Selecciona una conversación de la barra lateral o inicia un nuevo chat para comenzar a chatear de forma segura.",
+    "searchOrStart": "Buscar o iniciar nuevo chat",
+    "noConversations": "No hay conversaciones aún",
+    "startNewChat": "Inicia un nuevo chat para comenzar a mensajear",
+    "newChat": "Nuevo chat",
+    "selectConversation": "Selecciona una conversación de la barra lateral o inicia un nuevo chat para comenzar a mensajear de forma segura.",
     "typeMessage": "Escribe un mensaje",
     "encryptedMessage": "Mensaje encriptado",
-    "startConversation": "Inicia la conversación",
+    "startConversation": "Iniciar conversación",
     "reconnecting": "Reconectando...",
     "unknown": "Desconocido",
     "chatCleared": "Chat limpiado",
@@ -68,14 +68,14 @@
     "userBlocked": "Usuario bloqueado",
     "userBlockedDesc": "Ya no recibirás mensajes de este usuario.",
     "blockUserTitle": "Bloquear usuario",
-    "blockUserConfirm": "¿Estás seguro de que quieres bloquear a {{name}}? Ya no podrás enviar ni recibir mensajes de esta persona."
+    "blockUserConfirm": "¿Estás seguro de que quieres bloquear a {{name}}? Ya no podrás enviar ni recibir mensajes de ellos."
   },
   "dialog": {
-    "searchByUsername": "Buscar por usuario",
+    "searchByUsername": "Buscar por nombre de usuario",
     "typeToSearch": "Escribe al menos 2 caracteres para buscar usuarios",
-    "noUsersFound": "No se encontraron usuarios con \"{{query}}\"",
-    "createPermanentAccount": "Crear Cuenta Permanente",
-    "convertAccountDesc": "Convierte tu sesión anónima en una cuenta permanente para conservar tu historial de chat.",
+    "noUsersFound": "No se encontraron usuarios que coincidan con \"{{query}}\"",
+    "createPermanentAccount": "Crear cuenta permanente",
+    "convertAccountDesc": "Convierte tu sesión anónima en una cuenta permanente para mantener tu historial de chat.",
     "cancel": "Cancelar",
     "close": "Cerrar",
     "creating": "Creando..."
@@ -85,14 +85,14 @@
     "description": "Ver y editar tu información de perfil",
     "updated": "Perfil actualizado",
     "updatedDesc": "Tu perfil ha sido actualizado correctamente.",
-    "updateFailed": "Error al actualizar perfil",
+    "updateFailed": "Error al actualizar el perfil",
     "save": "Guardar",
     "saving": "Guardando...",
     "anonymous": "Usuario anónimo"
   },
   "settings": {
-    "title": "Configuración",
-    "description": "Personaliza tu experiencia en la app",
+    "title": "Ajustes",
+    "description": "Personaliza tu experiencia en la aplicación",
     "theme": "Tema",
     "darkMode": "Modo oscuro",
     "lightMode": "Modo claro"
@@ -100,22 +100,22 @@
   "security": {
     "title": "Seguridad",
     "description": "Administra la seguridad de tu cuenta",
-    "currentPassword": "Contraseña Actual",
-    "newPassword": "Nueva Contraseña",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Nueva contraseña",
     "enterCurrentPassword": "Ingresa tu contraseña actual",
     "enterNewPassword": "Ingresa tu nueva contraseña",
-    "changePassword": "Cambiar Contraseña",
+    "changePassword": "Cambiar contraseña",
     "changing": "Cambiando...",
     "passwordChanged": "Contraseña cambiada",
     "passwordChangedDesc": "Tu contraseña ha sido cambiada correctamente.",
-    "changeFailed": "Error al cambiar contraseña",
-    "anonymousWarning": "Crea una cuenta permanente para acceder a la configuración de seguridad."
+    "changeFailed": "Error al cambiar la contraseña",
+    "anonymousWarning": "Crea una cuenta permanente para acceder a los ajustes de seguridad."
   },
   "menu": {
     "anonymous": "Anónimo",
-    "createAccount": "Crear Cuenta",
+    "createAccount": "Crear cuenta",
     "profile": "Perfil",
-    "settings": "Configuración",
+    "settings": "Ajustes",
     "security": "Seguridad",
     "logout": "Cerrar sesión",
     "viewProfile": "Ver perfil",
@@ -123,12 +123,12 @@
     "blockUser": "Bloquear usuario"
   },
   "encryption": {
-    "e2eMessage": "Los mensajes de este chat están protegidos con cifrado de extremo a extremo. Solo tú y {{name}} pueden leerlos."
+    "e2eMessage": "Los mensajes en este chat están asegurados con encriptación de extremo a extremo. Solo tú y {{name}} pueden leerlos."
   },
   "status": {
     "online": "En línea",
     "offline": "Desconectado",
-    "lastSeen": "Visto por última vez",
+    "lastSeen": "Última vez visto",
     "recently": "recientemente",
     "encrypted": "Encriptado"
   },
@@ -138,8 +138,8 @@
   },
   "error": {
     "title": "Error",
-    "clearChat": "Error al limpiar el chat. Por favor, intenta de nuevo.",
-    "blockUser": "Error al bloquear usuario. Por favor, intenta de nuevo."
+    "clearChat": "Error al limpiar el chat. Por favor, inténtalo de nuevo.",
+    "blockUser": "Error al bloquear al usuario. Por favor, inténtalo de nuevo."
   },
   "date": {
     "today": "Hoy",
@@ -147,7 +147,12 @@
   },
   "language": {
     "language": "Idioma",
-    "english": "Inglés",
-    "spanish": "Español"
+    "english": "English",
+    "spanish": "Español",
+    "french": "Français",
+    "german": "Deutsch",
+    "russian": "Pусский",
+    "chinese": "中文",
+    "japanese": "日本語"
   }
 }
