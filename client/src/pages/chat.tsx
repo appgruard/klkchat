@@ -52,6 +52,7 @@ export default function ChatPage() {
   const handleChatCreated = (conversationId: string) => {
     setSelectedConversationId(conversationId);
     setIsMobileConversationOpen(true);
+    setShowNewChatDialog(false);
   };
 
   const handleBack = () => {

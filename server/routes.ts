@@ -324,7 +324,7 @@ export async function registerRoutes(
   // User routes
   app.get("/api/users/search/:query", requireAuth, async (req, res) => {
     try {
-      const { query } = req.params;
+      const { query } = req.params as { query: string };
       if (query.length < 2) {
         return res.json([]);
       }
