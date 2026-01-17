@@ -521,7 +521,7 @@ export function ConversationView({
                             isSent
                               ? "bg-muted text-foreground"
                               : "bg-card text-card-foreground"
-                          } ${message.fileUrl ? "p-1" : "px-3 py-2"}`}
+                          } ${message.fileUrl ? "bg-transparent border-0 shadow-none p-0" : "px-3 py-2"}`}
                         >
                           {!message.fileUrl && (
                             <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
@@ -529,8 +529,8 @@ export function ConversationView({
                             </p>
                           )}
                           {renderFileContent(message)}
-                          <div className={`flex items-center justify-end gap-1 mt-1 ${message.fileUrl ? "px-2 pb-1" : ""}`}>
-                            <span className="text-[11px] text-muted-foreground">
+                          <div className={`flex items-center justify-end gap-1 mt-1 ${message.fileUrl ? "px-1 pb-1" : ""}`}>
+                            <span className={`text-[11px] ${message.fileUrl ? "text-muted-foreground/80 font-medium" : "text-muted-foreground"}`}>
                               {format(new Date(message.createdAt), "h:mm a")}
                             </span>
                             {isSent && (
