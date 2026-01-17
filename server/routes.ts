@@ -710,7 +710,7 @@ export async function registerRoutes(
         throw err;
       });
 
-      // Wait for creation to ensure we have a valid message object with ID
+      // Wait for creation and broadcast to ensure reliability
       const message = await createMessagePromise;
       
       const messageWithSender = {
@@ -718,35 +718,48 @@ export async function registerRoutes(
         sender: sanitizedUser,
       };
 
-      // Real-time delivery in background
-      setImmediate(() => {
-        conversation.participants.forEach((participant) => {
-          const ws = wsClients.get(participant.id);
-          if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
-          } else if (participant.id !== user.id) {
-            // Push notification for offline users
-            storage.getPushSubscriptions(participant.id).then(subscriptions => {
-              if (subscriptions && subscriptions.length > 0) {
-                subscriptions.forEach(sub => {
-                  const pushPayload = JSON.stringify({
-                    title: user.displayName || user.username,
-                    body: type === "text" ? content : "Envió un archivo",
-                    url: `/conversations/${id}`
-                  });
-                  webpush.sendNotification({
-                    endpoint: sub.endpoint,
-                    keys: {
-                      p256dh: sub.p256dh,
-                      auth: sub.auth
-                    }
-                  }, pushPayload).catch((err: any) => console.error("Push notification error:", err));
-                });
+      // Real-time delivery
+      const broadcastPromises = conversation.participants.map(async (participant) => {
+        const ws = wsClients.get(participant.id);
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          return new Promise<void>((resolve, reject) => {
+            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }), (err) => {
+              if (err) {
+                console.error(`WS send error to user ${participant.id}:`, err);
+                reject(err);
+              } else {
+                resolve();
               }
-            }).catch((err: any) => console.error("Error getting subscriptions:", err));
+            });
+          });
+        } else if (participant.id !== user.id) {
+          // Push notification for offline users
+          try {
+            const subscriptions = await storage.getPushSubscriptions(participant.id);
+            if (subscriptions && subscriptions.length > 0) {
+              await Promise.all(subscriptions.map(sub => {
+                const pushPayload = JSON.stringify({
+                  title: user.displayName || user.username,
+                  body: type === "text" ? content : "Envió un archivo",
+                  url: `/conversations/${id}`
+                });
+                return webpush.sendNotification({
+                  endpoint: sub.endpoint,
+                  keys: {
+                    p256dh: sub.p256dh,
+                    auth: sub.auth
+                  }
+                }, pushPayload);
+              }));
+            }
+          } catch (err) {
+            console.error(`Push notification error for user ${participant.id}:`, err);
           }
-        });
+        }
       });
+
+      // Wait for all delivery attempts (best effort)
+      await Promise.allSettled(broadcastPromises);
 
       res.json(messageWithSender);
     } catch (error) {
