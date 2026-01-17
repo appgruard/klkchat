@@ -252,29 +252,39 @@ export function ConversationView({
     if (message.fileType === "audio") {
       const isVoiceMessage = message.fileName?.startsWith("audio-");
       return (
-        <div className={`mt-1 p-3 rounded-xl border border-muted/50 shadow-sm min-w-[240px] ${isVoiceMessage ? "bg-primary/10" : "bg-background/80"}`}>
-          <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2 rounded-full ${isVoiceMessage ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
-              <Mic className="h-4 w-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium truncate">
-                {isVoiceMessage ? t("chat.voiceMessage") : message.fileName}
-              </p>
-              {message.duration && (
-                <p className="text-[10px] text-muted-foreground">
-                  {formatDuration(message.duration)}
-                </p>
-              )}
-            </div>
+        <div className={`mt-1 flex items-center gap-2 p-2 rounded-2xl border border-muted/30 shadow-sm min-w-[260px] ${isVoiceMessage ? "bg-primary/5" : "bg-card"}`}>
+          <div className={`p-2 rounded-full flex-shrink-0 ${isVoiceMessage ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+            <Mic className="h-4 w-4" />
           </div>
-          <audio src={message.fileUrl} controls className="w-full h-8 custom-audio-player filter invert dark:invert-0" />
+          <div className="flex-1 flex flex-col gap-0.5 min-w-0">
+            {isVoiceMessage ? null : (
+              <p className="text-[11px] font-medium truncate px-1">
+                {message.fileName}
+              </p>
+            )}
+            <audio src={message.fileUrl} controls className="w-full h-7 custom-audio-player opacity-90 hover:opacity-100 transition-opacity" />
+          </div>
+          {message.duration && (
+            <span className="text-[10px] text-muted-foreground font-mono pr-1">
+              {formatDuration(message.duration)}
+            </span>
+          )}
           <style dangerouslySetInnerHTML={{ __html: `
+            .custom-audio-player {
+              filter: grayscale(1) brightness(1.5) contrast(1.2);
+            }
+            .dark .custom-audio-player {
+              filter: invert(1) grayscale(1) brightness(1.5);
+            }
             .custom-audio-player::-webkit-media-controls-enclosure {
               background-color: transparent;
             }
             .custom-audio-player::-webkit-media-controls-panel {
               padding: 0;
+            }
+            .custom-audio-player::-webkit-media-controls-current-time-display,
+            .custom-audio-player::-webkit-media-controls-time-remaining-display {
+              display: none;
             }
           `}} />
         </div>
