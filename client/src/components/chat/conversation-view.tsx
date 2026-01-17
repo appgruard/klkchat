@@ -21,7 +21,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTitle as DialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { ConversationWithParticipants, MessageWithSender, UserPublic } from "@shared/schema";
 import { format, isToday, isYesterday } from "date-fns";
@@ -64,6 +63,30 @@ export function ConversationView({
   const { data: messages = [], isLoading: messagesLoading } = useQuery<MessageWithSender[]>({
     queryKey: ["/api/conversations", conversationId, "messages"],
   });
+
+  const otherParticipant = conversation?.participants.find(p => p.id !== currentUser.id);
+  const name = otherParticipant?.displayName || otherParticipant?.username || t("chat.anonymousUser");
+
+  const getInitials = (n: string) => {
+    return n.split(" ").map(p => p[0]).join("").toUpperCase().substring(0, 2);
+  };
+
+  const formatMessageDate = (date: Date) => {
+    if (isToday(date)) return format(date, "h:mm a");
+    if (isYesterday(date)) return t("common.yesterday");
+    return format(date, "MMM d");
+  };
+
+  const messageGroups = messages.reduce((groups: any[], message: MessageWithSender) => {
+    const date = format(new Date(message.createdAt), "MMMM d, yyyy");
+    const group = groups.find(g => g.date === date);
+    if (group) {
+      group.messages.push(message);
+    } else {
+      groups.push({ date, messages: [message] });
+    }
+    return groups;
+  }, []);
 
   const markAsReadMutation = useMutation({
     mutationFn: async () => {
@@ -135,6 +158,19 @@ export function ConversationView({
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (!messageInput.trim()) return;
+    sendMessageMutation.mutate({ content: messageInput });
+    setMessageInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -238,30 +274,6 @@ export function ConversationView({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const otherParticipant = conversation?.participants.find(p => p.id !== currentUser.id);
-  const name = otherParticipant?.displayName || otherParticipant?.username || t("chat.anonymousUser");
-
-  const getInitials = (n: string) => {
-    return n.split(" ").map(p => p[0]).join("").toUpperCase().substring(0, 2);
-  };
-
-  const formatMessageDate = (date: Date) => {
-    if (isToday(date)) return format(date, "h:mm a");
-    if (isYesterday(date)) return t("common.yesterday");
-    return format(date, "MMM d");
-  };
-
-  const messageGroups = messages.reduce((groups: any[], message) => {
-    const date = format(new Date(message.createdAt), "MMMM d, yyyy");
-    const group = groups.find(g => g.date === date);
-    if (group) {
-      group.messages.push(message);
-    } else {
-      groups.push({ date, messages: [message] });
-    }
-    return groups;
-  }, []);
-
   const clearChatMutation = useMutation({
     mutationFn: async () => {
       return await apiRequest("DELETE", `/api/conversations/${conversationId}/messages`);
@@ -284,19 +296,6 @@ export function ConversationView({
       toast({ title: t("chat.userBlocked") });
     },
   });
-
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
-    sendMessageMutation.mutate({ content: messageInput });
-    setMessageInput("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -415,7 +414,7 @@ export function ConversationView({
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {group.messages.map((message) => {
+                  {group.messages.map((message: MessageWithSender) => {
                     const isSent = message.senderId === currentUser.id;
                     return (
                       <div
