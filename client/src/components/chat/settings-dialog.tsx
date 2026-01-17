@@ -10,18 +10,34 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useTheme } from "@/components/theme-provider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+const LANGUAGES = [
+  { code: "en", labelKey: "language.english" },
+  { code: "es", labelKey: "language.spanish" },
+  { code: "fr", labelKey: "language.french" },
+  { code: "de", labelKey: "language.german" },
+  { code: "ru", labelKey: "language.russian" },
+  { code: "zh", labelKey: "language.chinese" },
+  { code: "ja", labelKey: "language.japanese" },
+];
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === "es" ? "en" : "es";
+  const handleLanguageChange = (newLang: string) => {
     i18n.changeLanguage(newLang);
     localStorage.setItem("i18nextLng", newLang);
   };
@@ -70,18 +86,25 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <div>
                 <Label className="text-base">{t("language.language")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  {i18n.language === "es" ? t("language.spanish") : t("language.english")}
+                  {t(LANGUAGES.find(l => l.code === (i18n.language.split('-')[0]))?.labelKey || "language.spanish")}
                 </p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleLanguage}
-              data-testid="button-toggle-language"
+            <Select
+              value={i18n.language.split('-')[0]}
+              onValueChange={handleLanguageChange}
             >
-              {i18n.language === "es" ? t("language.english") : t("language.spanish")}
-            </Button>
+              <SelectTrigger className="w-[140px]" data-testid="select-language">
+                <SelectValue placeholder={t("language.language")} />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map((lang) => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {t(lang.labelKey)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
