@@ -12,8 +12,18 @@ import { z } from "zod";
 import { randomBytes } from "crypto";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
+import webpush from "web-push";
 
 const SALT_ROUNDS = 12;
+
+// Configure web-push
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:example@yourdomain.com",
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 // WebSocket clients map: userId -> WebSocket
 const wsClients = new Map<string, WebSocket>();
@@ -412,6 +422,30 @@ export async function registerRoutes(
     }
   });
 
+  // Push subscription routes
+  app.post("/api/push/subscribe", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { endpoint, keys } = req.body;
+
+      if (!endpoint || !keys?.p256dh || !keys?.auth) {
+        return res.status(400).json({ message: "Invalid subscription" });
+      }
+
+      await storage.addPushSubscription({
+        userId: user.id,
+        endpoint,
+        p256dh: keys.p256dh,
+        auth: keys.auth,
+      });
+
+      res.status(201).json({ message: "Subscribed to push notifications" });
+    } catch (error) {
+      console.error("Push subscribe error:", error);
+      res.status(500).json({ message: "Failed to subscribe" });
+    }
+  });
+
   // Message routes
   app.get("/api/conversations/:id/messages", requireAuth, async (req, res) => {
     try {
@@ -491,6 +525,31 @@ export async function registerRoutes(
               payload: messageWithSender,
             })
           );
+        } else {
+          // If not online via WS, try push notification
+          const subscriptions = await storage.getPushSubscriptions(participant.id);
+          for (const sub of subscriptions) {
+            try {
+              await webpush.sendNotification(
+                {
+                  endpoint: sub.endpoint,
+                  keys: {
+                    p256dh: sub.p256dh,
+                    auth: sub.auth,
+                  },
+                },
+                JSON.stringify({
+                  title: `New message from ${user.displayName || user.username}`,
+                  body: "You have a new encrypted message",
+                  url: `/chat/${id}`,
+                })
+              );
+            } catch (err: any) {
+              if (err.statusCode === 410 || err.statusCode === 404) {
+                await storage.deletePushSubscription(sub.endpoint);
+              }
+            }
+          }
         }
       }
 

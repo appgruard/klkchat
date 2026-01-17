@@ -5,6 +5,7 @@ import {
   messages,
   recoveryCodes,
   blockedUsers,
+  pushSubscriptions,
   type User,
   type InsertUser,
   type Message,
@@ -17,6 +18,8 @@ import {
   type ConversationWithParticipants,
   type MessageWithSender,
   type BlockedUser,
+  type PushSubscription,
+  type InsertPushSubscription,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
@@ -56,6 +59,11 @@ export interface IStorage {
   unblockUser(blockerId: string, blockedId: string): Promise<void>;
   isUserBlocked(blockerId: string, blockedId: string): Promise<boolean>;
   getBlockedUsers(userId: string): Promise<string[]>;
+
+  // Push Subscriptions
+  addPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
+  getPushSubscriptions(userId: string): Promise<PushSubscription[]>;
+  deletePushSubscription(endpoint: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -397,6 +405,20 @@ export class DatabaseStorage implements IStorage {
       .from(blockedUsers)
       .where(eq(blockedUsers.blockerId, userId));
     return blocked.map((b) => b.blockedId);
+  }
+
+  // Push Subscriptions
+  async addPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription> {
+    const [result] = await db.insert(pushSubscriptions).values(subscription).returning();
+    return result;
+  }
+
+  async getPushSubscriptions(userId: string): Promise<PushSubscription[]> {
+    return db.select().from(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
+  }
+
+  async deletePushSubscription(endpoint: string): Promise<void> {
+    await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
   }
 }
 

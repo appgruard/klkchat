@@ -69,14 +69,40 @@ export const blockedUsers = pgTable("blocked_users", {
   uniqueBlock: unique("unique_blocker_blocked").on(table.blockerId, table.blockedId),
 }));
 
+// Push subscriptions table
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sentMessages: many(messages),
   conversationParticipants: many(conversationParticipants),
   recoveryCodes: many(recoveryCodes),
-  blockedUsers: many(blockedUsers, { relationName: "blocker" }),
+  blockedUsers: many(blockedUsers, relationName: "blocker" }),
   blockedBy: many(blockedUsers, { relationName: "blocked" }),
+  pushSubscriptions: many(pushSubscriptions),
 }));
+
+export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [pushSubscriptions.userId],
+    references: [users.id],
+  }),
+}));
+
+export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
 
 export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
   blocker: one(users, {
