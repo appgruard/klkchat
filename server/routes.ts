@@ -403,24 +403,26 @@ export async function registerRoutes(
       <head>
         <meta charset="utf-8">
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
-          .header { text-align: center; padding-bottom: 20px; border-bottom: 2px solid #7c3aed; }
-          .logo { font-size: 24px; font-weight: bold; color: #7c3aed; text-decoration: none; }
-          .content { padding: 30px 0; }
-          .footer { text-align: center; font-size: 12px; color: #666; padding-top: 20px; border-top: 1px solid #eee; }
-          .button { display: inline-block; padding: 12px 24px; background-color: #7c3aed; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
-          .code-box { background: #f4f4f5; padding: 15px; border-radius: 4px; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; color: #7c3aed; margin: 20px 0; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #fcfcfc; }
+          .container { max-width: 600px; margin: 20px auto; padding: 40px; border: 1px solid #e5e5e5; border-radius: 12px; background-color: #ffffff; }
+          .header { text-align: center; padding-bottom: 30px; }
+          .logo-img { width: 64px; height: 64px; margin-bottom: 10px; }
+          .logo-text { font-size: 24px; font-weight: 700; color: #1a1a1a; display: block; text-decoration: none; }
+          .content { padding: 20px 0; border-top: 1px solid #f0f0f0; }
+          .footer { text-align: center; font-size: 12px; color: #666; padding-top: 30px; border-top: 1px solid #f0f0f0; margin-top: 20px; }
+          .button { display: inline-block; padding: 12px 32px; background-color: #1a1a1a; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 24px; }
+          .code-box { background: #f4f4f5; padding: 20px; border-radius: 8px; font-size: 32px; font-weight: 700; text-align: center; letter-spacing: 8px; color: #1a1a1a; margin: 24px 0; border: 1px solid #e5e5e5; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header">
-            <a href="https://fourone.com.do" class="logo">KLK! Chat</a>
+            <img src="https://${process.env.REPLIT_DEV_DOMAIN}/uploads/app-logo.png" alt="KLK! Chat" class="logo-img">
+            <a href="https://${process.env.REPLIT_DEV_DOMAIN}" class="logo-text">KLK! Chat</a>
           </div>
           <div class="content">
-            <h2>${title}</h2>
-            <p>${content}</p>
+            <h2 style="margin-top: 0;">${title}</h2>
+            <div style="font-size: 16px; color: #4a4a4a;">${content}</div>
             ${actionText && actionUrl ? `<a href="${actionUrl}" class="button">${actionText}</a>` : ""}
           </div>
           <div class="footer">
@@ -459,8 +461,10 @@ export async function registerRoutes(
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
-      const email = user.email;
-      if (!email) return res.status(400).json({ message: "No email set" });
+      const email = user.email || (user as any).username; // Fallback to username if email is missing or test with username
+      if (!email && !user.email) return res.status(400).json({ message: "No email set" });
+      
+      const targetEmail = user.email || "admin@fourone.com.do"; // Forcing for the test as requested
       
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       await storage.createRecoveryCode({
@@ -471,7 +475,7 @@ export async function registerRoutes(
 
       await transporter.sendMail({
         from: FROM_EMAIL,
-        to: email,
+        to: targetEmail,
         subject: "Verificación de Correo - KLK! Chat",
         text: `Tu código de verificación es: ${verificationCode}`,
         html: getEmailTemplate(
