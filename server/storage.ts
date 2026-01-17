@@ -65,6 +65,7 @@ export interface IStorage {
   addPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
   getPushSubscriptions(userId: string): Promise<PushSubscription[]>;
   deletePushSubscription(endpoint: string): Promise<void>;
+  getUserByEmail(email: string): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -438,6 +439,10 @@ export class DatabaseStorage implements IStorage {
 
   async deletePushSubscription(endpoint: string): Promise<void> {
     await db.delete(pushSubscriptions).where(eq(pushSubscriptions.endpoint, endpoint));
+  }
+
+  async getUserByEmail(email: string): Promise<User[]> {
+    return db.select().from(users).where(eq(users.email, email));
   }
 }
 

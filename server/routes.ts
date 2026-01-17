@@ -421,7 +421,8 @@ export async function registerRoutes(
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
-      if (!user.email) return res.status(400).json({ message: "No email set" });
+      const email = user.email;
+      if (!email) return res.status(400).json({ message: "No email set" });
       
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       await storage.createRecoveryCode({
@@ -432,7 +433,7 @@ export async function registerRoutes(
 
       await transporter.sendMail({
         from: FROM_EMAIL,
-        to: user.email,
+        to: email,
         subject: "Verificación de Correo - KLK! Chat",
         text: `Tu código de verificación es: ${verificationCode}`,
         html: `<b>Tu código de verificación es: ${verificationCode}</b>`,
@@ -441,7 +442,7 @@ export async function registerRoutes(
       res.json({ message: "Verification code sent" });
     } catch (error) {
       console.error("Email verification error:", error);
-      res.status(500).json({ message: "Failed to send verification email" });
+      res.status(500).json({ message: "Failed to send verification email", error: error instanceof Error ? error.message : String(error) });
     }
   });
 
@@ -463,7 +464,7 @@ export async function registerRoutes(
   app.post("/api/auth/forgot-password", async (req, res) => {
     try {
       const { email } = req.body;
-      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      const [user] = await storage.getUserByEmail(email);
       if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
       const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -482,7 +483,8 @@ export async function registerRoutes(
 
       res.json({ message: "Reset code sent" });
     } catch (error) {
-      res.status(500).json({ message: "Failed to send reset code" });
+      console.error("Forgot password error:", error);
+      res.status(500).json({ message: "Failed to send reset code", error: error instanceof Error ? error.message : String(error) });
     }
   });
   app.get("/api/users/search/:query", requireAuth, async (req, res) => {
