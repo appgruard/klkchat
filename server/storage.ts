@@ -1,38 +1,328 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import {
+  users,
+  conversations,
+  conversationParticipants,
+  messages,
+  recoveryCodes,
+  type User,
+  type InsertUser,
+  type Message,
+  type InsertMessage,
+  type Conversation,
+  type ConversationParticipant,
+  type RecoveryCode,
+  type InsertRecoveryCode,
+  type UserPublic,
+  type ConversationWithParticipants,
+  type MessageWithSender,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
 
 export interface IStorage {
+  // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  searchUsers(query: string, limit?: number): Promise<UserPublic[]>;
+  setUserOnline(id: string, isOnline: boolean): Promise<void>;
+  
+  // Conversations
+  getConversation(id: string): Promise<Conversation | undefined>;
+  getConversationWithParticipants(id: string, userId: string): Promise<ConversationWithParticipants | undefined>;
+  getConversationsForUser(userId: string): Promise<ConversationWithParticipants[]>;
+  findExistingConversation(userId1: string, userId2: string): Promise<Conversation | undefined>;
+  createConversation(participantIds: string[]): Promise<Conversation>;
+  
+  // Messages
+  getMessage(id: string): Promise<Message | undefined>;
+  getMessagesForConversation(conversationId: string, limit?: number): Promise<MessageWithSender[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  updateMessageStatus(id: string, status: string): Promise<void>;
+  
+  // Recovery codes
+  createRecoveryCode(code: InsertRecoveryCode): Promise<RecoveryCode>;
+  getValidRecoveryCode(userId: string, code: string): Promise<RecoveryCode | undefined>;
+  markRecoveryCodeUsed(id: string): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
-  }
-
+export class DatabaseStorage implements IStorage {
+  // Users
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+
+  async searchUsers(query: string, limit: number = 20): Promise<UserPublic[]> {
+    const results = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        displayName: users.displayName,
+        isAnonymous: users.isAnonymous,
+        isOnline: users.isOnline,
+        lastSeen: users.lastSeen,
+        publicKey: users.publicKey,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(
+        and(
+          or(
+            ilike(users.username, `%${query}%`),
+            ilike(users.displayName, `%${query}%`)
+          ),
+          eq(users.isAnonymous, false)
+        )
+      )
+      .limit(limit);
+    return results;
+  }
+
+  async setUserOnline(id: string, isOnline: boolean): Promise<void> {
+    await db
+      .update(users)
+      .set({ isOnline, lastSeen: new Date() })
+      .where(eq(users.id, id));
+  }
+
+  // Conversations
+  async getConversation(id: string): Promise<Conversation | undefined> {
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, id));
+    return conversation || undefined;
+  }
+
+  async getConversationWithParticipants(
+    id: string,
+    userId: string
+  ): Promise<ConversationWithParticipants | undefined> {
+    const conversation = await this.getConversation(id);
+    if (!conversation) return undefined;
+
+    const participants = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        displayName: users.displayName,
+        isAnonymous: users.isAnonymous,
+        isOnline: users.isOnline,
+        lastSeen: users.lastSeen,
+        publicKey: users.publicKey,
+        createdAt: users.createdAt,
+      })
+      .from(conversationParticipants)
+      .innerJoin(users, eq(conversationParticipants.userId, users.id))
+      .where(eq(conversationParticipants.conversationId, id));
+
+    const [lastMessage] = await db
+      .select()
+      .from(messages)
+      .where(eq(messages.conversationId, id))
+      .orderBy(desc(messages.createdAt))
+      .limit(1);
+
+    const [unreadResult] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(messages)
+      .where(
+        and(
+          eq(messages.conversationId, id),
+          ne(messages.senderId, userId),
+          ne(messages.status, "read")
+        )
+      );
+
+    return {
+      ...conversation,
+      participants,
+      lastMessage: lastMessage || undefined,
+      unreadCount: unreadResult?.count || 0,
+    };
+  }
+
+  async getConversationsForUser(userId: string): Promise<ConversationWithParticipants[]> {
+    const userConversations = await db
+      .select({ conversationId: conversationParticipants.conversationId })
+      .from(conversationParticipants)
+      .where(eq(conversationParticipants.userId, userId));
+
+    const conversationIds = userConversations.map((c) => c.conversationId);
+    
+    if (conversationIds.length === 0) return [];
+
+    const result: ConversationWithParticipants[] = [];
+
+    for (const convId of conversationIds) {
+      const conv = await this.getConversationWithParticipants(convId, userId);
+      if (conv) result.push(conv);
+    }
+
+    // Sort by last message or creation date
+    result.sort((a, b) => {
+      const dateA = a.lastMessage?.createdAt || a.createdAt;
+      const dateB = b.lastMessage?.createdAt || b.createdAt;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+
+    return result;
+  }
+
+  async findExistingConversation(
+    userId1: string,
+    userId2: string
+  ): Promise<Conversation | undefined> {
+    const user1Convs = await db
+      .select({ conversationId: conversationParticipants.conversationId })
+      .from(conversationParticipants)
+      .where(eq(conversationParticipants.userId, userId1));
+
+    for (const { conversationId } of user1Convs) {
+      const [hasUser2] = await db
+        .select()
+        .from(conversationParticipants)
+        .where(
+          and(
+            eq(conversationParticipants.conversationId, conversationId),
+            eq(conversationParticipants.userId, userId2)
+          )
+        );
+
+      if (hasUser2) {
+        const conv = await this.getConversation(conversationId);
+        if (conv) return conv;
+      }
+    }
+
+    return undefined;
+  }
+
+  async createConversation(participantIds: string[]): Promise<Conversation> {
+    const [conversation] = await db
+      .insert(conversations)
+      .values({})
+      .returning();
+
+    for (const participantId of participantIds) {
+      await db.insert(conversationParticipants).values({
+        conversationId: conversation.id,
+        userId: participantId,
+      });
+    }
+
+    return conversation;
+  }
+
+  // Messages
+  async getMessage(id: string): Promise<Message | undefined> {
+    const [message] = await db.select().from(messages).where(eq(messages.id, id));
+    return message || undefined;
+  }
+
+  async getMessagesForConversation(
+    conversationId: string,
+    limit: number = 100
+  ): Promise<MessageWithSender[]> {
+    const result = await db
+      .select({
+        id: messages.id,
+        conversationId: messages.conversationId,
+        senderId: messages.senderId,
+        encryptedContent: messages.encryptedContent,
+        iv: messages.iv,
+        status: messages.status,
+        createdAt: messages.createdAt,
+        sender: {
+          id: users.id,
+          username: users.username,
+          displayName: users.displayName,
+          isAnonymous: users.isAnonymous,
+          isOnline: users.isOnline,
+          lastSeen: users.lastSeen,
+          publicKey: users.publicKey,
+          createdAt: users.createdAt,
+        },
+      })
+      .from(messages)
+      .innerJoin(users, eq(messages.senderId, users.id))
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt)
+      .limit(limit);
+
+    return result;
+  }
+
+  async createMessage(message: InsertMessage): Promise<Message> {
+    const [newMessage] = await db.insert(messages).values(message).returning();
+
+    // Update conversation's updatedAt
+    await db
+      .update(conversations)
+      .set({ updatedAt: new Date() })
+      .where(eq(conversations.id, message.conversationId));
+
+    return newMessage;
+  }
+
+  async updateMessageStatus(id: string, status: string): Promise<void> {
+    await db.update(messages).set({ status }).where(eq(messages.id, id));
+  }
+
+  // Recovery codes
+  async createRecoveryCode(code: InsertRecoveryCode): Promise<RecoveryCode> {
+    const [recoveryCode] = await db
+      .insert(recoveryCodes)
+      .values(code)
+      .returning();
+    return recoveryCode;
+  }
+
+  async getValidRecoveryCode(
+    userId: string,
+    code: string
+  ): Promise<RecoveryCode | undefined> {
+    const [result] = await db
+      .select()
+      .from(recoveryCodes)
+      .where(
+        and(
+          eq(recoveryCodes.userId, userId),
+          eq(recoveryCodes.code, code),
+          eq(recoveryCodes.used, false),
+          sql`${recoveryCodes.expiresAt} > NOW()`
+        )
+      );
+    return result || undefined;
+  }
+
+  async markRecoveryCodeUsed(id: string): Promise<void> {
+    await db
+      .update(recoveryCodes)
+      .set({ used: true })
+      .where(eq(recoveryCodes.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

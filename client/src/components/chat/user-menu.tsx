@@ -1,0 +1,107 @@
+import { LogOut, Settings, User, Shield, AlertTriangle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import type { UserPublic } from "@shared/schema";
+import { useAuth } from "@/lib/auth-context";
+import { ThemeToggle } from "@/components/theme-toggle";
+
+interface UserMenuProps {
+  user: UserPublic;
+  onConvertAnonymous?: () => void;
+}
+
+export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
+  const { logout } = useAuth();
+  const name = user.displayName || user.username;
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <div className="flex items-center gap-2 p-3 border-t border-sidebar-border bg-sidebar">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="flex items-center gap-3 w-full justify-start h-auto py-2"
+            data-testid="button-user-menu"
+          >
+            <Avatar className="h-9 w-9">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials(name)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-left min-w-0">
+              <p className="font-medium text-sidebar-foreground truncate text-sm">{name}</p>
+              <p className="text-xs text-muted-foreground truncate">@{user.username}</p>
+            </div>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-56">
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium">{name}</p>
+              <p className="text-xs text-muted-foreground">@{user.username}</p>
+              {user.isAnonymous && (
+                <Badge variant="outline" className="w-fit mt-1 text-xs">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Anonymous
+                </Badge>
+              )}
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          
+          {user.isAnonymous && onConvertAnonymous && (
+            <>
+              <DropdownMenuItem onClick={onConvertAnonymous} data-testid="button-convert-account">
+                <User className="mr-2 h-4 w-4" />
+                Create Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          
+          <DropdownMenuItem data-testid="menu-item-profile">
+            <User className="mr-2 h-4 w-4" />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem data-testid="menu-item-settings">
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </DropdownMenuItem>
+          <DropdownMenuItem data-testid="menu-item-security">
+            <Shield className="mr-2 h-4 w-4" />
+            Security
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={logout}
+            className="text-destructive"
+            data-testid="button-logout"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Log out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      
+      <ThemeToggle />
+    </div>
+  );
+}
