@@ -88,7 +88,7 @@ export default function ChatPage() {
 
       <div
         className={`flex-1 flex flex-col ${
-          !isMobileConversationOpen && !selectedConversationId ? "hidden lg:flex" : "flex"
+          !isMobileConversationOpen ? "hidden lg:flex" : "flex"
         }`}
       >
         {selectedConversationId ? (
