@@ -260,8 +260,32 @@ export function ConversationView({
 
     if (message.fileType === "video") {
       return (
-        <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm">
-          <video src={message.fileUrl} controls className="max-w-full h-auto" />
+        <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm relative group">
+          <video 
+            src={message.fileUrl} 
+            controls 
+            className="max-w-full h-auto w-full" 
+            playsInline
+            controlsList="nodownload"
+          />
+          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8 rounded-full bg-black/50 text-white border-0 hover:bg-black/70 backdrop-blur-sm shadow-lg"
+              onClick={(e) => {
+                e.stopPropagation();
+                const link = document.createElement('a');
+                link.href = message.fileUrl!;
+                link.download = message.fileName || 'video.mp4';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       );
     }
