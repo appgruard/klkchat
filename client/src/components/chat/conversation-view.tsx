@@ -230,13 +230,29 @@ export function ConversationView({
 
     if (message.fileType === "image") {
       return (
-        <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm">
+        <div className="mt-2 relative rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm group">
           <img 
             src={message.fileUrl} 
             alt={message.fileName || "Image"} 
             className="max-w-full h-auto cursor-pointer hover:scale-[1.02] transition-transform duration-200" 
             onClick={() => window.open(message.fileUrl!, '_blank')} 
           />
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-2 right-2 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm hover:bg-background"
+            onClick={(e) => {
+              e.stopPropagation();
+              const link = document.createElement('a');
+              link.href = message.fileUrl!;
+              link.download = message.fileName || 'image.png';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+          >
+            <Download className="h-4 w-4" />
+          </Button>
         </div>
       );
     }
@@ -306,7 +322,14 @@ export function ConversationView({
           variant="ghost" 
           size="icon" 
           className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary"
-          onClick={() => window.open(message.fileUrl!, '_blank')}
+          onClick={() => {
+            const link = document.createElement('a');
+            link.href = message.fileUrl!;
+            link.download = message.fileName || 'file';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
         >
           <Download className="h-4 w-4" />
         </Button>
