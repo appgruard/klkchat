@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,43 +14,34 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
 
-type LoginFormData = {
-  username: string;
-  password: string;
-};
+const loginSchema = z.object({
+  username: z.string().min(3, "validation.usernameMin"),
+  password: z.string().min(6, "validation.passwordMin"),
+});
 
-type RegisterFormData = {
-  username: string;
-  password: string;
-  confirmPassword: string;
-  displayName: string;
-};
+const registerSchema = z.object({
+  username: z.string()
+    .min(3, "validation.usernameMin")
+    .max(30, "validation.usernameMax")
+    .regex(/^[a-zA-Z0-9_]+$/, "validation.usernameChars"),
+  password: z.string().min(6, "validation.passwordMin"),
+  confirmPassword: z.string(),
+  displayName: z.string().min(1, "validation.displayNameRequired").max(50),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "validation.passwordsMatch",
+  path: ["confirmPassword"],
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, register, registerAnonymous } = useAuth();
   const { toast } = useToast();
-
-  const loginSchema = useMemo(() => z.object({
-    username: z.string().min(3, t("validation.usernameMin")),
-    password: z.string().min(6, t("validation.passwordMin")),
-  }), [i18n.language]);
-
-  const registerSchema = useMemo(() => z.object({
-    username: z.string()
-      .min(3, t("validation.usernameMin"))
-      .max(30, t("validation.usernameMax"))
-      .regex(/^[a-zA-Z0-9_]+$/, t("validation.usernameChars")),
-    password: z.string().min(6, t("validation.passwordMin")),
-    confirmPassword: z.string(),
-    displayName: z.string().min(1, t("validation.displayNameRequired")).max(50),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: t("validation.passwordsMatch"),
-    path: ["confirmPassword"],
-  }), [i18n.language]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

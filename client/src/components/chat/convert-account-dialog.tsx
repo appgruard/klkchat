@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,11 +24,19 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 
-type ConvertFormData = {
-  username: string;
-  password: string;
-  confirmPassword: string;
-};
+const convertSchema = z.object({
+  username: z.string()
+    .min(3, "validation.usernameMin")
+    .max(30, "validation.usernameMax")
+    .regex(/^[a-zA-Z0-9_]+$/, "validation.usernameChars"),
+  password: z.string().min(6, "validation.passwordMin"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "validation.passwordsMatch",
+  path: ["confirmPassword"],
+});
+
+type ConvertFormData = z.infer<typeof convertSchema>;
 
 interface ConvertAccountDialogProps {
   open: boolean;
@@ -39,23 +47,11 @@ export function ConvertAccountDialog({
   open,
   onOpenChange,
 }: ConvertAccountDialogProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { convertAnonymous } = useAuth();
   const { toast } = useToast();
-
-  const convertSchema = useMemo(() => z.object({
-    username: z.string()
-      .min(3, t("validation.usernameMin"))
-      .max(30, t("validation.usernameMax"))
-      .regex(/^[a-zA-Z0-9_]+$/, t("validation.usernameChars")),
-    password: z.string().min(6, t("validation.passwordMin")),
-    confirmPassword: z.string(),
-  }).refine((data) => data.password === data.confirmPassword, {
-    message: t("validation.passwordsMatch"),
-    path: ["confirmPassword"],
-  }), [i18n.language]);
 
   const form = useForm<ConvertFormData>({
     resolver: zodResolver(convertSchema),
