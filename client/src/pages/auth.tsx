@@ -136,11 +136,6 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="flex items-center justify-end gap-2 p-4">
-        <LanguageToggle />
-        <ThemeToggle />
-      </header>
-      
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center space-y-4">
