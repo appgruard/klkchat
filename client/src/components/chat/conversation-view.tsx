@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Send, ArrowLeft, MoreVertical, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export function ConversationView({
   currentUser,
   onBack,
 }: ConversationViewProps) {
+  const { t } = useTranslation();
   const [messageInput, setMessageInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -52,7 +54,7 @@ export function ConversationView({
   });
 
   const otherParticipant = conversation?.participants.find((p) => p.id !== currentUser.id);
-  const name = otherParticipant?.displayName || otherParticipant?.username || "Unknown";
+  const name = otherParticipant?.displayName || otherParticipant?.username || t("chat.unknown");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -86,7 +88,7 @@ export function ConversationView({
     if (isToday(date)) {
       return format(date, "h:mm a");
     } else if (isYesterday(date)) {
-      return `Yesterday ${format(date, "h:mm a")}`;
+      return `${t("date.yesterday")} ${format(date, "h:mm a")}`;
     }
     return format(date, "MMM d, h:mm a");
   };
@@ -100,21 +102,22 @@ export function ConversationView({
       .slice(0, 2);
   };
 
+  const getDateLabel = (messageDate: Date) => {
+    if (isToday(messageDate)) {
+      return t("date.today");
+    } else if (isYesterday(messageDate)) {
+      return t("date.yesterday");
+    }
+    return format(messageDate, "MMMM d, yyyy");
+  };
+
   const groupMessagesByDate = (messages: MessageWithSender[]) => {
     const groups: { date: string; messages: MessageWithSender[] }[] = [];
     let currentDate = "";
 
     messages.forEach((message) => {
       const messageDate = new Date(message.createdAt);
-      let dateLabel: string;
-
-      if (isToday(messageDate)) {
-        dateLabel = "Today";
-      } else if (isYesterday(messageDate)) {
-        dateLabel = "Yesterday";
-      } else {
-        dateLabel = format(messageDate, "MMMM d, yyyy");
-      }
+      const dateLabel = getDateLabel(messageDate);
 
       if (dateLabel !== currentDate) {
         currentDate = dateLabel;
@@ -159,13 +162,13 @@ export function ConversationView({
               <h2 className="font-medium truncate">{name}</h2>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 {otherParticipant.isOnline ? (
-                  <span className="text-status-online">Online</span>
+                  <span className="text-status-online">{t("status.online")}</span>
                 ) : (
                   <span>
-                    Last seen{" "}
+                    {t("status.lastSeen")}{" "}
                     {otherParticipant.lastSeen
                       ? formatMessageDate(new Date(otherParticipant.lastSeen))
-                      : "recently"}
+                      : t("status.recently")}
                   </span>
                 )}
               </div>
@@ -175,7 +178,7 @@ export function ConversationView({
 
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Lock className="h-3 w-3" />
-          <span className="hidden sm:inline">Encrypted</span>
+          <span className="hidden sm:inline">{t("app.e2eEncrypted")}</span>
         </div>
 
         <DropdownMenu>
@@ -185,9 +188,9 @@ export function ConversationView({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>View profile</DropdownMenuItem>
-            <DropdownMenuItem>Clear chat</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">Block user</DropdownMenuItem>
+            <DropdownMenuItem>{t("menu.viewProfile")}</DropdownMenuItem>
+            <DropdownMenuItem>{t("menu.clearChat")}</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">{t("menu.blockUser")}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
@@ -211,9 +214,9 @@ export function ConversationView({
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <Shield className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="font-medium mb-2">End-to-end encrypted</h3>
+            <h3 className="font-medium mb-2">{t("app.e2eEncrypted")}</h3>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Messages in this chat are secured with end-to-end encryption. Only you and {name} can read them.
+              {t("encryption.e2eMessage", { name })}
             </p>
           </div>
         ) : (
@@ -237,7 +240,7 @@ export function ConversationView({
                         <div
                           className={`max-w-[65%] rounded-lg px-3 py-2 ${
                             isSent
-                              ? "bg-[#E7FCD4] dark:bg-primary/30 text-foreground"
+                              ? "bg-muted text-foreground"
                               : "bg-card text-card-foreground"
                           }`}
                         >
@@ -272,7 +275,7 @@ export function ConversationView({
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type a message"
+            placeholder={t("chat.typeMessage")}
             className="flex-1"
             data-testid="input-message"
           />

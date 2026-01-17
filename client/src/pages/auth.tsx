@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { Lock, User, Eye, EyeOff, MessageCircle, Shield, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,35 +11,46 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
 
-const loginSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+type LoginFormData = {
+  username: string;
+  password: string;
+};
 
-const registerSchema = z.object({
-  username: z.string()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be at most 30 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Only letters, numbers, and underscores"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-  displayName: z.string().min(1, "Display name is required").max(50),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
-type RegisterFormData = z.infer<typeof registerSchema>;
+type RegisterFormData = {
+  username: string;
+  password: string;
+  confirmPassword: string;
+  displayName: string;
+};
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, register, registerAnonymous } = useAuth();
   const { toast } = useToast();
+
+  const loginSchema = z.object({
+    username: z.string().min(3, t("validation.usernameMin")),
+    password: z.string().min(6, t("validation.passwordMin")),
+  });
+
+  const registerSchema = z.object({
+    username: z.string()
+      .min(3, t("validation.usernameMin"))
+      .max(30, t("validation.usernameMax"))
+      .regex(/^[a-zA-Z0-9_]+$/, t("validation.usernameChars")),
+    password: z.string().min(6, t("validation.passwordMin")),
+    confirmPassword: z.string(),
+    displayName: z.string().min(1, t("validation.displayNameRequired")).max(50),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t("validation.passwordsMatch"),
+    path: ["confirmPassword"],
+  });
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -54,11 +66,11 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       await login(data.username, data.password);
-      toast({ title: "Welcome back!", description: "You've successfully logged in." });
+      toast({ title: t("auth.welcomeBack"), description: t("auth.successfulLogin") });
     } catch (error: unknown) {
       toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
+        title: t("auth.loginFailed"),
+        description: error instanceof Error ? error.message : t("auth.invalidCredentials"),
         variant: "destructive",
       });
     } finally {
@@ -70,11 +82,11 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       await register(data.username, data.password, data.displayName);
-      toast({ title: "Account created!", description: "Welcome to KLK! Chat." });
+      toast({ title: t("auth.accountCreated"), description: t("auth.welcomeToApp") });
     } catch (error: unknown) {
       toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: t("auth.registrationFailed"),
+        description: error instanceof Error ? error.message : t("auth.pleaseRetry"),
         variant: "destructive",
       });
     } finally {
@@ -87,13 +99,13 @@ export default function AuthPage() {
     try {
       await registerAnonymous();
       toast({
-        title: "Anonymous session started",
-        description: "Your messages won't be saved after you leave. Consider creating an account!",
+        title: t("auth.anonymousStarted"),
+        description: t("auth.anonymousWarning"),
       });
     } catch (error: unknown) {
       toast({
-        title: "Failed to start anonymous session",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: t("auth.anonymousFailed"),
+        description: error instanceof Error ? error.message : t("auth.pleaseRetry"),
         variant: "destructive",
       });
     } finally {
@@ -103,7 +115,8 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="flex items-center justify-end p-4">
+      <header className="flex items-center justify-end gap-2 p-4">
+        <LanguageToggle />
         <ThemeToggle />
       </header>
       
@@ -114,15 +127,15 @@ export default function AuthPage() {
               <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center overflow-hidden border border-border">
                 <img 
                   src={logoPath} 
-                  alt="KLK!" 
+                  alt={t("app.name")} 
                   className="w-14 h-14 object-contain"
                 />
               </div>
             </div>
             <div>
-              <CardTitle className="text-2xl font-semibold">KLK!</CardTitle>
+              <CardTitle className="text-2xl font-semibold">{t("app.name")}</CardTitle>
               <CardDescription className="mt-2">
-                {mode === "login" ? "Sign in to continue chatting" : "Create your account"}
+                {mode === "login" ? t("auth.signInToContinue") : t("auth.createYourAccount")}
               </CardDescription>
             </div>
           </CardHeader>
@@ -136,13 +149,13 @@ export default function AuthPage() {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>{t("form.username")}</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                               {...field}
-                              placeholder="Enter your username"
+                              placeholder={t("form.enterUsername")}
                               className="pl-10"
                               data-testid="input-username"
                             />
@@ -158,14 +171,14 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>{t("form.password")}</FormLabel>
                         <FormControl>
                           <div className="relative flex items-center">
                             <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
-                              placeholder="Enter your password"
+                              placeholder={t("form.enterPassword")}
                               className="pl-10 pr-10"
                               data-testid="input-password"
                             />
@@ -194,7 +207,7 @@ export default function AuthPage() {
                     disabled={isLoading}
                     data-testid="button-login"
                   >
-                    {isLoading ? "Signing in..." : "Sign In"}
+                    {isLoading ? t("auth.signingIn") : t("auth.signIn")}
                   </Button>
                 </form>
               </Form>
@@ -206,11 +219,11 @@ export default function AuthPage() {
                     name="displayName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Display Name</FormLabel>
+                        <FormLabel>{t("form.displayName")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="How should we call you?"
+                            placeholder={t("form.howToCallYou")}
                             data-testid="input-display-name"
                           />
                         </FormControl>
@@ -224,13 +237,13 @@ export default function AuthPage() {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>{t("form.username")}</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                               {...field}
-                              placeholder="Choose a username"
+                              placeholder={t("form.chooseUsername")}
                               className="pl-10"
                               data-testid="input-register-username"
                             />
@@ -246,14 +259,14 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>{t("form.password")}</FormLabel>
                         <FormControl>
                           <div className="relative flex items-center">
                             <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
-                              placeholder="Create a password"
+                              placeholder={t("form.createPassword")}
                               className="pl-10 pr-10"
                               data-testid="input-register-password"
                             />
@@ -280,14 +293,14 @@ export default function AuthPage() {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
+                        <FormLabel>{t("form.confirmPassword")}</FormLabel>
                         <FormControl>
                           <div className="relative flex items-center">
                             <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
-                              placeholder="Confirm your password"
+                              placeholder={t("form.confirmYourPassword")}
                               className="pl-10"
                               data-testid="input-confirm-password"
                             />
@@ -304,7 +317,7 @@ export default function AuthPage() {
                     disabled={isLoading}
                     data-testid="button-register"
                   >
-                    {isLoading ? "Creating account..." : "Create Account"}
+                    {isLoading ? t("auth.creatingAccount") : t("auth.createAccount")}
                   </Button>
                 </form>
               </Form>
@@ -315,7 +328,7 @@ export default function AuthPage() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or</span>
+                <span className="bg-card px-2 text-muted-foreground">{t("auth.or")}</span>
               </div>
             </div>
 
@@ -327,7 +340,7 @@ export default function AuthPage() {
               data-testid="button-anonymous"
             >
               <UserPlus className="h-4 w-4" />
-              Continue Anonymously
+              {t("auth.continueAnonymously")}
             </Button>
 
             <div className="text-center">
@@ -341,15 +354,13 @@ export default function AuthPage() {
                 }}
                 data-testid="button-switch-mode"
               >
-                {mode === "login"
-                  ? "Don't have an account? Sign up"
-                  : "Already have an account? Sign in"}
+                {mode === "login" ? t("auth.noAccount") : t("auth.hasAccount")}
               </Button>
             </div>
 
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Shield className="h-3 w-3" />
-              <span>End-to-end encrypted</span>
+              <span>{t("app.e2eEncrypted")}</span>
             </div>
           </CardContent>
         </Card>
@@ -358,7 +369,7 @@ export default function AuthPage() {
       <footer className="p-4 text-center">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <MessageCircle className="h-4 w-4" />
-          <span>Secure private messaging</span>
+          <span>{t("app.tagline")}</span>
         </div>
       </footer>
     </div>

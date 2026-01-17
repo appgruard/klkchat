@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { ChatList } from "@/components/chat/chat-list";
 import { ConversationView } from "@/components/chat/conversation-view";
 import { NewChatDialog } from "@/components/chat/new-chat-dialog";
@@ -11,6 +12,7 @@ import { MessageCircle, Shield } from "lucide-react";
 import type { MessageWithSender } from "@shared/schema";
 
 export default function ChatPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
@@ -78,7 +80,7 @@ export default function ChatPage() {
         
         {!isConnected && (
           <div className="px-4 py-2 bg-destructive/10 text-destructive text-xs text-center">
-            Reconnecting...
+            {t("chat.reconnecting")}
           </div>
         )}
       </div>
@@ -99,13 +101,13 @@ export default function ChatPage() {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <MessageCircle className="h-10 w-10 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2">KLK! Chat</h2>
+            <h2 className="text-2xl font-semibold mb-2">{t("app.name")} Chat</h2>
             <p className="text-muted-foreground max-w-md mb-6">
-              Select a conversation from the sidebar or start a new chat to begin messaging securely.
+              {t("chat.selectConversation")}
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
-              <span>End-to-end encrypted messaging</span>
+              <span>{t("app.e2eEncrypted")}</span>
             </div>
           </div>
         )}

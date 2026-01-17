@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Search, MessageCircle, UserPlus } from "lucide-react";
 import {
   Dialog,
@@ -27,6 +28,7 @@ export function NewChatDialog({
   currentUser,
   onChatCreated,
 }: NewChatDialogProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const queryClient = useQueryClient();
 
@@ -75,7 +77,7 @@ export function NewChatDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MessageCircle className="h-5 w-5" />
-            New Chat
+            {t("chat.newChat")}
           </DialogTitle>
         </DialogHeader>
 
@@ -83,7 +85,7 @@ export function NewChatDialog({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by username"
+              placeholder={t("dialog.searchByUsername")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -96,7 +98,7 @@ export function NewChatDialog({
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
                 <UserPlus className="h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-sm text-muted-foreground">
-                  Type at least 2 characters to search for users
+                  {t("dialog.typeToSearch")}
                 </p>
               </div>
             ) : isLoading ? (
@@ -114,7 +116,7 @@ export function NewChatDialog({
             ) : filteredUsers.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center p-8">
                 <p className="text-sm text-muted-foreground">
-                  No users found matching "{searchQuery}"
+                  {t("dialog.noUsersFound", { query: searchQuery })}
                 </p>
               </div>
             ) : (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
 import { User, Lock, Eye, EyeOff, Shield } from "lucide-react";
 import {
   Dialog,
@@ -23,19 +24,11 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 
-const convertSchema = z.object({
-  username: z.string()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be at most 30 characters")
-    .regex(/^[a-zA-Z0-9_]+$/, "Only letters, numbers, and underscores"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-type ConvertFormData = z.infer<typeof convertSchema>;
+type ConvertFormData = {
+  username: string;
+  password: string;
+  confirmPassword: string;
+};
 
 interface ConvertAccountDialogProps {
   open: boolean;
@@ -46,10 +39,23 @@ export function ConvertAccountDialog({
   open,
   onOpenChange,
 }: ConvertAccountDialogProps) {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { convertAnonymous } = useAuth();
   const { toast } = useToast();
+
+  const convertSchema = z.object({
+    username: z.string()
+      .min(3, t("validation.usernameMin"))
+      .max(30, t("validation.usernameMax"))
+      .regex(/^[a-zA-Z0-9_]+$/, t("validation.usernameChars")),
+    password: z.string().min(6, t("validation.passwordMin")),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t("validation.passwordsMatch"),
+    path: ["confirmPassword"],
+  });
 
   const form = useForm<ConvertFormData>({
     resolver: zodResolver(convertSchema),
@@ -61,14 +67,14 @@ export function ConvertAccountDialog({
     try {
       await convertAnonymous(data.username, data.password);
       toast({
-        title: "Account created!",
-        description: "Your account is now permanent. Your messages have been saved.",
+        title: t("auth.accountCreated"),
+        description: t("auth.welcomeToApp"),
       });
       onOpenChange(false);
     } catch (error: unknown) {
       toast({
-        title: "Failed to create account",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: t("auth.registrationFailed"),
+        description: error instanceof Error ? error.message : t("auth.pleaseRetry"),
         variant: "destructive",
       });
     } finally {
@@ -82,10 +88,10 @@ export function ConvertAccountDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Create Permanent Account
+            {t("dialog.createPermanentAccount")}
           </DialogTitle>
           <DialogDescription>
-            Convert your anonymous session to a permanent account to keep your chat history.
+            {t("dialog.convertAccountDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -96,13 +102,13 @@ export function ConvertAccountDialog({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>{t("form.username")}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         {...field}
-                        placeholder="Choose a username"
+                        placeholder={t("form.chooseUsername")}
                         className="pl-10"
                         data-testid="input-convert-username"
                       />
@@ -118,30 +124,28 @@ export function ConvertAccountDialog({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t("form.password")}</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <div className="relative flex items-center">
+                      <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
                       <Input
                         {...field}
                         type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
+                        placeholder={t("form.createPassword")}
                         className="pl-10 pr-10"
                         data-testid="input-convert-password"
                       />
-                      <Button
+                      <button
                         type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-3 text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
+                          <Eye className="h-4 w-4" />
                         )}
-                      </Button>
+                      </button>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -154,14 +158,18 @@ export function ConvertAccountDialog({
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>{t("form.confirmPassword")}</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Confirm your password"
-                      data-testid="input-convert-confirm-password"
-                    />
+                    <div className="relative flex items-center">
+                      <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder={t("form.confirmYourPassword")}
+                        className="pl-10"
+                        data-testid="input-convert-confirm-password"
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,7 +183,7 @@ export function ConvertAccountDialog({
                 className="flex-1"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                {t("dialog.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -183,7 +191,7 @@ export function ConvertAccountDialog({
                 disabled={isLoading}
                 data-testid="button-convert-submit"
               >
-                {isLoading ? "Creating..." : "Create Account"}
+                {isLoading ? t("dialog.creating") : t("auth.createAccount")}
               </Button>
             </div>
           </form>

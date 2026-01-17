@@ -86,3 +86,11 @@ API routes are registered in `server/routes.ts` with REST endpoints for:
 
 ### Date/Time
 - **date-fns**: Date formatting and manipulation
+
+### Internationalization (i18n)
+- **i18next**: Core internationalization framework
+- **react-i18next**: React bindings for i18next
+- **i18next-browser-languagedetector**: Automatic browser language detection
+- **Supported Languages**: English (en) and Spanish (es)
+- **Translation Files**: Located in `client/src/locales/`
+- **Language Detection Order**: navigator > localStorage > htmlTag (fallback to English)

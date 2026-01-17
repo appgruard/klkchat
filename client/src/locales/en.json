@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "Secure private messaging",
+    "encryptedChat": "Encrypted Chat",
+    "e2eEncrypted": "End-to-end encrypted"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signingIn": "Signing in...",
+    "creatingAccount": "Creating account...",
+    "createAccount": "Create Account",
+    "signInToContinue": "Sign in to continue chatting",
+    "createYourAccount": "Create your account",
+    "welcomeBack": "Welcome back!",
+    "successfulLogin": "You've successfully logged in.",
+    "loginFailed": "Login failed",
+    "invalidCredentials": "Invalid credentials",
+    "accountCreated": "Account created!",
+    "welcomeToApp": "Welcome to KLK! Chat.",
+    "registrationFailed": "Registration failed",
+    "pleaseRetry": "Please try again",
+    "anonymousStarted": "Anonymous session started",
+    "anonymousWarning": "Your messages won't be saved after you leave. Consider creating an account!",
+    "anonymousFailed": "Failed to start anonymous session",
+    "continueAnonymously": "Continue Anonymously",
+    "noAccount": "Don't have an account? Sign up",
+    "hasAccount": "Already have an account? Sign in",
+    "or": "Or"
+  },
+  "form": {
+    "username": "Username",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "displayName": "Display Name",
+    "enterUsername": "Enter your username",
+    "enterPassword": "Enter your password",
+    "chooseUsername": "Choose a username",
+    "createPassword": "Create a password",
+    "confirmYourPassword": "Confirm your password",
+    "howToCallYou": "How should we call you?"
+  },
+  "validation": {
+    "usernameMin": "Username must be at least 3 characters",
+    "usernameMax": "Username must be at most 30 characters",
+    "usernameChars": "Only letters, numbers, and underscores",
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordsMatch": "Passwords don't match",
+    "displayNameRequired": "Display name is required"
+  },
+  "chat": {
+    "searchOrStart": "Search or start new chat",
+    "noConversations": "No conversations yet",
+    "startNewChat": "Start a new chat to begin messaging",
+    "newChat": "New Chat",
+    "selectConversation": "Select a conversation from the sidebar or start a new chat to begin messaging securely.",
+    "typeMessage": "Type a message",
+    "encryptedMessage": "Encrypted message",
+    "startConversation": "Start the conversation",
+    "reconnecting": "Reconnecting...",
+    "unknown": "Unknown"
+  },
+  "dialog": {
+    "searchByUsername": "Search by username",
+    "typeToSearch": "Type at least 2 characters to search for users",
+    "noUsersFound": "No users found matching \"{{query}}\"",
+    "createPermanentAccount": "Create Permanent Account",
+    "convertAccountDesc": "Convert your anonymous session to a permanent account to keep your chat history.",
+    "cancel": "Cancel",
+    "creating": "Creating..."
+  },
+  "menu": {
+    "anonymous": "Anonymous",
+    "createAccount": "Create Account",
+    "profile": "Profile",
+    "settings": "Settings",
+    "security": "Security",
+    "logout": "Log out",
+    "viewProfile": "View profile",
+    "clearChat": "Clear chat",
+    "blockUser": "Block user"
+  },
+  "encryption": {
+    "e2eMessage": "Messages in this chat are secured with end-to-end encryption. Only you and {{name}} can read them."
+  },
+  "status": {
+    "online": "Online",
+    "lastSeen": "Last seen",
+    "recently": "recently",
+    "encrypted": "Encrypted"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "language": {
+    "language": "Language",
+    "english": "English",
+    "spanish": "Spanish"
+  }
+}

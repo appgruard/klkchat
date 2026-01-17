@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { LogOut, Settings, User, Shield, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import type { UserPublic } from "@shared/schema";
 import { useAuth } from "@/lib/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageToggle } from "@/components/language-toggle";
 
 interface UserMenuProps {
   user: UserPublic;
@@ -20,6 +22,7 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
+  const { t } = useTranslation();
   const { logout } = useAuth();
   const name = user.displayName || user.username;
 
@@ -60,7 +63,7 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
               {user.isAnonymous && (
                 <Badge variant="outline" className="w-fit mt-1 text-xs">
                   <AlertTriangle className="h-3 w-3 mr-1" />
-                  Anonymous
+                  {t("menu.anonymous")}
                 </Badge>
               )}
             </div>
@@ -71,7 +74,7 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
             <>
               <DropdownMenuItem onClick={onConvertAnonymous} data-testid="button-convert-account">
                 <User className="mr-2 h-4 w-4" />
-                Create Account
+                {t("menu.createAccount")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
@@ -79,15 +82,15 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
           
           <DropdownMenuItem data-testid="menu-item-profile">
             <User className="mr-2 h-4 w-4" />
-            Profile
+            {t("menu.profile")}
           </DropdownMenuItem>
           <DropdownMenuItem data-testid="menu-item-settings">
             <Settings className="mr-2 h-4 w-4" />
-            Settings
+            {t("menu.settings")}
           </DropdownMenuItem>
           <DropdownMenuItem data-testid="menu-item-security">
             <Shield className="mr-2 h-4 w-4" />
-            Security
+            {t("menu.security")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -96,11 +99,12 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
             data-testid="button-logout"
           >
             <LogOut className="mr-2 h-4 w-4" />
-            Log out
+            {t("menu.logout")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       
+      <LanguageToggle />
       <ThemeToggle />
     </div>
   );

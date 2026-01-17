@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "Mensajería privada segura",
+    "encryptedChat": "Chat Encriptado",
+    "e2eEncrypted": "Cifrado de extremo a extremo"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signingIn": "Iniciando sesión...",
+    "creatingAccount": "Creando cuenta...",
+    "createAccount": "Crear Cuenta",
+    "signInToContinue": "Inicia sesión para continuar chateando",
+    "createYourAccount": "Crea tu cuenta",
+    "welcomeBack": "¡Bienvenido de nuevo!",
+    "successfulLogin": "Has iniciado sesión correctamente.",
+    "loginFailed": "Error al iniciar sesión",
+    "invalidCredentials": "Credenciales inválidas",
+    "accountCreated": "¡Cuenta creada!",
+    "welcomeToApp": "Bienvenido a KLK! Chat.",
+    "registrationFailed": "Error en el registro",
+    "pleaseRetry": "Por favor, intenta de nuevo",
+    "anonymousStarted": "Sesión anónima iniciada",
+    "anonymousWarning": "Tus mensajes no se guardarán después de salir. ¡Considera crear una cuenta!",
+    "anonymousFailed": "Error al iniciar sesión anónima",
+    "continueAnonymously": "Continuar Anónimamente",
+    "noAccount": "¿No tienes cuenta? Regístrate",
+    "hasAccount": "¿Ya tienes cuenta? Inicia sesión",
+    "or": "O"
+  },
+  "form": {
+    "username": "Usuario",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "displayName": "Nombre",
+    "enterUsername": "Ingresa tu usuario",
+    "enterPassword": "Ingresa tu contraseña",
+    "chooseUsername": "Elige un usuario",
+    "createPassword": "Crea una contraseña",
+    "confirmYourPassword": "Confirma tu contraseña",
+    "howToCallYou": "¿Cómo te llamamos?"
+  },
+  "validation": {
+    "usernameMin": "El usuario debe tener al menos 3 caracteres",
+    "usernameMax": "El usuario debe tener máximo 30 caracteres",
+    "usernameChars": "Solo letras, números y guiones bajos",
+    "passwordMin": "La contraseña debe tener al menos 6 caracteres",
+    "passwordsMatch": "Las contraseñas no coinciden",
+    "displayNameRequired": "El nombre es requerido"
+  },
+  "chat": {
+    "searchOrStart": "Buscar o iniciar chat",
+    "noConversations": "Sin conversaciones",
+    "startNewChat": "Inicia un nuevo chat para comenzar a chatear",
+    "newChat": "Nuevo Chat",
+    "selectConversation": "Selecciona una conversación de la barra lateral o inicia un nuevo chat para comenzar a chatear de forma segura.",
+    "typeMessage": "Escribe un mensaje",
+    "encryptedMessage": "Mensaje encriptado",
+    "startConversation": "Inicia la conversación",
+    "reconnecting": "Reconectando...",
+    "unknown": "Desconocido"
+  },
+  "dialog": {
+    "searchByUsername": "Buscar por usuario",
+    "typeToSearch": "Escribe al menos 2 caracteres para buscar usuarios",
+    "noUsersFound": "No se encontraron usuarios con \"{{query}}\"",
+    "createPermanentAccount": "Crear Cuenta Permanente",
+    "convertAccountDesc": "Convierte tu sesión anónima en una cuenta permanente para conservar tu historial de chat.",
+    "cancel": "Cancelar",
+    "creating": "Creando..."
+  },
+  "menu": {
+    "anonymous": "Anónimo",
+    "createAccount": "Crear Cuenta",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "security": "Seguridad",
+    "logout": "Cerrar sesión",
+    "viewProfile": "Ver perfil",
+    "clearChat": "Limpiar chat",
+    "blockUser": "Bloquear usuario"
+  },
+  "encryption": {
+    "e2eMessage": "Los mensajes de este chat están protegidos con cifrado de extremo a extremo. Solo tú y {{name}} pueden leerlos."
+  },
+  "status": {
+    "online": "En línea",
+    "lastSeen": "Visto por última vez",
+    "recently": "recientemente",
+    "encrypted": "Encriptado"
+  },
+  "date": {
+    "today": "Hoy",
+    "yesterday": "Ayer"
+  },
+  "language": {
+    "language": "Idioma",
+    "english": "Inglés",
+    "spanish": "Español"
+  }
+}

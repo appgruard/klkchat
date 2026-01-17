@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { Search, Plus, MessageCircle, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ export function ChatList({
   onSelectConversation,
   onNewChat,
 }: ChatListProps) {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: conversations = [], isLoading } = useQuery<ConversationWithParticipants[]>({
@@ -50,15 +52,15 @@ export function ChatList({
         <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center overflow-hidden flex-shrink-0 border border-border">
           <img 
             src={logoPath} 
-            alt="KLK!" 
+            alt={t("app.name")} 
             className="w-8 h-8 object-contain"
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-sidebar-foreground truncate">KLK!</h1>
+          <h1 className="font-semibold text-sidebar-foreground truncate">{t("app.name")}</h1>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Shield className="h-3 w-3" />
-            <span>Encrypted Chat</span>
+            <span>{t("app.encryptedChat")}</span>
           </div>
         </div>
       </div>
@@ -67,7 +69,7 @@ export function ChatList({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search or start new chat"
+            placeholder={t("chat.searchOrStart")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 bg-sidebar-accent border-0"
@@ -92,13 +94,13 @@ export function ChatList({
         ) : filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center">
             <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-medium text-sidebar-foreground mb-1">No conversations yet</h3>
+            <h3 className="font-medium text-sidebar-foreground mb-1">{t("chat.noConversations")}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Start a new chat to begin messaging
+              {t("chat.startNewChat")}
             </p>
             <Button onClick={onNewChat} className="gap-2" data-testid="button-start-chat-empty">
               <Plus className="h-4 w-4" />
-              New Chat
+              {t("chat.newChat")}
             </Button>
           </div>
         ) : (
@@ -147,8 +149,8 @@ export function ChatList({
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm text-muted-foreground truncate">
                         {conversation.lastMessage
-                          ? "Encrypted message"
-                          : "Start the conversation"}
+                          ? t("chat.encryptedMessage")
+                          : t("chat.startConversation")}
                       </p>
                       {conversation.unreadCount && conversation.unreadCount > 0 && (
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -171,7 +173,7 @@ export function ChatList({
           data-testid="button-new-chat"
         >
           <Plus className="h-4 w-4" />
-          New Chat
+          {t("chat.newChat")}
         </Button>
       </div>
     </div>
