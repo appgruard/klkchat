@@ -1,0 +1,158 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "安全なプライベートメッセージング",
+    "encryptedChat": "暗号化チャット",
+    "e2eEncrypted": "エンドツーエンド暗号化"
+  },
+  "auth": {
+    "signIn": "ログイン",
+    "signUp": "新規登録",
+    "signingIn": "ログイン中...",
+    "creatingAccount": "アカウント作成中...",
+    "createAccount": "アカウント作成",
+    "signInToContinue": "チャットを続けるにはログインしてください",
+    "createYourAccount": "アカウントを作成する",
+    "welcomeBack": "おかえりなさい！",
+    "successfulLogin": "ログインに成功しました。",
+    "loginFailed": "ログインに失敗しました",
+    "invalidCredentials": "認証情報が無効です",
+    "accountCreated": "アカウントが作成されました！",
+    "welcomeToApp": "KLK! Chatへようこそ。",
+    "registrationFailed": "登録に失敗しました",
+    "pleaseRetry": "もう一度お試しください",
+    "anonymousStarted": "匿名セッションを開始しました",
+    "anonymousWarning": "退出後、メッセージは保存されません。アカウントの作成を検討してください！",
+    "anonymousFailed": "匿名セッションの開始に失敗しました",
+    "continueAnonymously": "匿名で続行",
+    "noAccount": "アカウントをお持ちでないですか？ 新規登録",
+    "hasAccount": "既にアカウントをお持ちですか？ ログイン",
+    "or": "または"
+  },
+  "form": {
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "confirmPassword": "パスワード（確認）",
+    "displayName": "表示名",
+    "enterUsername": "ユーザー名を入力してください",
+    "enterPassword": "パスワードを入力してください",
+    "chooseUsername": "ユーザー名を選択してください",
+    "createPassword": "パスワードを作成してください",
+    "confirmYourPassword": "パスワードを再度入力してください",
+    "howToCallYou": "どのようにお呼びしましょうか？"
+  },
+  "validation": {
+    "usernameMin": "ユーザー名は3文字以上である必要があります",
+    "usernameMax": "ユーザー名は最大30文字です",
+    "usernameChars": "英数字とアンダースコアのみ使用可能です",
+    "passwordMin": "パスワードは6文字以上である必要があります",
+    "passwordsMatch": "パスワードが一致しません",
+    "displayNameRequired": "表示名は必須です",
+    "currentPasswordRequired": "現在のパスワードは必須です"
+  },
+  "chat": {
+    "searchOrStart": "検索または新しいチャットを開始",
+    "noConversations": "会話はまだありません",
+    "startNewChat": "新しいチャットを開始してメッセージを送りましょう",
+    "newChat": "新しいチャット",
+    "selectConversation": "サイドバーから会話を選択するか、新しいチャットを開始して安全なメッセージングを始めましょう。",
+    "typeMessage": "メッセージを入力",
+    "encryptedMessage": "暗号化されたメッセージ",
+    "startConversation": "会話を開始する",
+    "reconnecting": "再接続中...",
+    "unknown": "不明",
+    "chatCleared": "チャットが消去されました",
+    "chatClearedDesc": "この会話のすべてのメッセージが削除されました。",
+    "clearChatTitle": "チャットを消去",
+    "clearChatConfirm": "この会話のすべてのメッセージを削除してもよろしいですか？この操作は取り消せません。",
+    "userBlocked": "ユーザーをブロックしました",
+    "userBlockedDesc": "このユーザーからメッセージを受信しなくなります。",
+    "blockUserTitle": "ユーザーをブロック",
+    "blockUserConfirm": "{{name}}さんをブロックしてもよろしいですか？今後、メッセージの送受信ができなくなります。"
+  },
+  "dialog": {
+    "searchByUsername": "ユーザー名で検索",
+    "typeToSearch": "2文字以上入力してユーザーを検索",
+    "noUsersFound": "\"{{query}}\" に一致するユーザーは見つかりませんでした",
+    "createPermanentAccount": "恒久的なアカウントを作成",
+    "convertAccountDesc": "チャット履歴を保持するために、匿名セッションを恒久的なアカウントに変換します。",
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "creating": "作成中..."
+  },
+  "profile": {
+    "title": "プロフィール",
+    "description": "プロフィール情報の表示と編集",
+    "updated": "プロフィールを更新しました",
+    "updatedDesc": "プロフィールの更新に成功しました。",
+    "updateFailed": "プロフィールの更新に失敗しました",
+    "save": "保存",
+    "saving": "保存中...",
+    "anonymous": "匿名ユーザー"
+  },
+  "settings": {
+    "title": "設定",
+    "description": "アプリのエクスペリエンスをカスタマイズ",
+    "theme": "テーマ",
+    "darkMode": "ダークモード",
+    "lightMode": "ライトモード"
+  },
+  "security": {
+    "title": "セキュリティ",
+    "description": "アカウントのセキュリティを管理",
+    "currentPassword": "現在のパスワード",
+    "newPassword": "新しいパスワード",
+    "enterCurrentPassword": "現在のパスワードを入力してください",
+    "enterNewPassword": "新しいパスワードを入力してください",
+    "changePassword": "パスワードを変更",
+    "changing": "変更中...",
+    "passwordChanged": "パスワードを変更しました",
+    "passwordChangedDesc": "パスワードの変更に成功しました。",
+    "changeFailed": "パスワードの変更に失敗しました",
+    "anonymousWarning": "セキュリティ設定にアクセスするには、恒久的なアカウントを作成してください。"
+  },
+  "menu": {
+    "anonymous": "匿名",
+    "createAccount": "アカウント作成",
+    "profile": "プロフィール",
+    "settings": "設定",
+    "security": "セキュリティ",
+    "logout": "ログアウト",
+    "viewProfile": "プロフィールを表示",
+    "clearChat": "チャットを消去",
+    "blockUser": "ユーザーをブロック"
+  },
+  "encryption": {
+    "e2eMessage": "このチャットのメッセージはエンドツーエンド暗号化で保護されています。あなたと {{name}} さんだけが読むことができます。"
+  },
+  "status": {
+    "online": "オンライン",
+    "offline": "オフライン",
+    "lastSeen": "最終ログイン",
+    "recently": "最近",
+    "encrypted": "暗号化済み"
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "loading": "読み込み中..."
+  },
+  "error": {
+    "title": "エラー",
+    "clearChat": "チャットの消去に失敗しました。もう一度お試しください。",
+    "blockUser": "ユーザーのブロックに失敗しました。もう一度お試しください。"
+  },
+  "date": {
+    "today": "今日",
+    "yesterday": "昨日"
+  },
+  "language": {
+    "language": "言語",
+    "english": "英語",
+    "spanish": "スペイン語",
+    "french": "フランス語",
+    "german": "ドイツ語",
+    "russian": "ロシア語",
+    "chinese": "中国語",
+    "japanese": "日本語"
+  }
+}
