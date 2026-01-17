@@ -694,8 +694,8 @@ export async function registerRoutes(
         }
       }
 
-      // Create message in background to respond faster
-      const createMessagePromise = storage.createMessage({
+      // Create message in database
+      const message = await storage.createMessage({
         conversationId: id,
         senderId: user.id,
         encryptedContent: content || "",
@@ -705,61 +705,42 @@ export async function registerRoutes(
         fileType: req.file?.mimetype || extraData.fileType,
         fileSize: req.file?.size?.toString() || extraData.fileSize,
         duration: extraData.duration ? parseInt(extraData.duration) : undefined,
-      }).catch(err => {
-        console.error("Database save failed:", err);
-        throw err;
       });
-
-      // Wait for creation and broadcast to ensure reliability
-      const message = await createMessagePromise;
       
       const messageWithSender = {
         ...message,
         sender: sanitizedUser,
       };
 
-      // Real-time delivery
-      const broadcastPromises = conversation.participants.map(async (participant) => {
+      // Real-time delivery: Broadcast to all participants synchronously via WS
+      for (const participant of conversation.participants) {
         const ws = wsClients.get(participant.id);
         if (ws && ws.readyState === WebSocket.OPEN) {
-          return new Promise<void>((resolve, reject) => {
-            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }), (err) => {
-              if (err) {
-                console.error(`WS send error to user ${participant.id}:`, err);
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
-        } else if (participant.id !== user.id) {
-          // Push notification for offline users
           try {
-            const subscriptions = await storage.getPushSubscriptions(participant.id);
+            // Using a simple send for now to ensure speed, but logging failures
+            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
+          } catch (err) {
+            console.error(`WS send failed for user ${participant.id}:`, err);
+          }
+        } else if (participant.id !== user.id) {
+          // Push notification for offline users (non-blocking)
+          storage.getPushSubscriptions(participant.id).then(subscriptions => {
             if (subscriptions && subscriptions.length > 0) {
-              await Promise.all(subscriptions.map(sub => {
+              subscriptions.forEach(sub => {
                 const pushPayload = JSON.stringify({
                   title: user.displayName || user.username,
                   body: type === "text" ? content : "Envió un archivo",
                   url: `/conversations/${id}`
                 });
-                return webpush.sendNotification({
+                webpush.sendNotification({
                   endpoint: sub.endpoint,
-                  keys: {
-                    p256dh: sub.p256dh,
-                    auth: sub.auth
-                  }
-                }, pushPayload);
-              }));
+                  keys: { p256dh: sub.p256dh, auth: sub.auth }
+                }, pushPayload).catch(err => console.error("Push notification error:", err));
+              });
             }
-          } catch (err) {
-            console.error(`Push notification error for user ${participant.id}:`, err);
-          }
+          }).catch(err => console.error("Error getting subscriptions:", err));
         }
-      });
-
-      // Wait for all delivery attempts (best effort)
-      await Promise.allSettled(broadcastPromises);
+      }
 
       res.json(messageWithSender);
     } catch (error) {
