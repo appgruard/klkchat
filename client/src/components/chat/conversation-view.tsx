@@ -293,11 +293,11 @@ export function ConversationView({
     if (message.fileType === "audio") {
       const isVoiceMessage = message.fileName?.startsWith("audio-");
       return (
-        <div className={`mt-1 flex items-center gap-2 p-2 rounded-2xl border border-muted/30 shadow-sm min-w-[260px] ${isVoiceMessage ? "bg-primary/5" : "bg-card"}`}>
+        <div className={`mt-1 flex items-center gap-2 p-2 rounded-2xl border border-muted/30 shadow-sm min-w-[280px] w-fit ${isVoiceMessage ? "bg-primary/5" : "bg-card"}`}>
           <div className={`p-2 rounded-full flex-shrink-0 ${isVoiceMessage ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
             <Mic className="h-4 w-4" />
           </div>
-          <div className="flex-1 flex flex-col gap-0.5 min-w-0">
+          <div className="flex-1 flex flex-col gap-0.5 min-w-0 overflow-visible">
             {isVoiceMessage ? null : (
               <p className="text-[11px] font-medium truncate px-1">
                 {message.fileName}
@@ -306,13 +306,14 @@ export function ConversationView({
             <audio src={message.fileUrl} controls className="w-full h-7 custom-audio-player opacity-90 hover:opacity-100 transition-opacity" />
           </div>
           {message.duration && (
-            <span className="text-[10px] text-muted-foreground font-mono pr-1">
+            <span className="text-[10px] text-muted-foreground font-mono pr-1 flex-shrink-0">
               {formatDuration(message.duration)}
             </span>
           )}
           <style dangerouslySetInnerHTML={{ __html: `
             .custom-audio-player {
               filter: grayscale(1) brightness(1.5) contrast(1.2);
+              width: 100%;
             }
             .dark .custom-audio-player {
               filter: invert(1) grayscale(1) brightness(1.5);
