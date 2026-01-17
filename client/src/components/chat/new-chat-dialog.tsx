@@ -42,9 +42,9 @@ export function NewChatDialog({
       const response = await apiRequest("POST", "/api/conversations", {
         participantId,
       });
-      return response as { id: string };
+      return await response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: { id: string }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
       onChatCreated(data.id);
       onOpenChange(false);
