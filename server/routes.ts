@@ -397,6 +397,41 @@ export async function registerRoutes(
     }
   });
 
+  const getEmailTemplate = (title: string, content: string, actionText?: string, actionUrl?: string) => `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+          .header { text-align: center; padding-bottom: 20px; border-bottom: 2px solid #7c3aed; }
+          .logo { font-size: 24px; font-weight: bold; color: #7c3aed; text-decoration: none; }
+          .content { padding: 30px 0; }
+          .footer { text-align: center; font-size: 12px; color: #666; padding-top: 20px; border-top: 1px solid #eee; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #7c3aed; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+          .code-box { background: #f4f4f5; padding: 15px; border-radius: 4px; font-size: 24px; font-weight: bold; text-align: center; letter-spacing: 5px; color: #7c3aed; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <a href="https://fourone.com.do" class="logo">KLK! Chat</a>
+          </div>
+          <div class="content">
+            <h2>${title}</h2>
+            <p>${content}</p>
+            ${actionText && actionUrl ? `<a href="${actionUrl}" class="button">${actionText}</a>` : ""}
+          </div>
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} FourOne Solutions. Todos los derechos reservados.</p>
+            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
   app.post("/api/test-email", requireAuth, async (req, res) => {
     try {
       const { to } = req.body;
@@ -407,7 +442,10 @@ export async function registerRoutes(
         to: to,
         subject: "Correo de Prueba - KLK! Chat",
         text: "Este es un correo de prueba para verificar la configuración SMTP.",
-        html: "<b>Este es un correo de prueba para verificar la configuración SMTP.</b>",
+        html: getEmailTemplate(
+          "Correo de Prueba",
+          "Este es un correo de prueba para verificar que la configuración de mensajería está funcionando correctamente con el nuevo diseño."
+        ),
       });
 
       res.json({ message: "Test email sent successfully" });
@@ -436,7 +474,12 @@ export async function registerRoutes(
         to: email,
         subject: "Verificación de Correo - KLK! Chat",
         text: `Tu código de verificación es: ${verificationCode}`,
-        html: `<b>Tu código de verificación es: ${verificationCode}</b>`,
+        html: getEmailTemplate(
+          "Verifica tu correo",
+          `Gracias por unirte a KLK! Chat. Usa el siguiente código para verificar tu dirección de correo electrónico:
+          <div class="code-box">${verificationCode}</div>
+          Este código expirará en 15 minutos.`
+        ),
       });
 
       res.json({ message: "Verification code sent" });
@@ -479,6 +522,12 @@ export async function registerRoutes(
         to: email,
         subject: "Recuperación de Contraseña - KLK! Chat",
         text: `Tu código para restablecer la contraseña es: ${resetCode}`,
+        html: getEmailTemplate(
+          "Recupera tu contraseña",
+          `Hemos recibido una solicitud para restablecer tu contraseña. Usa el siguiente código para completar el proceso:
+          <div class="code-box">${resetCode}</div>
+          Si no solicitaste este cambio, puedes ignorar este correo.`
+        ),
       });
 
       res.json({ message: "Reset code sent" });
