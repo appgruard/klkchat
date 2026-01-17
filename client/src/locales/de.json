@@ -1,0 +1,157 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "Sicheres privates Messaging",
+    "encryptedChat": "Verschlüsselter Chat",
+    "e2eEncrypted": "Ende-zu-Ende verschlüsselt"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "signingIn": "Anmeldung läuft...",
+    "creatingAccount": "Konto wird erstellt...",
+    "createAccount": "Konto erstellen",
+    "signInToContinue": "Melden Sie sich an, um weiter zu chatten",
+    "createYourAccount": "Erstellen Sie Ihr Konto",
+    "welcomeBack": "Willkommen zurück!",
+    "successfulLogin": "Sie haben sich erfolgreich angemeldet.",
+    "loginFailed": "Anmeldung fehlgeschlagen",
+    "invalidCredentials": "Ungültige Anmeldedaten",
+    "accountCreated": "Konto erstellt!",
+    "welcomeToApp": "Willkommen beim KLK! Chat.",
+    "registrationFailed": "Registrierung fehlgeschlagen",
+    "pleaseRetry": "Bitte versuchen Sie es erneut",
+    "anonymousStarted": "Anonyme Sitzung gestartet",
+    "anonymousWarning": "Ihre Nachrichten werden nach dem Verlassen nicht gespeichert. Erwägen Sie die Erstellung eines Kontos!",
+    "anonymousFailed": "Anonyme Sitzung konnte nicht gestartet werden",
+    "continueAnonymously": "Anonym fortfahren",
+    "noAccount": "Haben Sie kein Konto? Registrieren",
+    "hasAccount": "Haben Sie bereits ein Konto? Anmelden",
+    "or": "Oder"
+  },
+  "form": {
+    "username": "Benutzername",
+    "password": "Passwort",
+    "confirmPassword": "Passwort bestätigen",
+    "displayName": "Anzeigename",
+    "enterUsername": "Geben Sie Ihren Benutzernamen ein",
+    "enterPassword": "Geben Sie Ihr Passwort ein",
+    "chooseUsername": "Wählen Sie einen Benutzernamen",
+    "createPassword": "Erstellen Sie ein Passwort",
+    "confirmYourPassword": "Bestätigen Sie Ihr Passwort",
+    "howToCallYou": "Wie sollen wir Sie nennen?"
+  },
+  "validation": {
+    "usernameMin": "Der Benutzername muss mindestens 3 Zeichen lang sein",
+    "usernameMax": "Der Benutzername darf höchstens 30 Zeichen lang sein",
+    "usernameChars": "Nur Buchstaben, Zahlen und Unterstriche",
+    "passwordMin": "Das Passwort muss mindestens 6 Zeichen lang sein",
+    "passwordsMatch": "Passwörter stimmen nicht überein",
+    "displayNameRequired": "Anzeigename ist erforderlich",
+    "currentPasswordRequired": "Aktuelles Passwort ist erforderlich"
+  },
+  "chat": {
+    "searchOrStart": "Suchen oder neuen Chat starten",
+    "noConversations": "Noch keine Gespräche",
+    "startNewChat": "Starten Sie einen neuen Chat, um Nachrichten zu senden",
+    "newChat": "Neuer Chat",
+    "selectConversation": "Wählen Sie ein Gespräch in der Seitenleiste aus oder starten Sie einen neuen Chat, um sicher Nachrichten zu versenden.",
+    "typeMessage": "Nachricht eingeben",
+    "encryptedMessage": "Verschlüsselte Nachricht",
+    "startConversation": "Gespräch beginnen",
+    "reconnecting": "Wiederverbindung...",
+    "unknown": "Unbekannt",
+    "chatCleared": "Chat geleert",
+    "chatClearedDesc": "Alle Nachrichten in diesem Gespräch wurden gelöscht.",
+    "clearChatTitle": "Chat leeren",
+    "clearChatConfirm": "Sind Sie sicher, dass Sie alle Nachrichten in diesem Gespräch löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "userBlocked": "Benutzer blockiert",
+    "userBlockedDesc": "Sie werden keine Nachrichten mehr von diesem Benutzer erhalten.",
+    "blockUserTitle": "Benutzer blockieren",
+    "blockUserConfirm": "Sind Sie sicher, dass Sie {{name}} blockieren möchten? Sie können keine Nachrichten mehr von dieser Person senden oder empfangen."
+  },
+  "dialog": {
+    "searchByUsername": "Suche nach Benutzernamen",
+    "typeToSearch": "Geben Sie mindestens 2 Zeichen ein, um nach Benutzern zu suchen",
+    "noUsersFound": "Keine Benutzer passend zu \"{{query}}\" gefunden",
+    "createPermanentAccount": "Permanentes Konto erstellen",
+    "convertAccountDesc": "Wandeln Sie Ihre anonyme Sitzung in ein permanentes Konto um, um Ihren Chatverlauf zu behalten.",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "creating": "Wird erstellt..."
+  },
+  "profile": {
+    "title": "Profil",
+    "description": "Profilinformationen anzeigen und bearbeiten",
+    "updated": "Profil aktualisiert",
+    "updatedDesc": "Ihr Profil wurde erfolgreich aktualisiert.",
+    "updateFailed": "Profilaktualisierung fehlgeschlagen",
+    "save": "Speichern",
+    "saving": "Speichern...",
+    "anonymous": "Anonymer Benutzer"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "description": "Passen Sie Ihr App-Erlebnis an",
+    "theme": "Design",
+    "darkMode": "Dunkelmodus",
+    "lightMode": "Hellmodus"
+  },
+  "security": {
+    "title": "Sicherheit",
+    "description": "Verwalten Sie Ihre Kontosicherheit",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "enterCurrentPassword": "Geben Sie Ihr aktuelles Passwort ein",
+    "enterNewPassword": "Geben Sie Ihr neues Passwort ein",
+    "changePassword": "Passwort ändern",
+    "changing": "Wird geändert...",
+    "passwordChanged": "Passwort geändert",
+    "passwordChangedDesc": "Ihr Passwort wurde erfolgreich geändert.",
+    "changeFailed": "Passwortänderung fehlgeschlagen",
+    "anonymousWarning": "Erstellen Sie ein permanentes Konto, um auf die Sicherheitseinstellungen zuzugreifen."
+  },
+  "menu": {
+    "anonymous": "Anonym",
+    "createAccount": "Konto erstellen",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "security": "Sicherheit",
+    "logout": "Abmelden",
+    "viewProfile": "Profil anzeigen",
+    "clearChat": "Chat leeren",
+    "blockUser": "Benutzer blockieren"
+  },
+  "encryption": {
+    "e2eMessage": "Nachrichten in diesem Chat sind mit Ende-zu-Ende-Verschlüsselung gesichert. Nur Sie und {{name}} können sie lesen."
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "lastSeen": "Zuletzt gesehen",
+    "recently": "vor kurzem",
+    "encrypted": "Verschlüsselt"
+  },
+  "common": {
+    "cancel": "Abbrechen",
+    "loading": "Laden..."
+  },
+  "error": {
+    "title": "Fehler",
+    "clearChat": "Chat konnte nicht geleert werden. Bitte versuchen Sie es erneut.",
+    "blockUser": "Benutzer konnte nicht blockiert werden. Bitte versuchen Sie es erneut."
+  },
+  "date": {
+    "today": "Heute",
+    "yesterday": "Gestern"
+  },
+  "language": {
+    "language": "Sprache",
+    "english": "Englisch",
+    "spanish": "Spanisch",
+    "french": "Französisch",
+    "german": "Deutsch",
+    "russian": "Russisch",
+    "chinese": "Chinesisch"
+  }
+}

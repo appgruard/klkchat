@@ -1,0 +1,157 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "Messagerie privée sécurisée",
+    "encryptedChat": "Chat chiffré",
+    "e2eEncrypted": "Chiffré de bout en bout"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "signingIn": "Connexion en cours...",
+    "creatingAccount": "Création du compte...",
+    "createAccount": "Créer un compte",
+    "signInToContinue": "Connectez-vous pour continuer à discuter",
+    "createYourAccount": "Créez votre compte",
+    "welcomeBack": "Bon retour parmi nous !",
+    "successfulLogin": "Vous vous êtes connecté avec succès.",
+    "loginFailed": "Échec de la connexion",
+    "invalidCredentials": "Identifiants invalides",
+    "accountCreated": "Compte créé !",
+    "welcomeToApp": "Bienvenue sur KLK! Chat.",
+    "registrationFailed": "Échec de l'inscription",
+    "pleaseRetry": "Veuillez réessayer",
+    "anonymousStarted": "Session anonyme démarrée",
+    "anonymousWarning": "Vos messages ne seront pas enregistrés après votre départ. Pensez à créer un compte !",
+    "anonymousFailed": "Échec du démarrage de la session anonyme",
+    "continueAnonymously": "Continuer anonymement",
+    "noAccount": "Vous n'avez pas de compte ? S'inscrire",
+    "hasAccount": "Vous avez déjà un compte ? Se connecter",
+    "or": "Ou"
+  },
+  "form": {
+    "username": "Nom d'utilisateur",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "displayName": "Nom d'affichage",
+    "enterUsername": "Entrez votre nom d'utilisateur",
+    "enterPassword": "Entrez votre mot de passe",
+    "chooseUsername": "Choisissez un nom d'utilisateur",
+    "createPassword": "Créez un mot de passe",
+    "confirmYourPassword": "Confirmez votre mot de passe",
+    "howToCallYou": "Comment devons-nous vous appeler ?"
+  },
+  "validation": {
+    "usernameMin": "Le nom d'utilisateur doit comporter au moins 3 caractères",
+    "usernameMax": "Le nom d'utilisateur doit comporter au plus 30 caractères",
+    "usernameChars": "Uniquement des lettres, des chiffres et des traits de soulignement",
+    "passwordMin": "Le mot de passe doit comporter au moins 6 caractères",
+    "passwordsMatch": "Les mots de passe ne correspondent pas",
+    "displayNameRequired": "Le nom d'affichage est requis",
+    "currentPasswordRequired": "Le mot de passe actuel est requis"
+  },
+  "chat": {
+    "searchOrStart": "Rechercher ou démarrer une nouvelle discussion",
+    "noConversations": "Pas encore de conversations",
+    "startNewChat": "Démarrez une nouvelle discussion pour commencer à envoyer des messages",
+    "newChat": "Nouvelle discussion",
+    "selectConversation": "Sélectionnez une conversation dans la barre latérale ou démarrez une nouvelle discussion pour commencer à envoyer des messages de manière sécurisée.",
+    "typeMessage": "Tapez un message",
+    "encryptedMessage": "Message chiffré",
+    "startConversation": "Démarrer la conversation",
+    "reconnecting": "Reconnexion...",
+    "unknown": "Inconnu",
+    "chatCleared": "Discussion effacée",
+    "chatClearedDesc": "Tous les messages ont été supprimés de cette conversation.",
+    "clearChatTitle": "Effacer la discussion",
+    "clearChatConfirm": "Êtes-vous sûr de vouloir supprimer tous les messages de cette conversation ? Cette action est irréversible.",
+    "userBlocked": "Utilisateur bloqué",
+    "userBlockedDesc": "Vous ne recevrez plus de messages de cet utilisateur.",
+    "blockUserTitle": "Bloquer l'utilisateur",
+    "blockUserConfirm": "Êtes-vous sûr de vouloir bloquer {{name}} ? Vous ne pourrez plus lui envoyer ou recevoir de messages."
+  },
+  "dialog": {
+    "searchByUsername": "Rechercher par nom d'utilisateur",
+    "typeToSearch": "Tapez au moins 2 caractères pour rechercher des utilisateurs",
+    "noUsersFound": "Aucun utilisateur trouvé pour \"{{query}}\"",
+    "createPermanentAccount": "Créer un compte permanent",
+    "convertAccountDesc": "Convertissez votre session anonyme en compte permanent pour conserver votre historique de discussion.",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "creating": "Création..."
+  },
+  "profile": {
+    "title": "Profil",
+    "description": "Consultez et modifiez vos informations de profil",
+    "updated": "Profil mis à jour",
+    "updatedDesc": "Votre profil a été mis à jour avec succès.",
+    "updateFailed": "Échec de la mise à jour du profil",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "anonymous": "Utilisateur anonyme"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Personnalisez votre expérience d'application",
+    "theme": "Thème",
+    "darkMode": "Mode sombre",
+    "lightMode": "Mode clair"
+  },
+  "security": {
+    "title": "Sécurité",
+    "description": "Gérez la sécurité de votre compte",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "enterCurrentPassword": "Entrez votre mot de passe actuel",
+    "enterNewPassword": "Entrez votre nouveau mot de passe",
+    "changePassword": "Changer le mot de passe",
+    "changing": "Changement...",
+    "passwordChanged": "Mot de passe changé",
+    "passwordChangedDesc": "Votre mot de passe a été changé avec succès.",
+    "changeFailed": "Échec du changement de mot de passe",
+    "anonymousWarning": "Créez un compte permanent pour accéder aux paramètres de sécurité."
+  },
+  "menu": {
+    "anonymous": "Anonyme",
+    "createAccount": "Créer un compte",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "security": "Sécurité",
+    "logout": "Se déconnecter",
+    "viewProfile": "Voir le profil",
+    "clearChat": "Effacer la discussion",
+    "blockUser": "Bloquer l'utilisateur"
+  },
+  "encryption": {
+    "e2eMessage": "Les messages de cette discussion sont sécurisés par un chiffrement de bout en bout. Seuls vous et {{name}} pouvez les lire."
+  },
+  "status": {
+    "online": "En ligne",
+    "offline": "Hors ligne",
+    "lastSeen": "Vu pour la dernière fois",
+    "recently": "récemment",
+    "encrypted": "Chiffré"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "loading": "Chargement..."
+  },
+  "error": {
+    "title": "Erreur",
+    "clearChat": "Échec de l'effacement de la discussion. Veuillez réessayer.",
+    "blockUser": "Échec du blocage de l'utilisateur. Veuillez réessayer."
+  },
+  "date": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier"
+  },
+  "language": {
+    "language": "Langue",
+    "english": "Anglais",
+    "spanish": "Espagnol",
+    "french": "Français",
+    "german": "Allemand",
+    "russian": "Russe",
+    "chinese": "Chinois"
+  }
+}

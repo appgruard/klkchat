@@ -1,0 +1,157 @@
+{
+  "app": {
+    "name": "KLK!",
+    "tagline": "安全的私人消息传递",
+    "encryptedChat": "加密聊天",
+    "e2eEncrypted": "端到端加密"
+  },
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "signingIn": "登录中...",
+    "creatingAccount": "正在创建账户...",
+    "createAccount": "创建账户",
+    "signInToContinue": "登录以继续聊天",
+    "createYourAccount": "创建您的账户",
+    "welcomeBack": "欢迎回来！",
+    "successfulLogin": "您已成功登录。",
+    "loginFailed": "登录失败",
+    "invalidCredentials": "无效的凭据",
+    "accountCreated": "账户已创建！",
+    "welcomeToApp": "欢迎来到 KLK! Chat。",
+    "registrationFailed": "注册失败",
+    "pleaseRetry": "请重试",
+    "anonymousStarted": "匿名会话已开始",
+    "anonymousWarning": "离开后您的消息将不会被保存。请考虑创建一个账户！",
+    "anonymousFailed": "无法启动匿名会话",
+    "continueAnonymously": "匿名继续",
+    "noAccount": "没有账户？注册",
+    "hasAccount": "已有账户？登录",
+    "or": "或"
+  },
+  "form": {
+    "username": "用户名",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "displayName": "显示名称",
+    "enterUsername": "输入您的用户名",
+    "enterPassword": "输入您的密码",
+    "chooseUsername": "选择一个用户名",
+    "createPassword": "创建一个密码",
+    "confirmYourPassword": "确认您的密码",
+    "howToCallYou": "我们该如何称呼您？"
+  },
+  "validation": {
+    "usernameMin": "用户名必须至少为 3 个字符",
+    "usernameMax": "用户名最多为 30 个字符",
+    "usernameChars": "仅限字母、数字和下划线",
+    "passwordMin": "密码必须至少为 6 个字符",
+    "passwordsMatch": "密码不匹配",
+    "displayNameRequired": "必须填写显示名称",
+    "currentPasswordRequired": "必须填写当前密码"
+  },
+  "chat": {
+    "searchOrStart": "搜索或发起新聊天",
+    "noConversations": "暂无对话",
+    "startNewChat": "发起新聊天开始发送消息",
+    "newChat": "新聊天",
+    "selectConversation": "从侧边栏选择一个对话或发起新聊天以开始安全通信。",
+    "typeMessage": "输入消息",
+    "encryptedMessage": "加密消息",
+    "startConversation": "开始对话",
+    "reconnecting": "正在重新连接...",
+    "unknown": "未知",
+    "chatCleared": "聊天已清除",
+    "chatClearedDesc": "此对话中的所有消息已被删除。",
+    "clearChatTitle": "清除聊天",
+    "clearChatConfirm": "您确定要删除此对话中的所有消息吗？此操作无法撤销。",
+    "userBlocked": "用户已屏蔽",
+    "userBlockedDesc": "您将不再收到此用户的消息。",
+    "blockUserTitle": "屏蔽用户",
+    "blockUserConfirm": "您确定要屏蔽 {{name}} 吗？您将无法再向他们发送或接收消息。"
+  },
+  "dialog": {
+    "searchByUsername": "按用户名搜索",
+    "typeToSearch": "输入至少 2 个字符以搜索用户",
+    "noUsersFound": "未找到匹配 \"{{query}}\" 的用户",
+    "createPermanentAccount": "创建永久账户",
+    "convertAccountDesc": "将您的匿名会话转换为永久账户以保留聊天记录。",
+    "cancel": "取消",
+    "close": "关闭",
+    "creating": "正在创建..."
+  },
+  "profile": {
+    "title": "个人资料",
+    "description": "查看和编辑您的个人资料信息",
+    "updated": "个人资料已更新",
+    "updatedDesc": "您的个人资料已成功更新。",
+    "updateFailed": "更新个人资料失败",
+    "save": "保存",
+    "saving": "正在保存...",
+    "anonymous": "匿名用户"
+  },
+  "settings": {
+    "title": "设置",
+    "description": "自定义您的应用体验",
+    "theme": "主题",
+    "darkMode": "深色模式",
+    "lightMode": "浅色模式"
+  },
+  "security": {
+    "title": "安全",
+    "description": "管理您的账户安全",
+    "currentPassword": "当前密码",
+    "newPassword": "新密码",
+    "enterCurrentPassword": "输入您当前的密码",
+    "enterNewPassword": "输入您的新密码",
+    "changePassword": "更改密码",
+    "changing": "正在更改...",
+    "passwordChanged": "密码已更改",
+    "passwordChangedDesc": "您的密码已成功更改。",
+    "changeFailed": "更改密码失败",
+    "anonymousWarning": "创建永久账户以访问安全设置。"
+  },
+  "menu": {
+    "anonymous": "匿名",
+    "createAccount": "创建账户",
+    "profile": "个人资料",
+    "settings": "设置",
+    "security": "安全",
+    "logout": "退出登录",
+    "viewProfile": "查看个人资料",
+    "clearChat": "清除聊天",
+    "blockUser": "屏蔽用户"
+  },
+  "encryption": {
+    "e2eMessage": "此聊天中的消息受端到端加密保护。只有您和 {{name}} 可以阅读它们。"
+  },
+  "status": {
+    "online": "在线",
+    "offline": "离线",
+    "lastSeen": "最后上线",
+    "recently": "最近",
+    "encrypted": "已加密"
+  },
+  "common": {
+    "cancel": "取消",
+    "loading": "加载中..."
+  },
+  "error": {
+    "title": "错误",
+    "clearChat": "清除聊天失败。请重试。",
+    "blockUser": "屏蔽用户失败。请重试。"
+  },
+  "date": {
+    "today": "今天",
+    "yesterday": "昨天"
+  },
+  "language": {
+    "language": "语言",
+    "english": "英语",
+    "spanish": "西班牙语",
+    "french": "法语",
+    "german": "德语",
+    "russian": "俄语",
+    "chinese": "中文"
+  }
+}
