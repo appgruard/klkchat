@@ -38,7 +38,11 @@ export const messages = pgTable("messages", {
   senderId: varchar("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   encryptedContent: text("encrypted_content").notNull(),
   iv: text("iv").notNull(),
-  status: text("status").default("sent").notNull(),
+  status: text("status").default("sent").notNull(), // 'sent', 'delivered', 'read'
+  fileUrl: text("file_url"),
+  fileName: text("file_name"),
+  fileType: text("file_type"), // 'image', 'video', 'document'
+  fileSize: text("file_size"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -169,6 +173,10 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
   senderId: true,
   encryptedContent: true,
   iv: true,
+  fileUrl: true,
+  fileName: true,
+  fileType: true,
+  fileSize: true,
 });
 
 export const insertConversationSchema = createInsertSchema(conversations);

@@ -13,8 +13,30 @@ import { randomBytes } from "crypto";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "./db";
 import webpush from "web-push";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const SALT_ROUNDS = 12;
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: "uploads/",
+    filename: (_req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+    },
+  }),
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB limit
+  },
+});
+
+// Ensure uploads directory exists
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 
 // Configure web-push
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -424,6 +446,57 @@ export async function registerRoutes(
 
   app.get("/api/push/key", (req, res) => {
     res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+  });
+
+  // File upload route
+  app.post("/api/upload", requireAuth, upload.single("file"), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      url: fileUrl,
+      name: req.file.originalname,
+      type: req.file.mimetype,
+      size: req.file.size,
+    });
+  });
+
+  // Serve uploaded files
+  app.use("/uploads", (req, res, next) => {
+    // Basic security check to ensure user is authenticated to see files
+    if (!req.isAuthenticated()) {
+      return res.status(401).send("Unauthorized");
+    }
+    next();
+  }, express.static("uploads"));
+
+  app.post("/api/conversations/:id/read", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      await storage.markMessagesAsRead(id, user.id);
+      
+      // Notify other participant via WS
+      const conversation = await storage.getConversationWithParticipants(id, user.id);
+      if (conversation) {
+        const otherParticipant = conversation.participants.find(p => p.id !== user.id);
+        if (otherParticipant) {
+          const ws = wsClients.get(otherParticipant.id);
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+              type: "read_receipt",
+              payload: { conversationId: id, readerId: user.id }
+            }));
+          }
+        }
+      }
+
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Mark as read error:", error);
+      res.status(500).json({ message: "Failed to mark messages as read" });
+    }
   });
 
   // Push subscription routes

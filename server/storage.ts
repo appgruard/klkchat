@@ -45,6 +45,7 @@ export interface IStorage {
   getMessagesForConversation(conversationId: string, limit?: number): Promise<MessageWithSender[]>;
   createMessage(message: InsertMessage): Promise<Message>;
   updateMessageStatus(id: string, status: string): Promise<void>;
+  markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
   
   // Recovery codes
   createRecoveryCode(code: InsertRecoveryCode): Promise<RecoveryCode>;
@@ -311,6 +312,19 @@ export class DatabaseStorage implements IStorage {
 
   async updateMessageStatus(id: string, status: string): Promise<void> {
     await db.update(messages).set({ status }).where(eq(messages.id, id));
+  }
+
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    await db
+      .update(messages)
+      .set({ status: "read" })
+      .where(
+        and(
+          eq(messages.conversationId, conversationId),
+          ne(messages.senderId, userId),
+          ne(messages.status, "read")
+        )
+      );
   }
 
   // Recovery codes
