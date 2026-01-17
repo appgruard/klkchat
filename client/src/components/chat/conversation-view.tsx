@@ -156,7 +156,17 @@ export function ConversationView({
         variant: "destructive",
       });
     },
+    onSuccess: (data) => {
+      // Reemplazar el mensaje optimista con el real del servidor
+      queryClient.setQueryData(["/api/conversations", conversationId, "messages"], (old: any) => {
+        if (!old) return [data];
+        return old.map((m: any) => 
+          m.id.toString().startsWith("temp-") && m.encryptedContent === data.encryptedContent ? data : m
+        );
+      });
+    },
     onSettled: () => {
+      // Invalidar para asegurar sincronización final
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },

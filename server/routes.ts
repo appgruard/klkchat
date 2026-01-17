@@ -712,41 +712,30 @@ export async function registerRoutes(
         sender: sanitizedUser,
       };
 
-      // Real-time delivery: Broadcast to all participants synchronously via WS
-      for (const participant of conversation.participants) {
+      // Ensure we emit to participants including self (to sync across tabs/devices)
+      conversation.participants.forEach((participant) => {
         const ws = wsClients.get(participant.id);
         if (ws && ws.readyState === WebSocket.OPEN) {
-          try {
-            // Log for debugging
-            console.log(`Sending message to participant: ${participant.id}`);
-            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
-          } catch (err) {
-            console.error(`WS send error to user ${participant.id}:`, err);
-          }
+          ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
         } else if (participant.id !== user.id) {
-          // Push notification for offline users
-          storage.getPushSubscriptions(participant.id).then(subscriptions => {
-            if (subscriptions && subscriptions.length > 0) {
-              subscriptions.forEach(sub => {
-                const pushPayload = JSON.stringify({
-                  title: user.displayName || user.username,
-                  body: type === "text" ? content : "Envió un archivo",
-                  url: `/conversations/${id}`
-                });
-                webpush.sendNotification({
-                  endpoint: sub.endpoint,
-                  keys: {
-                    p256dh: sub.p256dh,
-                    auth: sub.auth
-                  }
-                }, pushPayload).catch(err => console.error("Push notification error:", err));
-              });
-            }
-          }).catch(err => console.error("Error getting subscriptions:", err));
+          // Push notifications for offline
+          storage.getPushSubscriptions(participant.id).then(subs => {
+            subs.forEach(sub => {
+              webpush.sendNotification({
+                endpoint: sub.endpoint,
+                keys: { p256dh: sub.p256dh, auth: sub.auth }
+              }, JSON.stringify({
+                title: user.displayName || user.username,
+                body: type === "text" ? content : "Envió un archivo",
+                url: `/conversations/${id}`
+              })).catch(() => {});
+            });
+          }).catch(() => {});
         }
-      }
+      });
 
-      res.json(messageWithSender);
+      // Crucial: Respond only AFTER database save is confirmed
+      return res.json(messageWithSender);
     } catch (error) {
       console.error("Send message error:", error);
       res.status(500).json({ message: "Failed to send message" });
