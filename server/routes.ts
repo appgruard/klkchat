@@ -422,6 +422,10 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/push/key", (req, res) => {
+    res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+  });
+
   // Push subscription routes
   app.post("/api/push/subscribe", requireAuth, async (req, res) => {
     try {

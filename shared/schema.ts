@@ -84,7 +84,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   sentMessages: many(messages),
   conversationParticipants: many(conversationParticipants),
   recoveryCodes: many(recoveryCodes),
-  blockedUsers: many(blockedUsers, relationName: "blocker" }),
+  blockedUsers: many(blockedUsers, { relationName: "blocker" }),
   blockedBy: many(blockedUsers, { relationName: "blocked" }),
   pushSubscriptions: many(pushSubscriptions),
 }));

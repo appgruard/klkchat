@@ -5,9 +5,44 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
+import { useEffect } from "react";
 import AuthPage from "@/pages/auth";
 import ChatPage from "@/pages/chat";
 import NotFound from "@/pages/not-found";
+
+function PushManager() {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && "serviceWorker" in navigator && "PushManager" in window) {
+      navigator.serviceWorker.ready.then(async (registration) => {
+        const subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+          try {
+            const res = await fetch("/api/push/key");
+            const { publicKey } = await res.json();
+            if (!publicKey) return;
+
+            const newSubscription = await registration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: publicKey,
+            });
+
+            await fetch("/api/push/subscribe", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newSubscription),
+            });
+          } catch (err) {
+            console.error("Failed to subscribe to push notifications", err);
+          }
+        }
+      });
+    }
+  }, [user]);
+
+  return null;
+}
 
 function AppRouter() {
   const { user, isLoading } = useAuth();
@@ -41,6 +76,7 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <AuthProvider>
+            <PushManager />
             <Toaster />
             <AppRouter />
           </AuthProvider>
