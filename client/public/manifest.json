@@ -1,21 +1,24 @@
 {
   "name": "KLK! Chat",
   "short_name": "KLK!",
-  "description": "Secure private messaging application",
+  "description": "Secure private messaging with end-to-end encryption",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "background_color": "#000000",
   "theme_color": "#000000",
   "icons": [
     {
       "src": "/favicon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/favicon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

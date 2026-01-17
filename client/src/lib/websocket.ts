@@ -19,6 +19,9 @@ export function useWebSocket(userId: string | undefined) {
     
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
+    
+    // Enable binary type for faster transfer if needed in future
+    ws.binaryType = "arraybuffer";
 
     ws.onopen = () => {
       setIsConnected(true);

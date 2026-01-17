@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { LogOut, Settings, User, Shield, AlertTriangle } from "lucide-react";
+import { LogOut, Settings, User, Shield, AlertTriangle, Download } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,30 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [canInstall, setCanInstall] = useState(false);
   const name = user.displayName || user.username;
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      (window as any).deferredPrompt = e;
+      setCanInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    if ((window as any).deferredPrompt) setCanInstall(true);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstall = async () => {
+    const promptEvent = (window as any).deferredPrompt;
+    if (!promptEvent) return;
+    promptEvent.prompt();
+    const { outcome } = await promptEvent.userChoice;
+    if (outcome === 'accepted') {
+      (window as any).deferredPrompt = null;
+      setCanInstall(false);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -99,6 +122,12 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
             <Shield className="mr-2 h-4 w-4" />
             {t("menu.security")}
           </DropdownMenuItem>
+          {canInstall && (
+            <DropdownMenuItem onClick={handleInstall} data-testid="menu-item-install">
+              <Download className="mr-2 h-4 w-4" />
+              Instalar App
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={logout}
