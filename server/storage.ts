@@ -189,7 +189,10 @@ export class DatabaseStorage implements IStorage {
 
     for (const convId of conversationIds) {
       const conv = await this.getConversationWithParticipants(convId, userId);
-      if (conv) result.push(conv);
+      // Only include conversations that have at least one message
+      if (conv && conv.lastMessage) {
+        result.push(conv);
+      }
     }
 
     // Sort by last message or creation date
