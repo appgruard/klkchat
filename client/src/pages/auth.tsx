@@ -332,7 +332,8 @@ export default function AuthPage() {
 
             <div className="text-center">
               <Button
-                variant="link"
+                variant="ghost"
+                className="text-muted-foreground hover:text-foreground"
                 onClick={() => {
                   setMode(mode === "login" ? "register" : "login");
                   loginForm.reset();
