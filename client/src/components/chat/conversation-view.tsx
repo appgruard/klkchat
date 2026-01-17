@@ -234,8 +234,7 @@ export function ConversationView({
           <img 
             src={message.fileUrl} 
             alt={message.fileName || "Image"} 
-            className="max-w-full h-auto cursor-pointer transition-transform duration-200" 
-            onClick={() => window.open(message.fileUrl!, '_blank')} 
+            className="max-w-full h-auto" 
           />
           <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Button
