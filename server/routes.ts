@@ -715,16 +715,21 @@ export async function registerRoutes(
       // Real-time delivery: Broadcast to all participants synchronously via WS
       for (const participant of conversation.participants) {
         const ws = wsClients.get(participant.id);
+        console.log(`Attempting WS delivery to participant ${participant.id}. WS found: ${!!ws}, State: ${ws?.readyState}`);
         if (ws && ws.readyState === WebSocket.OPEN) {
           try {
-            // Using a simple send for now to ensure speed, but logging failures
-            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
+            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }), (err) => {
+              if (err) console.error(`WS send callback error for user ${participant.id}:`, err);
+              else console.log(`WS delivery successful to user ${participant.id}`);
+            });
           } catch (err) {
-            console.error(`WS send failed for user ${participant.id}:`, err);
+            console.error(`WS send catch failed for user ${participant.id}:`, err);
           }
         } else if (participant.id !== user.id) {
+          console.log(`Participant ${participant.id} is offline. Attempting push notification.`);
           // Push notification for offline users (non-blocking)
           storage.getPushSubscriptions(participant.id).then(subscriptions => {
+            console.log(`Found ${subscriptions.length} subscriptions for user ${participant.id}`);
             if (subscriptions && subscriptions.length > 0) {
               subscriptions.forEach(sub => {
                 const pushPayload = JSON.stringify({
@@ -735,10 +740,10 @@ export async function registerRoutes(
                 webpush.sendNotification({
                   endpoint: sub.endpoint,
                   keys: { p256dh: sub.p256dh, auth: sub.auth }
-                }, pushPayload).catch(err => console.error("Push notification error:", err));
+                }, pushPayload).catch(err => console.error(`Push notification delivery error for user ${participant.id}:`, err));
               });
             }
-          }).catch(err => console.error("Error getting subscriptions:", err));
+          }).catch(err => console.error(`Error getting subscriptions for user ${participant.id}:`, err));
         }
       }
 

@@ -33,7 +33,9 @@ export function useWebSocket(userId: string | undefined) {
 
     ws.onmessage = (event) => {
       try {
+        console.log("WS raw message received:", event.data);
         const data = JSON.parse(event.data) as WebSocketMessage;
+        console.log("WS parsed message type:", data.type);
         setLastMessage(data);
       } catch (e) {
         console.error("Failed to parse WebSocket message:", e);
