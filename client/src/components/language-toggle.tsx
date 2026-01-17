@@ -8,11 +8,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const LANGUAGES = [
+  { code: "en", labelKey: "language.english" },
+  { code: "es", labelKey: "language.spanish" },
+  { code: "fr", labelKey: "language.french" },
+  { code: "de", labelKey: "language.german" },
+  { code: "ru", labelKey: "language.russian" },
+  { code: "zh", labelKey: "language.chinese" },
+  { code: "ja", labelKey: "language.japanese" },
+];
+
 export function LanguageToggle() {
   const { i18n, t } = useTranslation();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    localStorage.setItem("i18nextLng", lng);
   };
 
   return (
@@ -24,20 +35,16 @@ export function LanguageToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => changeLanguage("en")}
-          className={i18n.language === "en" ? "bg-accent" : ""}
-          data-testid="menu-item-english"
-        >
-          {t("language.english")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => changeLanguage("es")}
-          className={i18n.language.startsWith("es") ? "bg-accent" : ""}
-          data-testid="menu-item-spanish"
-        >
-          {t("language.spanish")}
-        </DropdownMenuItem>
+        {LANGUAGES.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onClick={() => changeLanguage(lang.code)}
+            className={i18n.language.split('-')[0] === lang.code ? "bg-accent" : ""}
+            data-testid={`menu-item-${lang.code}`}
+          >
+            {t(lang.labelKey)}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
