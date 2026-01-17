@@ -534,7 +534,8 @@ export async function registerRoutes(
         expiresAt: new Date(Date.now() + 15 * 60 * 1000),
       });
 
-      await sendMailWithLogo({
+      console.log(`Sending recovery email to: ${email}`);
+      const info = await sendMailWithLogo({
         from: FROM_EMAIL,
         to: email,
         subject: "Recuperación de Contraseña - KLK! Chat",
@@ -546,6 +547,7 @@ export async function registerRoutes(
           Si no solicitaste este cambio, puedes ignorar este correo.`
         ),
       });
+      console.log("Recovery email sent:", info.messageId);
 
       res.json({ message: "Reset code sent" });
     } catch (error) {
