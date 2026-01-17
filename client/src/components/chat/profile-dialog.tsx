@@ -246,9 +246,9 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
                     {user.email && !(user as any).emailVerified && !isVerifying && (
                       <Button 
                         type="button" 
-                        variant="link" 
+                        variant="ghost" 
                         size="sm" 
-                        className="h-auto p-0" 
+                        className="h-auto p-0 text-primary hover:bg-transparent underline-offset-4 hover:underline" 
                         onClick={onSendVerification}
                         disabled={isSendingCode}
                       >

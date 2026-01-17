@@ -104,6 +104,9 @@ export class DatabaseStorage implements IStorage {
         isOnline: users.isOnline,
         lastSeen: users.lastSeen,
         publicKey: users.publicKey,
+        email: users.email,
+        emailVerified: users.emailVerified,
+        avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
       })
       .from(users)
@@ -153,6 +156,9 @@ export class DatabaseStorage implements IStorage {
         isOnline: users.isOnline,
         lastSeen: users.lastSeen,
         publicKey: users.publicKey,
+        email: users.email,
+        emailVerified: users.emailVerified,
+        avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
       })
       .from(conversationParticipants)

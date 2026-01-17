@@ -740,10 +740,10 @@ export async function registerRoutes(
                       p256dh: sub.p256dh,
                       auth: sub.auth
                     }
-                  }, pushPayload).catch(err => console.error("Push notification error:", err));
+                  }, pushPayload).catch((err: any) => console.error("Push notification error:", err));
                 });
               }
-            }).catch(err => console.error("Error getting subscriptions:", err));
+            }).catch((err: any) => console.error("Error getting subscriptions:", err));
           }
         });
       });
