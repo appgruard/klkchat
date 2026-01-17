@@ -426,7 +426,7 @@ export async function registerRoutes(
             ${actionText && actionUrl ? `<a href="${actionUrl}" class="button">${actionText}</a>` : ""}
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} FourOne Solutions. Todos los derechos reservados.</p>
+            <p>&copy; ${new Date().getFullYear()} Four One Solutions. Todos los derechos reservados.</p>
             <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
           </div>
         </div>
