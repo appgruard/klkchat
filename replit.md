@@ -58,6 +58,13 @@ API routes are registered in `server/routes.ts` with REST endpoints for:
 - Client-side encryption utilities in `client/src/lib/crypto.ts` using Web Crypto API
 - RSA-OAEP for key exchange, AES-GCM for message encryption
 - Recovery codes for password reset without email
+- Session regeneration after password change for security
+
+### User Settings (Dialog-based UI)
+- **Profile Dialog**: Edit display name with avatar display
+- **Settings Dialog**: Theme toggle (dark/light) and language selection
+- **Security Dialog**: Password change with current password verification
+- API Endpoints: `PATCH /api/auth/profile`, `POST /api/auth/change-password`
 
 ## External Dependencies
 
