@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ConversationWithParticipants, UserPublic } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
-import logoPath from "@assets/Four_One_Solutions_Logo_20250914_034936_0000_1768655410930.png";
+import logoPath from "@assets/generated_images/klk!_logo_black_white.png";
 
 interface ChatListProps {
   currentUser: UserPublic;
@@ -47,15 +47,15 @@ export function ChatList({
   return (
     <div className="flex flex-col h-full bg-sidebar">
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center overflow-hidden flex-shrink-0 border border-border">
           <img 
             src={logoPath} 
-            alt="Four One Solutions" 
+            alt="KLK!" 
             className="w-8 h-8 object-contain"
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-sidebar-foreground truncate">Four One Solutions</h1>
+          <h1 className="font-semibold text-sidebar-foreground truncate">KLK!</h1>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Shield className="h-3 w-3" />
             <span>Encrypted Chat</span>

@@ -99,7 +99,7 @@ export default function ChatPage() {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
               <MessageCircle className="h-10 w-10 text-primary" />
             </div>
-            <h2 className="text-2xl font-semibold mb-2">Four One Solutions Chat</h2>
+            <h2 className="text-2xl font-semibold mb-2">KLK! Chat</h2>
             <p className="text-muted-foreground max-w-md mb-6">
               Select a conversation from the sidebar or start a new chat to begin messaging securely.
             </p>

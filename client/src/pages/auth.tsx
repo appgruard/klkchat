@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
-import logoPath from "@assets/Four_One_Solutions_Logo_20250914_034936_0000_1768655410930.png";
+import logoPath from "@assets/generated_images/klk!_logo_black_white.png";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -70,7 +70,7 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       await register(data.username, data.password, data.displayName);
-      toast({ title: "Account created!", description: "Welcome to Four One Solutions Chat." });
+      toast({ title: "Account created!", description: "Welcome to KLK! Chat." });
     } catch (error: unknown) {
       toast({
         title: "Registration failed",
@@ -111,16 +111,16 @@ export default function AuthPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="text-center space-y-4">
             <div className="flex justify-center">
-              <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-card flex items-center justify-center overflow-hidden border border-border">
                 <img 
                   src={logoPath} 
-                  alt="Four One Solutions" 
+                  alt="KLK!" 
                   className="w-14 h-14 object-contain"
                 />
               </div>
             </div>
             <div>
-              <CardTitle className="text-2xl font-semibold">Four One Solutions</CardTitle>
+              <CardTitle className="text-2xl font-semibold">KLK!</CardTitle>
               <CardDescription className="mt-2">
                 {mode === "login" ? "Sign in to continue chatting" : "Create your account"}
               </CardDescription>

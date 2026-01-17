@@ -1,8 +1,8 @@
-# Four One Solutions Chat
+# KLK! Chat
 
 ## Overview
 
-A secure private messaging application built with React and Express, inspired by WhatsApp Web and Telegram Web interfaces. The application provides one-on-one encrypted chat functionality with support for both registered and anonymous users. Features include real-time messaging via WebSockets, session-based authentication with Passport.js, and a PostgreSQL database for persistent storage.
+A secure private messaging application built with React and Express, inspired by WhatsApp Web and Telegram Web interfaces. The application uses a monochrome (black and white) color scheme and provides one-on-one encrypted chat functionality with support for both registered and anonymous users. Features include real-time messaging via WebSockets, session-based authentication with Passport.js, and a PostgreSQL database for persistent storage.
 
 ## User Preferences
 
