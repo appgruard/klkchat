@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, boolean, primaryKey } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, boolean, primaryKey, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -59,11 +59,36 @@ export const sessions = pgTable("sessions", {
   expire: timestamp("expire").notNull(),
 });
 
+// Blocked users table
+export const blockedUsers = pgTable("blocked_users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  blockerId: varchar("blocker_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  blockedId: varchar("blocked_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  uniqueBlock: unique("unique_blocker_blocked").on(table.blockerId, table.blockedId),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sentMessages: many(messages),
   conversationParticipants: many(conversationParticipants),
   recoveryCodes: many(recoveryCodes),
+  blockedUsers: many(blockedUsers, { relationName: "blocker" }),
+  blockedBy: many(blockedUsers, { relationName: "blocked" }),
+}));
+
+export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
+  blocker: one(users, {
+    fields: [blockedUsers.blockerId],
+    references: [users.id],
+    relationName: "blocker",
+  }),
+  blocked: one(users, {
+    fields: [blockedUsers.blockedId],
+    references: [users.id],
+    relationName: "blocked",
+  }),
 }));
 
 export const conversationsRelations = relations(conversations, ({ many }) => ({
@@ -138,6 +163,7 @@ export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type ConversationParticipant = typeof conversationParticipants.$inferSelect;
 export type RecoveryCode = typeof recoveryCodes.$inferSelect;
 export type InsertRecoveryCode = z.infer<typeof insertRecoveryCodeSchema>;
+export type BlockedUser = typeof blockedUsers.$inferSelect;
 
 // Extended types for frontend use
 export type UserPublic = Omit<User, "password">;

@@ -12,9 +12,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { ConversationWithParticipants, MessageWithSender, UserPublic } from "@shared/schema";
 import { format, isToday, isYesterday } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { UserProfileDialog } from "./user-profile-dialog";
 
 interface ConversationViewProps {
   conversationId: string;
@@ -29,7 +41,11 @@ export function ConversationView({
   onBack,
 }: ConversationViewProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [messageInput, setMessageInput] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [clearChatOpen, setClearChatOpen] = useState(false);
+  const [blockUserOpen, setBlockUserOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -53,7 +69,51 @@ export function ConversationView({
     },
   });
 
+  const clearChatMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", `/api/conversations/${conversationId}/messages`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      toast({
+        title: t("chat.chatCleared"),
+        description: t("chat.chatClearedDesc"),
+      });
+      setClearChatOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: t("error.title"),
+        description: t("error.clearChat"),
+        variant: "destructive",
+      });
+    },
+  });
+
   const otherParticipant = conversation?.participants.find((p) => p.id !== currentUser.id);
+
+  const blockUserMutation = useMutation({
+    mutationFn: async () => {
+      if (!otherParticipant) throw new Error("No participant");
+      return await apiRequest("POST", `/api/users/${otherParticipant.id}/block`);
+    },
+    onSuccess: () => {
+      toast({
+        title: t("chat.userBlocked"),
+        description: t("chat.userBlockedDesc"),
+      });
+      setBlockUserOpen(false);
+      onBack();
+    },
+    onError: () => {
+      toast({
+        title: t("error.title"),
+        description: t("error.blockUser"),
+        variant: "destructive",
+      });
+    },
+  });
   const name = otherParticipant?.displayName || otherParticipant?.username || t("chat.unknown");
 
   const scrollToBottom = () => {
@@ -188,9 +248,25 @@ export function ConversationView({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>{t("menu.viewProfile")}</DropdownMenuItem>
-            <DropdownMenuItem>{t("menu.clearChat")}</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">{t("menu.blockUser")}</DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setProfileOpen(true)}
+              data-testid="menu-view-profile"
+            >
+              {t("menu.viewProfile")}
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setClearChatOpen(true)}
+              data-testid="menu-clear-chat"
+            >
+              {t("menu.clearChat")}
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setBlockUserOpen(true)}
+              className="text-destructive"
+              data-testid="menu-block-user"
+            >
+              {t("menu.blockUser")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
@@ -289,6 +365,59 @@ export function ConversationView({
           </Button>
         </div>
       </footer>
+
+      <UserProfileDialog
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        user={otherParticipant || null}
+      />
+
+      <AlertDialog open={clearChatOpen} onOpenChange={setClearChatOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chat.clearChatTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("chat.clearChatConfirm")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-clear">
+              {t("common.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => clearChatMutation.mutate()}
+              disabled={clearChatMutation.isPending}
+              data-testid="button-confirm-clear"
+            >
+              {clearChatMutation.isPending ? t("common.loading") : t("menu.clearChat")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={blockUserOpen} onOpenChange={setBlockUserOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("chat.blockUserTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("chat.blockUserConfirm", { name })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-block">
+              {t("common.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => blockUserMutation.mutate()}
+              disabled={blockUserMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-block"
+            >
+              {blockUserMutation.isPending ? t("common.loading") : t("menu.blockUser")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import {
   conversationParticipants,
   messages,
   recoveryCodes,
+  blockedUsers,
   type User,
   type InsertUser,
   type Message,
@@ -15,6 +16,7 @@ import {
   type UserPublic,
   type ConversationWithParticipants,
   type MessageWithSender,
+  type BlockedUser,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
@@ -45,6 +47,15 @@ export interface IStorage {
   createRecoveryCode(code: InsertRecoveryCode): Promise<RecoveryCode>;
   getValidRecoveryCode(userId: string, code: string): Promise<RecoveryCode | undefined>;
   markRecoveryCodeUsed(id: string): Promise<void>;
+  
+  // Clear messages
+  clearMessagesForConversation(conversationId: string): Promise<void>;
+  
+  // Blocked users
+  blockUser(blockerId: string, blockedId: string): Promise<BlockedUser>;
+  unblockUser(blockerId: string, blockedId: string): Promise<void>;
+  isUserBlocked(blockerId: string, blockedId: string): Promise<boolean>;
+  getBlockedUsers(userId: string): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -322,6 +333,66 @@ export class DatabaseStorage implements IStorage {
       .update(recoveryCodes)
       .set({ used: true })
       .where(eq(recoveryCodes.id, id));
+  }
+
+  // Clear messages
+  async clearMessagesForConversation(conversationId: string): Promise<void> {
+    await db.delete(messages).where(eq(messages.conversationId, conversationId));
+  }
+
+  // Blocked users
+  async blockUser(blockerId: string, blockedId: string): Promise<BlockedUser> {
+    const existing = await this.isUserBlocked(blockerId, blockedId);
+    if (existing) {
+      const [blocked] = await db
+        .select()
+        .from(blockedUsers)
+        .where(
+          and(
+            eq(blockedUsers.blockerId, blockerId),
+            eq(blockedUsers.blockedId, blockedId)
+          )
+        );
+      return blocked;
+    }
+
+    const [blocked] = await db
+      .insert(blockedUsers)
+      .values({ blockerId, blockedId })
+      .returning();
+    return blocked;
+  }
+
+  async unblockUser(blockerId: string, blockedId: string): Promise<void> {
+    await db
+      .delete(blockedUsers)
+      .where(
+        and(
+          eq(blockedUsers.blockerId, blockerId),
+          eq(blockedUsers.blockedId, blockedId)
+        )
+      );
+  }
+
+  async isUserBlocked(blockerId: string, blockedId: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(blockedUsers)
+      .where(
+        and(
+          eq(blockedUsers.blockerId, blockerId),
+          eq(blockedUsers.blockedId, blockedId)
+        )
+      );
+    return !!result;
+  }
+
+  async getBlockedUsers(userId: string): Promise<string[]> {
+    const blocked = await db
+      .select({ blockedId: blockedUsers.blockedId })
+      .from(blockedUsers)
+      .where(eq(blockedUsers.blockerId, userId));
+    return blocked.map((b) => b.blockedId);
   }
 }
 

@@ -386,6 +386,13 @@ export async function registerRoutes(
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Check if either user has blocked the other
+      const iBlockedThem = await storage.isUserBlocked(user.id, participantId);
+      const theyBlockedMe = await storage.isUserBlocked(participantId, user.id);
+      if (iBlockedThem || theyBlockedMe) {
+        return res.status(403).json({ message: "Cannot start conversation with this user" });
+      }
+
       // Check for existing conversation
       const existing = await storage.findExistingConversation(user.id, participantId);
       if (existing) {
@@ -437,7 +444,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Message content is required" });
       }
 
-      const conversation = await storage.getConversationWithParticipants(id, user.id);
+      const conversation = await storage.getConversationWithParticipants(id as string, user.id);
       if (!conversation) {
         return res.status(404).json({ message: "Conversation not found" });
       }
@@ -445,6 +452,16 @@ export async function registerRoutes(
       const isParticipant = conversation.participants.some((p) => p.id === user.id);
       if (!isParticipant) {
         return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if either user has blocked the other
+      const otherParticipant = conversation.participants.find((p) => p.id !== user.id);
+      if (otherParticipant) {
+        const iBlockedThem = await storage.isUserBlocked(user.id, otherParticipant.id);
+        const theyBlockedMe = await storage.isUserBlocked(otherParticipant.id, user.id);
+        if (iBlockedThem || theyBlockedMe) {
+          return res.status(403).json({ message: "Cannot send messages to this user" });
+        }
       }
 
       // For simplicity, we'll store the content directly
@@ -479,6 +496,81 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Send message error:", error);
       res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Clear chat messages
+  app.delete("/api/conversations/:id/messages", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+
+      const conversation = await storage.getConversationWithParticipants(id as string, user.id);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants.some((p) => p.id === user.id);
+      if (!isParticipant) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.clearMessagesForConversation(id as string);
+      res.json({ message: "Chat cleared successfully" });
+    } catch (error) {
+      console.error("Clear chat error:", error);
+      res.status(500).json({ message: "Failed to clear chat" });
+    }
+  });
+
+  // Block user
+  app.post("/api/users/:id/block", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id: blockedId } = req.params;
+
+      if (blockedId === user.id) {
+        return res.status(400).json({ message: "Cannot block yourself" });
+      }
+
+      const targetUser = await storage.getUser(blockedId as string);
+      if (!targetUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await storage.blockUser(user.id, blockedId as string);
+      res.json({ message: "User blocked successfully" });
+    } catch (error) {
+      console.error("Block user error:", error);
+      res.status(500).json({ message: "Failed to block user" });
+    }
+  });
+
+  // Unblock user
+  app.delete("/api/users/:id/block", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id: blockedId } = req.params;
+
+      await storage.unblockUser(user.id, blockedId as string);
+      res.json({ message: "User unblocked successfully" });
+    } catch (error) {
+      console.error("Unblock user error:", error);
+      res.status(500).json({ message: "Failed to unblock user" });
+    }
+  });
+
+  // Check if user is blocked
+  app.get("/api/users/:id/blocked", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id: targetId } = req.params;
+
+      const isBlocked = await storage.isUserBlocked(user.id, targetId as string);
+      res.json({ blocked: isBlocked });
+    } catch (error) {
+      console.error("Check blocked error:", error);
+      res.status(500).json({ message: "Failed to check blocked status" });
     }
   });
 

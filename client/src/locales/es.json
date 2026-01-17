@@ -60,7 +60,15 @@
     "encryptedMessage": "Mensaje encriptado",
     "startConversation": "Inicia la conversación",
     "reconnecting": "Reconectando...",
-    "unknown": "Desconocido"
+    "unknown": "Desconocido",
+    "chatCleared": "Chat limpiado",
+    "chatClearedDesc": "Todos los mensajes han sido eliminados de esta conversación.",
+    "clearChatTitle": "Limpiar chat",
+    "clearChatConfirm": "¿Estás seguro de que quieres eliminar todos los mensajes de esta conversación? Esta acción no se puede deshacer.",
+    "userBlocked": "Usuario bloqueado",
+    "userBlockedDesc": "Ya no recibirás mensajes de este usuario.",
+    "blockUserTitle": "Bloquear usuario",
+    "blockUserConfirm": "¿Estás seguro de que quieres bloquear a {{name}}? Ya no podrás enviar ni recibir mensajes de esta persona."
   },
   "dialog": {
     "searchByUsername": "Buscar por usuario",
@@ -79,7 +87,8 @@
     "updatedDesc": "Tu perfil ha sido actualizado correctamente.",
     "updateFailed": "Error al actualizar perfil",
     "save": "Guardar",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "anonymous": "Usuario anónimo"
   },
   "settings": {
     "title": "Configuración",
@@ -118,9 +127,19 @@
   },
   "status": {
     "online": "En línea",
+    "offline": "Desconectado",
     "lastSeen": "Visto por última vez",
     "recently": "recientemente",
     "encrypted": "Encriptado"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "loading": "Cargando..."
+  },
+  "error": {
+    "title": "Error",
+    "clearChat": "Error al limpiar el chat. Por favor, intenta de nuevo.",
+    "blockUser": "Error al bloquear usuario. Por favor, intenta de nuevo."
   },
   "date": {
     "today": "Hoy",
