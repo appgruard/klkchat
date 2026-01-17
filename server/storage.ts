@@ -27,7 +27,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
-  searchUsers(query: string, limit?: number): Promise<UserPublic[]>;
+  searchUsers(query: string, userId: string, limit?: number): Promise<UserPublic[]>;
   setUserOnline(id: string, isOnline: boolean): Promise<void>;
   
   // Conversations
@@ -84,7 +84,7 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
-  async searchUsers(query: string, limit: number = 20): Promise<UserPublic[]> {
+  async searchUsers(query: string, userId: string, limit: number = 20): Promise<UserPublic[]> {
     const results = await db
       .select({
         id: users.id,
@@ -103,7 +103,8 @@ export class DatabaseStorage implements IStorage {
             ilike(users.username, `%${query}%`),
             ilike(users.displayName, `%${query}%`)
           ),
-          eq(users.isAnonymous, false)
+          eq(users.isAnonymous, false),
+          ne(users.id, userId)
         )
       )
       .limit(limit);

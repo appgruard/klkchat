@@ -328,7 +328,7 @@ export async function registerRoutes(
       if (query.length < 2) {
         return res.json([]);
       }
-      const users = await storage.searchUsers(query);
+      const users = await storage.searchUsers(query, (req.user as User).id);
       res.json(users);
     } catch (error) {
       console.error("User search error:", error);
