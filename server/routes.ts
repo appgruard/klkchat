@@ -557,7 +557,8 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Message content is required" });
       }
 
-      const conversation = await storage.getConversationWithParticipants(id as string, user.id);
+      const conversationId = id as string;
+      const conversation = await storage.getConversationWithParticipants(conversationId, user.id);
       if (!conversation) {
         return res.status(404).json({ message: "Conversation not found" });
       }
@@ -580,7 +581,7 @@ export async function registerRoutes(
       // For simplicity, we'll store the content directly
       // In a full E2EE implementation, this would be encrypted client-side
       const message = await storage.createMessage({
-        conversationId: id,
+        conversationId: conversationId,
         senderId: user.id,
         encryptedContent: content,
         iv: randomBytes(12).toString("base64"),

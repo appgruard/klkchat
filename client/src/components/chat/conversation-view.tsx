@@ -230,38 +230,74 @@ export function ConversationView({
 
     if (message.fileType === "image") {
       return (
-        <div className="mt-2 rounded-md overflow-hidden border border-muted">
-          <img src={message.fileUrl} alt={message.fileName || "Image"} className="max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity" onClick={() => window.open(message.fileUrl!, '_blank')} />
+        <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm">
+          <img 
+            src={message.fileUrl} 
+            alt={message.fileName || "Image"} 
+            className="max-w-full h-auto cursor-pointer hover:scale-[1.02] transition-transform duration-200" 
+            onClick={() => window.open(message.fileUrl!, '_blank')} 
+          />
         </div>
       );
     }
 
     if (message.fileType === "video") {
       return (
-        <div className="mt-2 rounded-md overflow-hidden border border-muted">
+        <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm">
           <video src={message.fileUrl} controls className="max-w-full h-auto" />
         </div>
       );
     }
 
     if (message.fileType === "audio") {
+      const isVoiceMessage = message.fileName?.startsWith("audio-");
       return (
-        <div className="mt-2 p-2 rounded-md bg-background/50 border border-muted min-w-[200px]">
-          <audio src={message.fileUrl} controls className="w-full h-8" />
+        <div className={`mt-2 p-3 rounded-xl border border-muted/50 shadow-sm min-w-[240px] ${isVoiceMessage ? "bg-primary/5" : "bg-background/50"}`}>
+          <div className="flex items-center gap-3 mb-2">
+            <div className={`p-2 rounded-full ${isVoiceMessage ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+              <Mic className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">
+                {isVoiceMessage ? t("chat.voiceMessage") : message.fileName}
+              </p>
+              {message.duration && (
+                <p className="text-[10px] text-muted-foreground">
+                  {formatDuration(message.duration)}
+                </p>
+              )}
+            </div>
+          </div>
+          <audio src={message.fileUrl} controls className="w-full h-8 custom-audio-player" />
+          <style dangerouslySetInnerHTML={{ __html: `
+            .custom-audio-player::-webkit-media-controls-enclosure {
+              background-color: transparent;
+            }
+            .custom-audio-player::-webkit-media-controls-panel {
+              padding: 0;
+            }
+          `}} />
         </div>
       );
     }
 
     return (
-      <div className="mt-2 flex items-center gap-3 p-2 rounded-md bg-background/50 border border-muted">
-        <div className="p-2 rounded bg-primary/10 text-primary">
+      <div className="mt-2 flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-muted/50 shadow-sm group hover:border-primary/30 transition-colors">
+        <div className="p-2.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
           <File className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{message.fileName}</p>
-          <p className="text-[10px] text-muted-foreground">{message.fileSize ? `${(parseInt(message.fileSize) / 1024).toFixed(1)} KB` : ''}</p>
+          <p className="text-[10px] text-muted-foreground uppercase">
+            {message.fileSize ? `${(parseInt(message.fileSize) / 1024).toFixed(1)} KB` : ''} • {message.fileType}
+          </p>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => window.open(message.fileUrl!, '_blank')}>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary"
+          onClick={() => window.open(message.fileUrl!, '_blank')}
+        >
           <Download className="h-4 w-4" />
         </Button>
       </div>

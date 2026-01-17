@@ -68,7 +68,11 @@
     "userBlocked": "User blocked",
     "userBlockedDesc": "You will no longer receive messages from this user.",
     "blockUserTitle": "Block user",
-    "blockUserConfirm": "Are you sure you want to block {{name}}? You will no longer be able to send or receive messages from them."
+    "blockUserConfirm": "Are you sure you want to block {{name}}? You will no longer be able to send or receive messages from them.",
+    "voiceMessage": "Voice Message",
+    "sentAudio": "Sent a voice message",
+    "sentFile": "Sent a file: {{name}}",
+    "uploadFailed": "Upload failed"
   },
   "dialog": {
     "searchByUsername": "Search by username",
