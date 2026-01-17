@@ -41,8 +41,9 @@ export const messages = pgTable("messages", {
   status: text("status").default("sent").notNull(), // 'sent', 'delivered', 'read'
   fileUrl: text("file_url"),
   fileName: text("file_name"),
-  fileType: text("file_type"), // 'image', 'video', 'document'
+  fileType: text("file_type"), // 'image', 'video', 'document', 'audio'
   fileSize: text("file_size"),
+  duration: integer("duration"), // For audio/video in seconds
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -177,6 +178,7 @@ export const insertMessageSchema = createInsertSchema(messages).pick({
   fileName: true,
   fileType: true,
   fileSize: true,
+  duration: true,
 });
 
 export const insertConversationSchema = createInsertSchema(conversations);
