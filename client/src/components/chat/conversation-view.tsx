@@ -435,6 +435,25 @@ export function ConversationView({
   return (
     <div className="flex flex-col h-full bg-background">
       <header className="flex items-center gap-3 px-4 py-3 border-b bg-card">
+        {isUploading && (
+          <div className="absolute top-[65px] left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+            <div className="bg-card border rounded-lg px-4 py-2 shadow-lg flex flex-col items-center gap-1 min-w-[200px] pointer-events-auto animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <div className="animate-spin h-3 w-3 border-2 border-primary border-t-transparent rounded-full" />
+                {t("chat.sending", "Enviando...")}
+              </div>
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                <div 
+                  className="h-full bg-primary transition-all duration-300" 
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <span className="text-[10px] text-muted-foreground font-mono">
+                {uploadProgress}%
+              </span>
+            </div>
+          </div>
+        )}
         <Button
           variant="ghost"
           size="icon"
@@ -512,25 +531,6 @@ export function ConversationView({
       </header>
 
       <ScrollArea className="flex-1 p-4">
-        {isUploading && (
-          <div className="mb-4 flex justify-center">
-            <div className="bg-card border rounded-lg px-4 py-2 shadow-sm flex flex-col items-center gap-1 min-w-[200px]">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <div className="animate-spin h-3 w-3 border-2 border-primary border-t-transparent rounded-full" />
-                {t("chat.sending", "Enviando...")}
-              </div>
-              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
-                <div 
-                  className="h-full bg-primary transition-all duration-300" 
-                  style={{ width: `${uploadProgress}%` }}
-                />
-              </div>
-              <span className="text-[10px] text-muted-foreground font-mono">
-                {uploadProgress}%
-              </span>
-            </div>
-          </div>
-        )}
         {messagesLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
