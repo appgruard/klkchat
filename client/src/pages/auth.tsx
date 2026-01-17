@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
+import { apiRequest } from "@/lib/queryClient";
 import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
 
 const loginSchema = z.object({
@@ -37,11 +38,20 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
   const { t } = useTranslation();
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, register, registerAnonymous } = useAuth();
   const { toast } = useToast();
+
+  const forgotSchema = z.object({
+    email: z.string().email("validation.invalidEmail"),
+  });
+
+  const forgotForm = useForm<{ email: string }>({
+    resolver: zodResolver(forgotSchema),
+    defaultValues: { email: "" },
+  });
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -104,6 +114,26 @@ export default function AuthPage() {
     }
   };
 
+  const onForgotPassword = async (data: { email: string }) => {
+    setIsLoading(true);
+    try {
+      await apiRequest("POST", "/api/auth/forgot-password", data);
+      toast({
+        title: t("profile.codeSent"),
+        description: t("profile.codeSentDesc"),
+      });
+      setMode("login");
+    } catch (error: any) {
+      toast({
+        title: t("profile.error"),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <header className="flex items-center justify-end gap-2 p-4">
@@ -126,7 +156,7 @@ export default function AuthPage() {
             <div>
               <CardTitle className="text-2xl font-semibold">{t("app.name")}</CardTitle>
               <CardDescription className="mt-2">
-                {mode === "login" ? t("auth.signInToContinue") : t("auth.createYourAccount")}
+                {mode === "login" ? t("auth.signInToContinue") : mode === "register" ? t("auth.createYourAccount") : "Recuperar contraseña"}
               </CardDescription>
             </div>
           </CardHeader>
@@ -162,7 +192,17 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("form.password")}</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>{t("form.password")}</FormLabel>
+                          <Button
+                            type="button"
+                            variant="link"
+                            className="px-0 h-auto text-xs"
+                            onClick={() => setMode("forgot")}
+                          >
+                            ¿Olvidaste tu contraseña?
+                          </Button>
+                        </div>
                         <FormControl>
                           <div className="relative flex items-center">
                             <Lock className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -202,7 +242,7 @@ export default function AuthPage() {
                   </Button>
                 </form>
               </Form>
-            ) : (
+            ) : mode === "register" ? (
               <Form {...registerForm} key="register-form">
                 <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
                   <FormField
@@ -309,6 +349,43 @@ export default function AuthPage() {
                     data-testid="button-register"
                   >
                     {isLoading ? t("auth.creatingAccount") : t("auth.createAccount")}
+                  </Button>
+                </form>
+              </Form>
+            ) : (
+              <Form {...forgotForm} key="forgot-form">
+                <form onSubmit={forgotForm.handleSubmit(onForgotPassword)} className="space-y-4">
+                  <FormField
+                    control={forgotForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("form.email")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="email@example.com"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? t("profile.sending") : "Enviar código de recuperación"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setMode("login")}
+                  >
+                    Volver al inicio de sesión
                   </Button>
                 </form>
               </Form>

@@ -299,7 +299,6 @@ export async function registerRoutes(
     }
   });
 
-  // Update profile
   app.patch("/api/auth/profile", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
@@ -331,7 +330,6 @@ export async function registerRoutes(
             updates.emailVerified = false;
           }
         } else {
-          // If email is explicitly empty or null, we clear it
           updates.email = null;
           updates.emailVerified = false;
         }

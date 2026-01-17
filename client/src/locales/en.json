@@ -34,6 +34,7 @@
     "password": "Password",
     "confirmPassword": "Confirm Password",
     "displayName": "Display Name",
+    "email": "Email",
     "enterUsername": "Enter your username",
     "enterPassword": "Enter your password",
     "chooseUsername": "Choose a username",
@@ -48,7 +49,8 @@
     "passwordMin": "Password must be at least 6 characters",
     "passwordsMatch": "Passwords don't match",
     "displayNameRequired": "Display name is required",
-    "currentPasswordRequired": "Current password is required"
+    "currentPasswordRequired": "Current password is required",
+    "invalidEmail": "Invalid email format"
   },
   "chat": {
     "searchOrStart": "Search or start new chat",
@@ -92,7 +94,18 @@
     "updateFailed": "Failed to update profile",
     "save": "Save",
     "saving": "Saving...",
-    "anonymous": "Anonymous user"
+    "anonymous": "Anonymous user",
+    "avatarUpdated": "Profile picture updated successfully.",
+    "verifyNow": "Verify email",
+    "verified": "Verified",
+    "codeSent": "Code sent",
+    "codeSentDesc": "Verification code has been sent to your email.",
+    "confirm": "Confirm",
+    "enterCode": "Enter code",
+    "error": "Error",
+    "sending": "Sending...",
+    "verifiedDesc": "Your email has been successfully verified.",
+    "change": "Change"
   },
   "settings": {
     "title": "Settings",

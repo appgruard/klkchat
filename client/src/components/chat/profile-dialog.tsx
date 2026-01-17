@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { User } from "lucide-react";
+import { User, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,10 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isSendingCode, setIsSendingCode] = useState(false);
+
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { 
@@ -51,6 +55,48 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
       email: (user as any).email || "",
     },
   });
+
+  const onSendVerification = async () => {
+    setIsSendingCode(true);
+    try {
+      await apiRequest("POST", "/api/auth/verify-email", {});
+      setIsVerifying(true);
+      toast({
+        title: t("profile.codeSent"),
+        description: t("profile.codeSentDesc"),
+      });
+    } catch (error: any) {
+      toast({
+        title: t("profile.error"),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const onConfirmVerification = async () => {
+    setIsLoading(true);
+    try {
+      await apiRequest("POST", "/api/auth/confirm-email", { code: verificationCode });
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      setIsVerifying(false);
+      setVerificationCode("");
+      toast({
+        title: t("profile.verified"),
+        description: t("profile.verifiedDesc"),
+      });
+    } catch (error: any) {
+      toast({
+        title: t("profile.error"),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -185,14 +231,63 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("form.email")}</FormLabel>
+                  <FormLabel className="flex items-center justify-between">
+                    {t("form.email")}
+                    {user.email && !(user as any).emailVerified && !isVerifying && (
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        size="sm" 
+                        className="h-auto p-0" 
+                        onClick={onSendVerification}
+                        disabled={isSendingCode}
+                      >
+                        {isSendingCode ? t("profile.sending") : t("profile.verifyNow")}
+                      </Button>
+                    )}
+                    {(user as any).emailVerified && (
+                      <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                        <Check className="h-3 w-3" />
+                        {t("profile.verified")}
+                      </span>
+                    )}
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="email@example.com"
-                      data-testid="input-profile-email"
-                    />
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="email@example.com"
+                        data-testid="input-profile-email"
+                        disabled={isVerifying}
+                      />
+                      {isVerifying && (
+                        <div className="flex gap-2 animate-in slide-in-from-top-2">
+                          <Input
+                            placeholder={t("profile.enterCode")}
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value)}
+                            className="flex-1"
+                          />
+                          <Button 
+                            type="button" 
+                            size="sm" 
+                            onClick={onConfirmVerification}
+                            disabled={isLoading || !verificationCode}
+                          >
+                            {t("profile.confirm")}
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setIsVerifying(false)}
+                          >
+                            {t("dialog.cancel")}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -34,6 +34,7 @@
     "password": "Contraseña",
     "confirmPassword": "Confirmar contraseña",
     "displayName": "Nombre para mostrar",
+    "email": "Correo electrónico",
     "enterUsername": "Ingresa tu nombre de usuario",
     "enterPassword": "Ingresa tu contraseña",
     "chooseUsername": "Elige un nombre de usuario",
@@ -48,7 +49,8 @@
     "passwordMin": "La contraseña debe tener al menos 6 caracteres",
     "passwordsMatch": "Las contraseñas no coinciden",
     "displayNameRequired": "El nombre para mostrar es obligatorio",
-    "currentPasswordRequired": "La contraseña actual es obligatoria"
+    "currentPasswordRequired": "La contraseña actual es obligatoria",
+    "invalidEmail": "Formato de correo inválido"
   },
   "chat": {
     "searchOrStart": "Buscar o iniciar nuevo chat",
@@ -92,7 +94,18 @@
     "updateFailed": "Error al actualizar el perfil",
     "save": "Guardar",
     "saving": "Guardando...",
-    "anonymous": "Usuario anónimo"
+    "anonymous": "Usuario anónimo",
+    "avatarUpdated": "Foto de perfil actualizada correctamente.",
+    "verifyNow": "Verificar correo",
+    "verified": "Verificado",
+    "codeSent": "Código enviado",
+    "codeSentDesc": "Se ha enviado un código de verificación a tu correo.",
+    "confirm": "Confirmar",
+    "enterCode": "Ingresar código",
+    "error": "Error",
+    "sending": "Enviando...",
+    "verifiedDesc": "Tu correo ha sido verificado correctamente.",
+    "change": "Cambiar"
   },
   "settings": {
     "title": "Ajustes",
