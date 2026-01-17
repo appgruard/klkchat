@@ -108,12 +108,42 @@ export function ConversationView({
 
   const sendMessageMutation = useMutation({
     mutationFn: async (payload: { content: string; file?: any }) => {
+      // Optimistically update UI could be handled here or via queryClient.setQueryData
       return await apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
         content: payload.content,
         ...payload.file
       });
     },
-    onSuccess: () => {
+    onMutate: async (newMessage) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
+
+      // Snapshot the previous value
+      const previousMessages = queryClient.getQueryData<MessageWithSender[]>(["/api/conversations", conversationId, "messages"]);
+
+      // Optimistically update to the new value
+      if (previousMessages) {
+        const optimisticMessage: any = {
+          id: `temp-${Date.now()}`,
+          conversationId,
+          senderId: currentUser.id,
+          encryptedContent: newMessage.content,
+          status: "sending",
+          createdAt: new Date().toISOString(),
+          sender: currentUser,
+          ...newMessage.file
+        };
+        queryClient.setQueryData(["/api/conversations", conversationId, "messages"], [...previousMessages, optimisticMessage]);
+      }
+
+      return { previousMessages };
+    },
+    onError: (err, newMessage, context) => {
+      if (context?.previousMessages) {
+        queryClient.setQueryData(["/api/conversations", conversationId, "messages"], context.previousMessages);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },

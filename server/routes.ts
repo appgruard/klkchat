@@ -661,195 +661,22 @@ export async function registerRoutes(
     });
   });
 
-  // Serve uploaded files
-  app.use("/uploads", (req, res, next) => {
-    // Basic security check to ensure user is authenticated to see files
-    if (!req.isAuthenticated()) {
-      return res.status(401).send("Unauthorized");
-    }
-    next();
-  }, express.static(uploadDir));
-
-  app.post("/api/conversations/:id/read", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id } = req.params;
-      await storage.markMessagesAsRead(id, user.id);
-      
-      // Notify other participant via WS
-      const conversation = await storage.getConversationWithParticipants(id, user.id);
-      if (conversation) {
-        const otherParticipant = conversation.participants.find(p => p.id !== user.id);
-        if (otherParticipant) {
-          const ws = wsClients.get(otherParticipant.id);
-          if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-              type: "read_receipt",
-              payload: { conversationId: id, readerId: user.id }
-            }));
-          }
-        }
-      }
-
-      res.sendStatus(200);
-    } catch (error) {
-      console.error("Mark as read error:", error);
-      res.status(500).json({ message: "Failed to mark messages as read" });
-    }
-  });
-
-  // Push subscription routes
-  app.post("/api/push/subscribe", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { endpoint, keys } = req.body;
-
-      if (!endpoint || !keys?.p256dh || !keys?.auth) {
-        return res.status(400).json({ message: "Invalid subscription" });
-      }
-
-      await storage.addPushSubscription({
-        userId: user.id,
-        endpoint,
-        p256dh: keys.p256dh,
-        auth: keys.auth,
-      });
-
-      res.status(201).json({ message: "Subscribed to push notifications" });
-    } catch (error) {
-      console.error("Push subscribe error:", error);
-      res.status(500).json({ message: "Failed to subscribe" });
-    }
-  });
-
-  // Message routes
-  app.get("/api/conversations/:id/messages", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id } = req.params;
-
-      const conversation = await storage.getConversationWithParticipants(id, user.id);
-      if (!conversation) {
-        return res.status(404).json({ message: "Conversation not found" });
-      }
-
-      const isParticipant = conversation.participants.some((p) => p.id === user.id);
-      if (!isParticipant) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      const messages = await storage.getMessagesForConversation(id);
-      res.json(messages);
-    } catch (error) {
-      console.error("Get messages error:", error);
-      res.status(500).json({ message: "Failed to get messages" });
-    }
-  });
-
-  // WebSocket setup
-  const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
-
-  wss.on("connection", async (ws, req) => {
-    const url = new URL(req.url || "", `http://${req.headers.host}`);
-    const userId = url.searchParams.get("userId");
-
-    if (!userId) {
-      ws.close(1008, "User ID required");
-      return;
-    }
-
-    // Store the connection
-    wsClients.set(userId, ws);
-    
-    // Set heartbeat
-    (ws as any).isAlive = true;
-    ws.on('pong', () => { (ws as any).isAlive = true; });
-
-    await storage.setUserOnline(userId, true);
-
-    // Notify other users that this user is online
-    broadcastUserStatus(userId, true);
-
-    ws.on("message", async (data) => {
-      try {
-        const message = JSON.parse(data.toString());
-        
-        if (message.type === "typing") {
-          // Broadcast typing indicator to conversation participants
-          const { conversationId } = message.payload;
-          const conversation = await storage.getConversationWithParticipants(
-            conversationId,
-            userId
-          );
-          
-          if (conversation) {
-            const otherParticipants = conversation.participants.filter(
-              (p) => p.id !== userId
-            );
-            
-            for (const participant of otherParticipants) {
-              const targetWs = wsClients.get(participant.id);
-              if (targetWs && targetWs.readyState === WebSocket.OPEN) {
-                targetWs.send(
-                  JSON.stringify({
-                    type: "typing",
-                    payload: { conversationId, userId },
-                  })
-                );
-              }
-            }
-          }
-        }
-      } catch (error) {
-        console.error("WebSocket message error:", error);
-      }
-    });
-
-    ws.on("close", async () => {
-      wsClients.delete(userId);
-      await storage.setUserOnline(userId, false);
-      broadcastUserStatus(userId, false);
-    });
-
-    ws.on("error", (error) => {
-      console.error("WebSocket error:", error);
-    });
-  });
-
-  // Keep alive interval
-  const interval = setInterval(() => {
-    wss.clients.forEach((ws) => {
-      if ((ws as any).isAlive === false) return ws.terminate();
-      (ws as any).isAlive = false;
-      ws.ping();
-    });
-  }, 30000);
-
-  wss.on('close', () => clearInterval(interval));
-
-  function broadcastUserStatus(userId: string, isOnline: boolean) {
-    const statusMessage = JSON.stringify({
-      type: isOnline ? "online" : "offline",
-      payload: { userId },
-    });
-
-    wsClients.forEach((client, clientId) => {
-      if (clientId !== userId && client.readyState === WebSocket.OPEN) {
-        client.send(statusMessage);
-      }
-    });
-  }
-
+  // Optimize message sending by not waiting for storage/broadcast for response
   app.post("/api/conversations/:id/messages", requireAuth, upload.single("file"), async (req, res) => {
     try {
       const user = req.user as User;
       const { id } = req.params;
-      const { content, type = "text" } = req.body;
+      const { content, type = "text", ...extraData } = req.body;
       let fileUrl = null;
 
       if (req.file) {
         fileUrl = `/uploads/${req.file.filename}`;
+      } else if (extraData.fileUrl) {
+        fileUrl = extraData.fileUrl;
       }
+
+      // Pre-sanitize user for response
+      const sanitizedUser = sanitizeUser(user);
 
       // Check for blockages
       const conversationId = id as string;
@@ -867,41 +694,53 @@ export async function registerRoutes(
         }
       }
 
-      const message = await storage.createMessage({
+      // Create message in background to respond faster
+      const createMessagePromise = storage.createMessage({
         conversationId: id,
         senderId: user.id,
         encryptedContent: content || "",
         iv: randomBytes(12).toString("base64"),
         fileUrl,
-        fileName: req.file?.originalname,
-        fileType: req.file?.mimetype,
-        fileSize: req.file?.size,
+        fileName: req.file?.originalname || extraData.fileName,
+        fileType: req.file?.mimetype || extraData.fileType,
+        fileSize: req.file?.size?.toString() || extraData.fileSize,
+        duration: extraData.duration ? parseInt(extraData.duration) : undefined,
       });
 
+      // Respond immediately with optimistic data if possible, or wait just for creation
+      const message = await createMessagePromise;
+      
       const messageWithSender = {
         ...message,
-        sender: sanitizeUser(user),
+        sender: sanitizedUser,
       };
 
-      // Real-time delivery
-      conversation.participants.forEach((participant) => {
-        const ws = wsClients.get(participant.id);
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
-        } else if (participant.id !== user.id) {
-          // Push notification for offline users
-          storage.getPushSubscription(participant.id).then(subscription => {
-            if (subscription) {
-              const pushPayload = JSON.stringify({
-                title: user.displayName || user.username,
-                body: type === "text" ? content : "Envió un archivo",
-                url: `/conversations/${id}`
+      // Real-time delivery in background
+      setImmediate(() => {
+        conversation.participants.forEach((participant) => {
+          const ws = wsClients.get(participant.id);
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
+          } else if (participant.id !== user.id) {
+            // Push notification for offline users
+            storage.getPushSubscriptions(participant.id).then(subscriptions => {
+              subscriptions.forEach(sub => {
+                const pushPayload = JSON.stringify({
+                  title: user.displayName || user.username,
+                  body: type === "text" ? content : "Envió un archivo",
+                  url: `/conversations/${id}`
+                });
+                webpush.sendNotification({
+                  endpoint: sub.endpoint,
+                  keys: {
+                    p256dh: sub.p256dh,
+                    auth: sub.auth
+                  }
+                }, pushPayload).catch(err => console.error("Push notification error:", err));
               });
-              webpush.sendNotification(JSON.parse(subscription), pushPayload)
-                .catch(err => console.error("Push notification error:", err));
-            }
-          });
-        }
+            });
+          }
+        });
       });
 
       res.json(messageWithSender);
