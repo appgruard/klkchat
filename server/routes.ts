@@ -584,6 +584,11 @@ export async function registerRoutes(
         senderId: user.id,
         encryptedContent: content,
         iv: randomBytes(12).toString("base64"),
+        fileUrl: req.body.fileUrl,
+        fileName: req.body.fileName,
+        fileType: req.body.fileType,
+        fileSize: req.body.fileSize,
+        duration: req.body.duration,
       });
 
       // Notify other participants via WebSocket

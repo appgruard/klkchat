@@ -238,7 +238,69 @@ export function ConversationView({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // ... rest of the component remains similar ...
+  const otherParticipant = conversation?.participants.find(p => p.id !== currentUser.id);
+  const name = otherParticipant?.displayName || otherParticipant?.username || t("chat.anonymousUser");
+
+  const getInitials = (n: string) => {
+    return n.split(" ").map(p => p[0]).join("").toUpperCase().substring(0, 2);
+  };
+
+  const formatMessageDate = (date: Date) => {
+    if (isToday(date)) return format(date, "h:mm a");
+    if (isYesterday(date)) return t("common.yesterday");
+    return format(date, "MMM d");
+  };
+
+  const messageGroups = messages.reduce((groups: any[], message) => {
+    const date = format(new Date(message.createdAt), "MMMM d, yyyy");
+    const group = groups.find(g => g.date === date);
+    if (group) {
+      group.messages.push(message);
+    } else {
+      groups.push({ date, messages: [message] });
+    }
+    return groups;
+  }, []);
+
+  const clearChatMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("DELETE", `/api/conversations/${conversationId}/messages`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
+      setClearChatOpen(false);
+      toast({ title: t("chat.chatCleared") });
+    },
+  });
+
+  const blockUserMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", `/api/users/${otherParticipant?.id}/block`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      setBlockUserOpen(false);
+      onBack();
+      toast({ title: t("chat.userBlocked") });
+    },
+  });
+
+  const handleSendMessage = () => {
+    if (!messageInput.trim()) return;
+    sendMessageMutation.mutate({ content: messageInput });
+    setMessageInput("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-full bg-background">

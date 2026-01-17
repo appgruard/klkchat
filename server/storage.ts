@@ -277,6 +277,11 @@ export class DatabaseStorage implements IStorage {
         encryptedContent: messages.encryptedContent,
         iv: messages.iv,
         status: messages.status,
+        fileUrl: messages.fileUrl,
+        fileName: messages.fileName,
+        fileType: messages.fileType,
+        fileSize: messages.fileSize,
+        duration: messages.duration,
         createdAt: messages.createdAt,
         sender: {
           id: users.id,
