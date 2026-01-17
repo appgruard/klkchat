@@ -120,6 +120,7 @@ export function ConversationView({
   });
 
   const handleFileUpload = async (file: File | Blob, originalName?: string) => {
+    console.log("Starting file upload:", originalName || (file as File).name);
     setIsUploading(true);
     setUploadProgress(0);
     const formData = new FormData();
@@ -131,24 +132,40 @@ export function ConversationView({
         xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
+            console.log(`Upload progress: ${progress}%`);
             setUploadProgress(progress);
           }
         });
 
         xhr.onload = () => {
+          console.log("XHR onload status:", xhr.status);
           if (xhr.status >= 200 && xhr.status < 300) {
-            resolve(JSON.parse(xhr.responseText));
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch (e) {
+              reject(new Error("Failed to parse response"));
+            }
           } else {
-            reject(new Error("Upload failed"));
+            reject(new Error(`Upload failed with status ${xhr.status}`));
           }
         };
 
-        xhr.onerror = () => reject(new Error("Upload failed"));
+        xhr.onerror = () => {
+          console.error("XHR error event triggered");
+          reject(new Error("Network error during upload"));
+        };
+        
+        xhr.onabort = () => {
+          console.warn("XHR upload aborted");
+          reject(new Error("Upload aborted"));
+        };
+
         xhr.open("POST", "/api/upload");
         xhr.send(formData);
       });
 
       const fileData = await uploadPromise as any;
+      console.log("File uploaded successfully:", fileData);
 
       let fileType: string = "document";
       const mimeType = (file as File).type || file.type;
@@ -167,7 +184,7 @@ export function ConversationView({
         },
       });
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("Upload error details:", error);
       toast({
         title: t("error.title"),
         description: t("error.uploadFailed"),
