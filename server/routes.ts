@@ -417,7 +417,7 @@ export async function registerRoutes(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://${process.env.REPLIT_DEV_DOMAIN}/uploads/app-logo.png" alt="KLK! Chat" class="logo-img">
+            <img src="cid:app-logo" alt="KLK! Chat" class="logo-img">
             <a href="https://${process.env.REPLIT_DEV_DOMAIN}" class="logo-text">KLK! Chat</a>
           </div>
           <div class="content">
@@ -434,12 +434,26 @@ export async function registerRoutes(
     </html>
   `;
 
+  const sendMailWithLogo = async (options: any) => {
+    return transporter.sendMail({
+      ...options,
+      attachments: [
+        ...(options.attachments || []),
+        {
+          filename: 'logo.png',
+          path: path.resolve(process.cwd(), 'uploads/app-logo.png'),
+          cid: 'app-logo'
+        }
+      ]
+    });
+  };
+
   app.post("/api/test-email", requireAuth, async (req, res) => {
     try {
       const { to } = req.body;
       if (!to) return res.status(400).json({ message: "Recipient email is required" });
 
-      await transporter.sendMail({
+      await sendMailWithLogo({
         from: FROM_EMAIL,
         to: to,
         subject: "Correo de Prueba - KLK! Chat",
@@ -461,10 +475,7 @@ export async function registerRoutes(
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
-      const email = user.email || (user as any).username; // Fallback to username if email is missing or test with username
-      if (!email && !user.email) return res.status(400).json({ message: "No email set" });
-      
-      const targetEmail = user.email || "admin@fourone.com.do"; // Forcing for the test as requested
+      const targetEmail = user.email || "admin@fourone.com.do";
       
       const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
       await storage.createRecoveryCode({
@@ -473,7 +484,8 @@ export async function registerRoutes(
         expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 mins
       });
 
-      await transporter.sendMail({
+      console.log(`Sending verification email to: ${targetEmail}`);
+      const info = await sendMailWithLogo({
         from: FROM_EMAIL,
         to: targetEmail,
         subject: "Verificación de Correo - KLK! Chat",
@@ -485,6 +497,7 @@ export async function registerRoutes(
           Este código expirará en 15 minutos.`
         ),
       });
+      console.log("Verification email sent:", info.messageId);
 
       res.json({ message: "Verification code sent" });
     } catch (error) {
@@ -521,7 +534,7 @@ export async function registerRoutes(
         expiresAt: new Date(Date.now() + 15 * 60 * 1000),
       });
 
-      await transporter.sendMail({
+      await sendMailWithLogo({
         from: FROM_EMAIL,
         to: email,
         subject: "Recuperación de Contraseña - KLK! Chat",
