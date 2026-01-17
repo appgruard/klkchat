@@ -151,16 +151,26 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
     try {
+      const isNewEmail = data.email && data.email !== (user as any).email;
+      
       await apiRequest("PATCH", "/api/auth/profile", { 
         displayName: data.displayName,
         email: data.email || null,
       });
+      
       await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      
       toast({
         title: t("profile.updated"),
         description: t("profile.updatedDesc"),
       });
-      onOpenChange(false);
+
+      if (isNewEmail) {
+        // Automatically trigger verification if a new email was set
+        await onSendVerification();
+      } else {
+        onOpenChange(false);
+      }
     } catch (error: unknown) {
       toast({
         title: t("profile.updateFailed"),

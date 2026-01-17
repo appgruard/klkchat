@@ -139,9 +139,22 @@ export function ConversationView({
       return { previousMessages };
     },
     onError: (err, newMessage, context) => {
+      // Mark optimistic message as failed
       if (context?.previousMessages) {
-        queryClient.setQueryData(["/api/conversations", conversationId, "messages"], context.previousMessages);
+        const updatedMessages = context.previousMessages.map((m: any) => {
+          if (m.id.toString().startsWith("temp-")) {
+            return { ...m, status: "failed" };
+          }
+          return m;
+        });
+        queryClient.setQueryData(["/api/conversations", conversationId, "messages"], updatedMessages);
       }
+      
+      toast({
+        title: t("error.title"),
+        description: t("error.messageFailed"),
+        variant: "destructive",
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
@@ -620,9 +633,17 @@ export function ConversationView({
                               {format(new Date(message.createdAt), "h:mm a")}
                             </span>
                             {isSent && (
-                              <span className="text-primary text-xs flex gap-[2px]">
-                                {message.status === "read" ? "✓✓" : "✓"}
-                              </span>
+                              <div className="flex items-center gap-[2px]">
+                                {message.status === "sending" ? (
+                                  <div className="h-3 w-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                ) : message.status === "failed" ? (
+                                  <span className="text-destructive text-xs">!</span>
+                                ) : (
+                                  <span className="text-primary text-xs">
+                                    {message.status === "read" ? "✓✓" : "✓"}
+                                  </span>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>

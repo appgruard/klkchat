@@ -705,9 +705,12 @@ export async function registerRoutes(
         fileType: req.file?.mimetype || extraData.fileType,
         fileSize: req.file?.size?.toString() || extraData.fileSize,
         duration: extraData.duration ? parseInt(extraData.duration) : undefined,
+      }).catch(err => {
+        console.error("Database save failed:", err);
+        throw err;
       });
 
-      // Respond immediately with optimistic data if possible, or wait just for creation
+      // Wait for creation to ensure we have a valid message object with ID
       const message = await createMessagePromise;
       
       const messageWithSender = {
@@ -724,21 +727,23 @@ export async function registerRoutes(
           } else if (participant.id !== user.id) {
             // Push notification for offline users
             storage.getPushSubscriptions(participant.id).then(subscriptions => {
-              subscriptions.forEach(sub => {
-                const pushPayload = JSON.stringify({
-                  title: user.displayName || user.username,
-                  body: type === "text" ? content : "Envió un archivo",
-                  url: `/conversations/${id}`
+              if (subscriptions && subscriptions.length > 0) {
+                subscriptions.forEach(sub => {
+                  const pushPayload = JSON.stringify({
+                    title: user.displayName || user.username,
+                    body: type === "text" ? content : "Envió un archivo",
+                    url: `/conversations/${id}`
+                  });
+                  webpush.sendNotification({
+                    endpoint: sub.endpoint,
+                    keys: {
+                      p256dh: sub.p256dh,
+                      auth: sub.auth
+                    }
+                  }, pushPayload).catch(err => console.error("Push notification error:", err));
                 });
-                webpush.sendNotification({
-                  endpoint: sub.endpoint,
-                  keys: {
-                    p256dh: sub.p256dh,
-                    auth: sub.auth
-                  }
-                }, pushPayload).catch(err => console.error("Push notification error:", err));
-              });
-            });
+              }
+            }).catch(err => console.error("Error getting subscriptions:", err));
           }
         });
       });
