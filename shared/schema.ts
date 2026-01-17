@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   displayName: text("display_name"),
+  email: text("email"),
+  avatarUrl: text("avatar_url"),
   isAnonymous: boolean("is_anonymous").default(false).notNull(),
   isOnline: boolean("is_online").default(false).notNull(),
   lastSeen: timestamp("last_seen").defaultNow(),
@@ -161,12 +163,16 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   displayName: true,
+  email: true,
+  avatarUrl: true,
   isAnonymous: true,
   publicKey: true,
 }).extend({
   username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
   password: z.string().min(6),
   displayName: z.string().min(1).max(50).optional(),
+  email: z.string().email("validation.invalidEmail").optional().or(z.literal("")),
+  avatarUrl: z.string().optional(),
 });
 
 export const insertMessageSchema = createInsertSchema(messages).pick({

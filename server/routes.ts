@@ -288,18 +288,33 @@ export async function registerRoutes(
   app.patch("/api/auth/profile", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
-      const { displayName } = req.body;
+      const { displayName, email, avatarUrl } = req.body;
 
-      if (!displayName || typeof displayName !== "string") {
-        return res.status(400).json({ message: "Invalid display name" });
+      const updates: Partial<User> = {};
+      
+      if (displayName !== undefined) {
+        if (typeof displayName !== "string") {
+          return res.status(400).json({ message: "Invalid display name" });
+        }
+        const trimmedName = displayName.trim();
+        if (trimmedName.length > 50) {
+          return res.status(400).json({ message: "Display name must be less than 50 characters" });
+        }
+        updates.displayName = trimmedName;
       }
 
-      const trimmedName = displayName.trim();
-      if (trimmedName.length === 0 || trimmedName.length > 50) {
-        return res.status(400).json({ message: "Display name must be between 1 and 50 characters" });
+      if (email !== undefined) {
+        if (email !== "" && !z.string().email().safeParse(email).success) {
+          return res.status(400).json({ message: "Invalid email" });
+        }
+        updates.email = email || null;
       }
 
-      const updatedUser = await storage.updateUser(user.id, { displayName: trimmedName });
+      if (avatarUrl !== undefined) {
+        updates.avatarUrl = avatarUrl || null;
+      }
+
+      const updatedUser = await storage.updateUser(user.id, updates);
       if (!updatedUser) {
         return res.status(500).json({ message: "Failed to update profile" });
       }

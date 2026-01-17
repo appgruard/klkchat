@@ -28,6 +28,7 @@ import type { UserPublic } from "@shared/schema";
 
 const profileSchema = z.object({
   displayName: z.string().min(1, "validation.displayNameRequired").max(50),
+  email: z.string().email("validation.invalidEmail").optional().or(z.literal("")),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -45,7 +46,10 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { displayName: user.displayName || "" },
+    defaultValues: { 
+      displayName: user.displayName || "",
+      email: (user as any).email || "",
+    },
   });
 
   const getInitials = (name: string) => {
@@ -57,10 +61,47 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
       .slice(0, 2);
   };
 
+  const onAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (!res.ok) throw new Error("Upload failed");
+      
+      const { url } = await res.json();
+      await apiRequest("PATCH", "/api/auth/profile", { avatarUrl: url });
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      toast({
+        title: t("profile.updated"),
+        description: t("profile.avatarUpdated"),
+      });
+    } catch (error: any) {
+      toast({
+        title: t("profile.updateFailed"),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true);
     try {
-      await apiRequest("PATCH", "/api/auth/profile", { displayName: data.displayName });
+      await apiRequest("PATCH", "/api/auth/profile", { 
+        displayName: data.displayName,
+        email: data.email || null,
+      });
       await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
         title: t("profile.updated"),
@@ -94,11 +135,21 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-4">
-          <Avatar className="h-20 w-20">
-            <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
-              {getInitials(displayName)}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative group">
+            <Avatar className="h-20 w-20">
+              {(user as any).avatarUrl ? (
+                <img src={(user as any).avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+              ) : (
+                <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
+                  {getInitials(displayName)}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 cursor-pointer rounded-full transition-opacity">
+              <span className="text-xs font-medium">{t("profile.change")}</span>
+              <input type="file" className="hidden" accept="image/*" onChange={onAvatarUpload} disabled={isLoading} />
+            </label>
+          </div>
           <p className="text-sm text-muted-foreground">@{user.username}</p>
         </div>
 
@@ -115,6 +166,25 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
                       {...field}
                       placeholder={t("form.howToCallYou")}
                       data-testid="input-profile-display-name"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("form.email")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="email@example.com"
+                      data-testid="input-profile-email"
                     />
                   </FormControl>
                   <FormMessage />
