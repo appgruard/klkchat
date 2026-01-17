@@ -399,6 +399,26 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/test-email", requireAuth, async (req, res) => {
+    try {
+      const { to } = req.body;
+      if (!to) return res.status(400).json({ message: "Recipient email is required" });
+
+      await transporter.sendMail({
+        from: FROM_EMAIL,
+        to: to,
+        subject: "Correo de Prueba - KLK! Chat",
+        text: "Este es un correo de prueba para verificar la configuración SMTP.",
+        html: "<b>Este es un correo de prueba para verificar la configuración SMTP.</b>",
+      });
+
+      res.json({ message: "Test email sent successfully" });
+    } catch (error) {
+      console.error("Test email error:", error);
+      res.status(500).json({ message: "Failed to send test email", error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
   // User routes
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
