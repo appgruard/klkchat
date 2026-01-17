@@ -20,9 +20,16 @@ import fs from "fs";
 const SALT_ROUNDS = 12;
 
 // Configure multer for file uploads
+const uploadDir = path.resolve(process.cwd(), "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const upload = multer({
   storage: multer.diskStorage({
-    destination: "uploads/",
+    destination: (_req, _file, cb) => {
+      cb(null, uploadDir);
+    },
     filename: (_req, file, cb) => {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
@@ -32,11 +39,6 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
 });
-
-// Ensure uploads directory exists
-if (!fs.existsSync("uploads")) {
-  fs.mkdirSync("uploads");
-}
 
 // Configure web-push
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -469,7 +471,7 @@ export async function registerRoutes(
       return res.status(401).send("Unauthorized");
     }
     next();
-  }, express.static("uploads"));
+  }, express.static(uploadDir));
 
   app.post("/api/conversations/:id/read", requireAuth, async (req, res) => {
     try {
