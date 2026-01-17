@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,19 +27,19 @@ type RegisterFormData = {
 };
 
 export default function AuthPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login, register, registerAnonymous } = useAuth();
   const { toast } = useToast();
 
-  const loginSchema = z.object({
+  const loginSchema = useMemo(() => z.object({
     username: z.string().min(3, t("validation.usernameMin")),
     password: z.string().min(6, t("validation.passwordMin")),
-  });
+  }), [i18n.language]);
 
-  const registerSchema = z.object({
+  const registerSchema = useMemo(() => z.object({
     username: z.string()
       .min(3, t("validation.usernameMin"))
       .max(30, t("validation.usernameMax"))
@@ -50,7 +50,7 @@ export default function AuthPage() {
   }).refine((data) => data.password === data.confirmPassword, {
     message: t("validation.passwordsMatch"),
     path: ["confirmPassword"],
-  });
+  }), [i18n.language]);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),

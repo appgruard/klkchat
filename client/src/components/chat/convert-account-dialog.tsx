@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -39,13 +39,13 @@ export function ConvertAccountDialog({
   open,
   onOpenChange,
 }: ConvertAccountDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { convertAnonymous } = useAuth();
   const { toast } = useToast();
 
-  const convertSchema = z.object({
+  const convertSchema = useMemo(() => z.object({
     username: z.string()
       .min(3, t("validation.usernameMin"))
       .max(30, t("validation.usernameMax"))
@@ -55,7 +55,7 @@ export function ConvertAccountDialog({
   }).refine((data) => data.password === data.confirmPassword, {
     message: t("validation.passwordsMatch"),
     path: ["confirmPassword"],
-  });
+  }), [i18n.language]);
 
   const form = useForm<ConvertFormData>({
     resolver: zodResolver(convertSchema),
