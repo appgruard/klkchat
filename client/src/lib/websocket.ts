@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 
 export type WebSocketMessage = {
-  type: "message" | "typing" | "read" | "online" | "offline" | "error";
+  type: "message" | "typing" | "read" | "read_receipt" | "online" | "offline" | "error";
   payload: unknown;
 };
 

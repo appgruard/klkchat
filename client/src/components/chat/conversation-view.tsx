@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Send, ArrowLeft, MoreVertical, Shield, Lock } from "lucide-react";
+import { Send, ArrowLeft, MoreVertical, Shield, Lock, Paperclip, File, Image as ImageIcon, Video, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -21,6 +21,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTitle as DialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { ConversationWithParticipants, MessageWithSender, UserPublic } from "@shared/schema";
 import { format, isToday, isYesterday } from "date-fns";
@@ -46,6 +47,8 @@ export function ConversationView({
   const [profileOpen, setProfileOpen] = useState(false);
   const [clearChatOpen, setClearChatOpen] = useState(false);
   const [blockUserOpen, setBlockUserOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
@@ -57,10 +60,28 @@ export function ConversationView({
     queryKey: ["/api/conversations", conversationId, "messages"],
   });
 
+  const markAsReadMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest("POST", `/api/conversations/${conversationId}/read`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations", conversationId, "messages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+    },
+  });
+
+  useEffect(() => {
+    const unreadMessages = messages.filter(m => m.senderId !== currentUser.id && m.status !== "read");
+    if (unreadMessages.length > 0) {
+      markAsReadMutation.mutate();
+    }
+  }, [messages, currentUser.id]);
+
   const sendMessageMutation = useMutation({
-    mutationFn: async (content: string) => {
+    mutationFn: async (payload: { content: string; file?: any }) => {
       return await apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
-        content,
+        content: payload.content,
+        ...payload.file
       });
     },
     onSuccess: () => {
@@ -68,6 +89,49 @@ export function ConversationView({
       queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
     },
   });
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Upload failed");
+      const fileData = await response.json();
+
+      let fileType: string = "document";
+      if (file.type.startsWith("image/")) fileType = "image";
+      else if (file.type.startsWith("video/")) fileType = "video";
+
+      await sendMessageMutation.mutateAsync({
+        content: t("chat.sentFile", { name: file.name }),
+        file: {
+          fileUrl: fileData.url,
+          fileName: fileData.name,
+          fileType: fileType,
+          fileSize: fileData.size.toString(),
+        },
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: t("error.title"),
+        description: t("error.uploadFailed"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const clearChatMutation = useMutation({
     mutationFn: async () => {
@@ -131,7 +195,7 @@ export function ConversationView({
     setMessageInput("");
     
     try {
-      await sendMessageMutation.mutateAsync(content);
+      await sendMessageMutation.mutateAsync({ content });
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -191,6 +255,41 @@ export function ConversationView({
   };
 
   const messageGroups = groupMessagesByDate(messages);
+
+  const renderFileContent = (message: MessageWithSender) => {
+    if (!message.fileUrl) return null;
+
+    if (message.fileType === "image") {
+      return (
+        <div className="mt-2 rounded-md overflow-hidden border border-muted">
+          <img src={message.fileUrl} alt={message.fileName || "Image"} className="max-w-full h-auto cursor-pointer hover:opacity-90 transition-opacity" onClick={() => window.open(message.fileUrl!, '_blank')} />
+        </div>
+      );
+    }
+
+    if (message.fileType === "video") {
+      return (
+        <div className="mt-2 rounded-md overflow-hidden border border-muted">
+          <video src={message.fileUrl} controls className="max-w-full h-auto" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-2 flex items-center gap-3 p-2 rounded-md bg-background/50 border border-muted">
+        <div className="p-2 rounded bg-primary/10 text-primary">
+          <File className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">{message.fileName}</p>
+          <p className="text-[10px] text-muted-foreground">{message.fileSize ? `${(parseInt(message.fileSize) / 1024).toFixed(1)} KB` : ''}</p>
+        </div>
+        <Button variant="ghost" size="icon" onClick={() => window.open(message.fileUrl!, '_blank')}>
+          <Download className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -323,12 +422,13 @@ export function ConversationView({
                           <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
                             {message.encryptedContent}
                           </p>
+                          {renderFileContent(message)}
                           <div className="flex items-center justify-end gap-1 mt-1">
                             <span className="text-[11px] text-muted-foreground">
                               {format(new Date(message.createdAt), "h:mm a")}
                             </span>
                             {isSent && (
-                              <span className="text-primary text-xs">
+                              <span className="text-primary text-xs flex gap-[2px]">
                                 {message.status === "read" ? "✓✓" : "✓"}
                               </span>
                             )}
@@ -347,17 +447,34 @@ export function ConversationView({
 
       <footer className="p-3 border-t bg-card">
         <div className="flex items-center gap-2">
+          <input
+            type="file"
+            className="hidden"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading || sendMessageMutation.isPending}
+            data-testid="button-attach-file"
+          >
+            <Paperclip className="h-5 w-5" />
+          </Button>
           <Input
             value={messageInput}
             onChange={(e) => setMessageInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t("chat.typeMessage")}
             className="flex-1"
+            disabled={isUploading}
             data-testid="input-message"
           />
           <Button
             onClick={handleSendMessage}
-            disabled={!messageInput.trim() || sendMessageMutation.isPending}
+            disabled={!messageInput.trim() || sendMessageMutation.isPending || isUploading}
             size="icon"
             data-testid="button-send-message"
           >
