@@ -252,7 +252,7 @@ export function ConversationView({
     if (message.fileType === "audio") {
       const isVoiceMessage = message.fileName?.startsWith("audio-");
       return (
-        <div className={`mt-2 p-3 rounded-xl border border-muted/50 shadow-sm min-w-[240px] ${isVoiceMessage ? "bg-primary/5" : "bg-background/50"}`}>
+        <div className={`mt-1 p-3 rounded-xl border border-muted/50 shadow-sm min-w-[240px] ${isVoiceMessage ? "bg-primary/10" : "bg-background/80"}`}>
           <div className="flex items-center gap-3 mb-2">
             <div className={`p-2 rounded-full ${isVoiceMessage ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
               <Mic className="h-4 w-4" />
@@ -268,7 +268,7 @@ export function ConversationView({
               )}
             </div>
           </div>
-          <audio src={message.fileUrl} controls className="w-full h-8 custom-audio-player" />
+          <audio src={message.fileUrl} controls className="w-full h-8 custom-audio-player filter invert dark:invert-0" />
           <style dangerouslySetInnerHTML={{ __html: `
             .custom-audio-player::-webkit-media-controls-enclosure {
               background-color: transparent;
@@ -465,9 +465,11 @@ export function ConversationView({
                               : "bg-card text-card-foreground"
                           }`}
                         >
-                          <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
-                            {message.encryptedContent}
-                          </p>
+                          {!message.fileUrl && (
+                            <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
+                              {message.encryptedContent}
+                            </p>
+                          )}
                           {renderFileContent(message)}
                           <div className="flex items-center justify-end gap-1 mt-1">
                             <span className="text-[11px] text-muted-foreground">
