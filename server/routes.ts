@@ -746,152 +746,6 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/conversations/:id/messages", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id } = req.params;
-      const { content } = req.body;
-
-      if (!content || typeof content !== "string") {
-        return res.status(400).json({ message: "Message content is required" });
-      }
-
-      const conversationId = id as string;
-      const conversation = await storage.getConversationWithParticipants(conversationId, user.id);
-      if (!conversation) {
-        return res.status(404).json({ message: "Conversation not found" });
-      }
-
-      const isParticipant = conversation.participants.some((p) => p.id === user.id);
-      if (!isParticipant) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      // Check if either user has blocked the other
-      const otherParticipant = conversation.participants.find((p) => p.id !== user.id);
-      if (otherParticipant) {
-        const iBlockedThem = await storage.isUserBlocked(user.id, otherParticipant.id);
-        const theyBlockedMe = await storage.isUserBlocked(otherParticipant.id, user.id);
-        if (iBlockedThem || theyBlockedMe) {
-          return res.status(403).json({ message: "Cannot send messages to this user" });
-        }
-      }
-
-      // For simplicity, we'll store the content directly
-      // In a full E2EE implementation, this would be encrypted client-side
-      const message = await storage.createMessage({
-        conversationId: conversationId,
-        senderId: user.id,
-        encryptedContent: content,
-        iv: randomBytes(12).toString("base64"),
-        fileUrl: req.body.fileUrl,
-        fileName: req.body.fileName,
-        fileType: req.body.fileType,
-        fileSize: req.body.fileSize,
-        duration: req.body.duration,
-      });
-
-      // Notify other participants via WebSocket
-      const otherParticipants = conversation.participants.filter((p) => p.id !== user.id);
-      const messageWithSender = {
-        ...message,
-        sender: sanitizeUser(user as User),
-      };
-
-      for (const participant of otherParticipants) {
-        const ws = wsClients.get(participant.id);
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(
-            JSON.stringify({
-              type: "message",
-              payload: messageWithSender,
-            })
-          );
-        }
-      }
-
-      res.json(messageWithSender);
-    } catch (error) {
-      console.error("Send message error:", error);
-      res.status(500).json({ message: "Failed to send message" });
-    }
-  });
-
-  // Clear chat messages
-  app.delete("/api/conversations/:id/messages", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id } = req.params;
-
-      const conversation = await storage.getConversationWithParticipants(id as string, user.id);
-      if (!conversation) {
-        return res.status(404).json({ message: "Conversation not found" });
-      }
-
-      const isParticipant = conversation.participants.some((p) => p.id === user.id);
-      if (!isParticipant) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      await storage.clearMessagesForConversation(id as string);
-      res.json({ message: "Chat cleared successfully" });
-    } catch (error) {
-      console.error("Clear chat error:", error);
-      res.status(500).json({ message: "Failed to clear chat" });
-    }
-  });
-
-  // Block user
-  app.post("/api/users/:id/block", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id: blockedId } = req.params;
-
-      if (blockedId === user.id) {
-        return res.status(400).json({ message: "Cannot block yourself" });
-      }
-
-      const targetUser = await storage.getUser(blockedId as string);
-      if (!targetUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      await storage.blockUser(user.id, blockedId as string);
-      res.json({ message: "User blocked successfully" });
-    } catch (error) {
-      console.error("Block user error:", error);
-      res.status(500).json({ message: "Failed to block user" });
-    }
-  });
-
-  // Unblock user
-  app.delete("/api/users/:id/block", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id: blockedId } = req.params;
-
-      await storage.unblockUser(user.id, blockedId as string);
-      res.json({ message: "User unblocked successfully" });
-    } catch (error) {
-      console.error("Unblock user error:", error);
-      res.status(500).json({ message: "Failed to unblock user" });
-    }
-  });
-
-  // Check if user is blocked
-  app.get("/api/users/:id/blocked", requireAuth, async (req, res) => {
-    try {
-      const user = req.user as User;
-      const { id: targetId } = req.params;
-
-      const isBlocked = await storage.isUserBlocked(user.id, targetId as string);
-      res.json({ blocked: isBlocked });
-    } catch (error) {
-      console.error("Check blocked error:", error);
-      res.status(500).json({ message: "Failed to check blocked status" });
-    }
-  });
-
   // WebSocket setup
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });
 
@@ -906,6 +760,11 @@ export async function registerRoutes(
 
     // Store the connection
     wsClients.set(userId, ws);
+    
+    // Set heartbeat
+    (ws as any).isAlive = true;
+    ws.on('pong', () => { (ws as any).isAlive = true; });
+
     await storage.setUserOnline(userId, true);
 
     // Notify other users that this user is online
@@ -957,6 +816,17 @@ export async function registerRoutes(
     });
   });
 
+  // Keep alive interval
+  const interval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+      if ((ws as any).isAlive === false) return ws.terminate();
+      (ws as any).isAlive = false;
+      ws.ping();
+    });
+  }, 30000);
+
+  wss.on('close', () => clearInterval(interval));
+
   function broadcastUserStatus(userId: string, isOnline: boolean) {
     const statusMessage = JSON.stringify({
       type: isOnline ? "online" : "offline",
@@ -969,6 +839,77 @@ export async function registerRoutes(
       }
     });
   }
+
+  app.post("/api/conversations/:id/messages", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      const { content, type = "text" } = req.body;
+      let fileUrl = null;
+
+      if (req.file) {
+        fileUrl = `/uploads/${req.file.filename}`;
+      }
+
+      // Check for blockages
+      const conversationId = id as string;
+      const conversation = await storage.getConversationWithParticipants(conversationId, user.id);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      const otherParticipant = conversation.participants.find((p) => p.id !== user.id);
+      if (otherParticipant) {
+        const iBlockedThem = await storage.isUserBlocked(user.id, otherParticipant.id);
+        const theyBlockedMe = await storage.isUserBlocked(otherParticipant.id, user.id);
+        if (iBlockedThem || theyBlockedMe) {
+          return res.status(403).json({ message: "Cannot send messages to this user" });
+        }
+      }
+
+      const message = await storage.createMessage({
+        conversationId: id,
+        senderId: user.id,
+        encryptedContent: content || "",
+        iv: randomBytes(12).toString("base64"),
+        fileUrl,
+        fileName: req.file?.originalname,
+        fileType: req.file?.mimetype,
+        fileSize: req.file?.size,
+      });
+
+      const messageWithSender = {
+        ...message,
+        sender: sanitizeUser(user),
+      };
+
+      // Real-time delivery
+      conversation.participants.forEach((participant) => {
+        const ws = wsClients.get(participant.id);
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "message", payload: messageWithSender }));
+        } else if (participant.id !== user.id) {
+          // Push notification for offline users
+          storage.getPushSubscription(participant.id).then(subscription => {
+            if (subscription) {
+              const pushPayload = JSON.stringify({
+                title: user.displayName || user.username,
+                body: type === "text" ? content : "Envió un archivo",
+                url: `/conversations/${id}`
+              });
+              webpush.sendNotification(JSON.parse(subscription), pushPayload)
+                .catch(err => console.error("Push notification error:", err));
+            }
+          });
+        }
+      });
+
+      res.json(messageWithSender);
+    } catch (error) {
+      console.error("Send message error:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
 
   return httpServer;
 }
