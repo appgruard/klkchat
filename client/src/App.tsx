@@ -15,10 +15,19 @@ function PushManager() {
 
   useEffect(() => {
     if (user && "serviceWorker" in navigator && "PushManager" in window) {
-      navigator.serviceWorker.ready.then(async (registration) => {
-        const subscription = await registration.pushManager.getSubscription();
-        if (!subscription) {
-          try {
+      const handleRegistration = async () => {
+        try {
+          // Explicitly request notification permission
+          const permission = await Notification.requestPermission();
+          if (permission !== 'granted') {
+            console.log('Notification permission denied');
+            return;
+          }
+
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.getSubscription();
+          
+          if (!subscription) {
             const res = await fetch("/api/push/key");
             const { publicKey } = await res.json();
             if (!publicKey) return;
@@ -33,11 +42,14 @@ function PushManager() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(newSubscription),
             });
-          } catch (err) {
-            console.error("Failed to subscribe to push notifications", err);
+            console.log('Successfully subscribed to push notifications');
           }
+        } catch (err) {
+          console.error("Failed to subscribe to push notifications", err);
         }
-      });
+      };
+
+      handleRegistration();
     }
   }, [user]);
 
