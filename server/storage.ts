@@ -456,6 +456,8 @@ export class DatabaseStorage implements IStorage {
       .from(blockedUsers)
       .innerJoin(users, eq(blockedUsers.blockedId, users.id))
       .where(eq(blockedUsers.blockerId, userId));
+    
+    console.log(`Fetching blocked users for ${userId} (Storage), found: ${results.length}`);
     return results;
   }
 

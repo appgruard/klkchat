@@ -661,10 +661,25 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/users/:id/block", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      await storage.blockUser(user.id, id);
+      console.log(`API: User ${user.id} blocked ${id}`);
+      res.json({ message: "User blocked successfully" });
+    } catch (error) {
+      console.error("Block user error:", error);
+      res.status(500).json({ message: "Failed to block user" });
+    }
+  });
+
   app.get("/api/users/blocked", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
       const blockedUsers = await storage.getBlockedUsersDetailed(user.id);
+      // Log for debugging
+      console.log(`API: Sending ${blockedUsers.length} blocked users for user ${user.id}`);
       res.json(blockedUsers);
     } catch (error) {
       console.error("Get blocked users error:", error);

@@ -55,10 +55,14 @@ export function SecurityDialog({ open, onOpenChange, isAnonymous }: SecurityDial
   const { logout } = useAuth();
   const [deletePassword, setDeletePassword] = useState("");
 
-  const { data: blockedUsers = [], isLoading: loadingBlocked } = useQuery<UserPublic[]>({
+  const { data: blockedUsers = [], isLoading: loadingBlocked, error: blockedError } = useQuery<UserPublic[]>({
     queryKey: ["/api/users/blocked"],
     enabled: open,
   });
+
+  if (blockedError) {
+    console.error("Error fetching blocked users:", blockedError);
+  }
 
   const form = useForm<PasswordFormData>({
     resolver: zodResolver(passwordSchema),
@@ -259,7 +263,7 @@ export function SecurityDialog({ open, onOpenChange, isAnonymous }: SecurityDial
                               <AvatarFallback className="text-[10px]">{getInitials(user.displayName || user.username)}</AvatarFallback>
                             )}
                           </Avatar>
-                          <div className="min-w-0">
+                          <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium truncate">{user.displayName || user.username}</p>
                             <p className="text-xs text-muted-foreground">@{user.username}</p>
                           </div>
