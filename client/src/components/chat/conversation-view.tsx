@@ -156,7 +156,7 @@ export function ConversationView({
         variant: "destructive",
       });
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       // Reemplazar el mensaje optimista con el real del servidor
       queryClient.setQueryData(["/api/conversations", conversationId, "messages"], (old: any) => {
         if (!old) return [data];

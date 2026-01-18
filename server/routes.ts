@@ -684,6 +684,20 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/users/search/:query", requireAuth, async (req, res) => {
+    try {
+      const { query } = req.params as { query: string };
+      if (query.length < 2) {
+        return res.json([]);
+      }
+      const users = await storage.searchUsers(query, (req.user as User).id);
+      res.json(users);
+    } catch (error) {
+      console.error("User search error:", error);
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
   // Conversation routes
   app.get("/api/conversations", requireAuth, async (req, res) => {
     try {
