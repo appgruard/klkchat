@@ -476,6 +476,71 @@ export async function registerRoutes(
   // User routes
   app.use("/uploads", express.static(uploadDir));
 
+  // WebSocket server setup
+  const wss = new WebSocketServer({ noServer: true });
+
+  httpServer.on("upgrade", (request, socket, head) => {
+    session({
+      store: new PgSession({
+        pool,
+        tableName: "sessions",
+        createTableIfMissing: true,
+      }),
+      proxy: true,
+      secret: process.env.SESSION_SECRET || "four-one-solutions-secret-key",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      },
+    })(request as any, {} as any, () => {
+      if (!request.url?.startsWith("/ws")) {
+        socket.destroy();
+        return;
+      }
+
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const userId = url.searchParams.get("userId");
+
+      if (!userId) {
+        socket.destroy();
+        return;
+      }
+
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit("connection", ws, request, userId);
+      });
+    });
+  });
+
+  wss.on("connection", (ws: WebSocket, _request: any, userId: string) => {
+    wsClients.set(userId, ws);
+    
+    // Broadcast online status
+    const broadcastStatus = (type: "online" | "offline") => {
+      wsClients.forEach((client, id) => {
+        if (id !== userId && client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify({ type, payload: { userId } }));
+        }
+      });
+    };
+
+    broadcastStatus("online");
+
+    ws.on("close", () => {
+      wsClients.delete(userId);
+      broadcastStatus("offline");
+    });
+
+    ws.on("error", () => {
+      wsClients.delete(userId);
+      broadcastStatus("offline");
+    });
+  });
+
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
