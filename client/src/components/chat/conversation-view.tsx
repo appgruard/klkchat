@@ -319,10 +319,11 @@ export function ConversationView({
     if (!message.fileUrl) return null;
 
     if (message.fileType === "image") {
+      const imageUrl = message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`;
       return (
         <div className="mt-2 relative rounded-lg overflow-hidden border border-muted/30 bg-background/50 shadow-sm group">
           <img 
-            src={message.fileUrl} 
+            src={imageUrl} 
             alt={message.fileName || "Image"} 
             className="max-w-full h-auto" 
           />
@@ -334,7 +335,7 @@ export function ConversationView({
               onClick={(e) => {
                 e.stopPropagation();
                 const link = document.createElement('a');
-                link.href = message.fileUrl!;
+                link.href = imageUrl;
                 link.download = message.fileName || 'image.png';
                 document.body.appendChild(link);
                 link.click();
@@ -349,10 +350,11 @@ export function ConversationView({
     }
 
     if (message.fileType === "video") {
+      const videoUrl = message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`;
       return (
         <div className="mt-2 rounded-lg overflow-hidden border border-muted/50 bg-background/50 shadow-sm relative group">
           <video 
-            src={message.fileUrl} 
+            src={videoUrl} 
             controls 
             className="max-w-full h-auto w-full" 
             playsInline
@@ -366,7 +368,7 @@ export function ConversationView({
               onClick={(e) => {
                 e.stopPropagation();
                 const link = document.createElement('a');
-                link.href = message.fileUrl!;
+                link.href = videoUrl;
                 link.download = message.fileName || 'video.mp4';
                 document.body.appendChild(link);
                 link.click();
@@ -381,6 +383,7 @@ export function ConversationView({
     }
 
     if (message.fileType === "audio") {
+      const audioUrl = message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`;
       const isVoiceMessage = message.fileName?.startsWith("audio-");
       return (
         <div className={`mt-1 flex items-center gap-2 p-2 rounded-2xl border border-muted/30 shadow-sm min-w-[280px] w-fit ${isVoiceMessage ? "bg-primary/5" : "bg-card"}`}>
@@ -393,7 +396,7 @@ export function ConversationView({
                 {message.fileName}
               </p>
             )}
-            <audio src={message.fileUrl} controls className="w-full h-7 custom-audio-player opacity-90 hover:opacity-100 transition-opacity" />
+            <audio src={audioUrl} controls className="w-full h-7 custom-audio-player opacity-90 hover:opacity-100 transition-opacity" />
           </div>
           {message.duration && (
             <span className="text-[10px] text-muted-foreground font-mono pr-1 flex-shrink-0">

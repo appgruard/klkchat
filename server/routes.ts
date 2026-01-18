@@ -472,6 +472,8 @@ export async function registerRoutes(
   });
 
   // User routes
+  app.use("/uploads", express.static(uploadDir));
+
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
