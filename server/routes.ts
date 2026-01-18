@@ -301,10 +301,11 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+  app.patch("/api/auth/profile", requireAuth, upload.single("avatar"), async (req, res) => {
     try {
       const user = req.user as User;
-      const { displayName, email, avatarUrl } = req.body;
+      const { displayName, email } = req.body;
+      const avatarFile = req.file;
 
       const updates: Partial<User> = {};
       
@@ -337,8 +338,10 @@ export async function registerRoutes(
         }
       }
 
-      if (avatarUrl !== undefined) {
-        updates.avatarUrl = avatarUrl || null;
+      if (avatarFile) {
+        updates.avatarUrl = `/uploads/${avatarFile.filename}`;
+      } else if (req.body.avatarUrl !== undefined) {
+        updates.avatarUrl = req.body.avatarUrl || null;
       }
 
       const updatedUser = await storage.updateUser(user.id, updates);
@@ -437,16 +440,20 @@ export async function registerRoutes(
   `;
 
   const sendMailWithLogo = async (options: any) => {
+    const logoPath = path.resolve(process.cwd(), 'uploads/app-logo.png');
+    const attachments = [...(options.attachments || [])];
+    
+    if (fs.existsSync(logoPath)) {
+      attachments.push({
+        filename: 'logo.png',
+        path: logoPath,
+        cid: 'app-logo'
+      });
+    }
+
     return transporter.sendMail({
       ...options,
-      attachments: [
-        ...(options.attachments || []),
-        {
-          filename: 'logo.png',
-          path: path.resolve(process.cwd(), 'uploads/app-logo.png'),
-          cid: 'app-logo'
-        }
-      ]
+      attachments
     });
   };
 

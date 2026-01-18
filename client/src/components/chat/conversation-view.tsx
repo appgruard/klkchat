@@ -525,9 +525,13 @@ export function ConversationView({
           <>
             <div className="relative">
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  {getInitials(name)}
-                </AvatarFallback>
+                {otherParticipant.avatarUrl ? (
+                  <img src={otherParticipant.avatarUrl} alt={name} className="h-full w-full object-cover" />
+                ) : (
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {getInitials(name)}
+                  </AvatarFallback>
+                )}
               </Avatar>
               {otherParticipant.isOnline && (
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-status-online rounded-full border-2 border-card" />

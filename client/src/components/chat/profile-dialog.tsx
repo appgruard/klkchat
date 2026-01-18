@@ -112,25 +112,24 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("avatar", file);
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
+      const res = await fetch("/api/auth/profile", {
+        method: "PATCH",
         body: formData,
       });
       
-      if (!res.ok) throw new Error("Upload failed");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Upload failed");
+      }
       
-      const { url } = await res.json();
-      await apiRequest("PATCH", "/api/auth/profile", { avatarUrl: url });
-      
-      // Force reload image by adding cache buster if necessary, 
-      // but invalidating query should be enough if the URL is unique.
-      // Mullter unique suffix already handles this.
+      const updatedUser = await res.json();
       
       e.target.value = "";
+      await queryClient.setQueryData(["/api/auth/me"], updatedUser);
       await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       
       toast({

@@ -75,9 +75,13 @@ export function UserMenu({ user, onConvertAnonymous }: UserMenuProps) {
             data-testid="button-user-menu"
           >
             <Avatar className="h-9 w-9">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {getInitials(name)}
-              </AvatarFallback>
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={name} className="h-full w-full object-cover" />
+              ) : (
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {getInitials(name)}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="flex-1 text-left min-w-0">
               <p className="font-medium text-sidebar-foreground truncate text-sm">{name}</p>
