@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
+import logoPath from "@/assets/logo.png";
 
 const loginSchema = z.object({
   username: z.string().min(3, "validation.usernameMin"),

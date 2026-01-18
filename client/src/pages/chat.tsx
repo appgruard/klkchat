@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/chat/user-menu";
 import { ConvertAccountDialog } from "@/components/chat/convert-account-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { useWebSocket, type WebSocketMessage } from "@/lib/websocket";
+import logoPath from "@/assets/logo.png";
 import { MessageCircle, Shield } from "lucide-react";
 import type { MessageWithSender } from "@shared/schema";
 
@@ -99,8 +100,8 @@ export default function ChatPage() {
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center bg-card/50 text-center p-8">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-              <MessageCircle className="h-10 w-10 text-primary" />
+            <div className="w-20 h-20 rounded-full bg-card flex items-center justify-center mb-6 overflow-hidden border border-border">
+              <img src={logoPath} alt={t("app.name")} className="w-16 h-16 object-contain" />
             </div>
             <h2 className="text-2xl font-semibold mb-2">{t("app.name")} Chat</h2>
             <p className="text-muted-foreground max-w-md mb-6">
