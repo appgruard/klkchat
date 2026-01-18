@@ -126,7 +126,19 @@
     "passwordChanged": "Password changed",
     "passwordChangedDesc": "Your password has been changed successfully.",
     "changeFailed": "Failed to change password",
-    "anonymousWarning": "Create a permanent account to access security settings."
+    "anonymousWarning": "Create a permanent account to access security settings.",
+    "password": "Password",
+    "blocked": "Blocked",
+    "delete": "Delete",
+    "blockedUsers": "Blocked Users",
+    "noBlockedUsers": "You have no blocked users.",
+    "unblock": "Unblock",
+    "unblockedSuccess": "User unblocked",
+    "deleteAccount": "Delete Account",
+    "deleteAccountWarn": "This action is irreversible. All your messages and contacts will be deleted.",
+    "confirmDelete": "Delete my account permanently",
+    "accountDeleted": "Account deleted",
+    "anonymousDeleteInfo": "As an anonymous user, your account will be lost when you log out or clear your browser."
   },
   "menu": {
     "anonymous": "Anonymous",

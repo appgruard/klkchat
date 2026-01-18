@@ -109,7 +109,19 @@
     "passwordChanged": "Mot de passe changé",
     "passwordChangedDesc": "Votre mot de passe a été changé avec succès.",
     "changeFailed": "Échec du changement de mot de passe",
-    "anonymousWarning": "Créez un compte permanent pour accéder aux paramètres de sécurité."
+    "anonymousWarning": "Créez un compte permanent pour accéder aux paramètres de sécurité.",
+    "password": "Mot de passe",
+    "blocked": "Bloqués",
+    "delete": "Supprimer",
+    "blockedUsers": "Utilisateurs Bloqués",
+    "noBlockedUsers": "Vous n'avez aucun utilisateur bloqué.",
+    "unblock": "Débloquer",
+    "unblockedSuccess": "Utilisateur débloqué",
+    "deleteAccount": "Supprimer le Compte",
+    "deleteAccountWarn": "Cette action est irréversible. Tous vos messages et contacts seront supprimés.",
+    "confirmDelete": "Supprimer mon compte définitivement",
+    "accountDeleted": "Compte supprimé",
+    "anonymousDeleteInfo": "En tant qu'utilisateur anonyme, votre compte sera perdu lorsque vous vous déconnecterez ou effacerez votre navigateur."
   },
   "menu": {
     "anonymous": "Anonyme",

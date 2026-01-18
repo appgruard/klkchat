@@ -109,7 +109,19 @@
     "passwordChanged": "密码已更改",
     "passwordChangedDesc": "您的密码已成功更改。",
     "changeFailed": "更改密码失败",
-    "anonymousWarning": "创建永久账户以访问安全设置。"
+    "anonymousWarning": "创建永久账户以访问安全设置。",
+    "password": "密码",
+    "blocked": "已屏蔽",
+    "delete": "删除",
+    "blockedUsers": "已屏蔽用户",
+    "noBlockedUsers": "您没有已屏蔽的用户。",
+    "unblock": "取消屏蔽",
+    "unblockedSuccess": "用户已取消屏蔽",
+    "deleteAccount": "删除账户",
+    "deleteAccountWarn": "此操作不可逆。您的所有消息和联系人将被删除。",
+    "confirmDelete": "永久删除我的账户",
+    "accountDeleted": "账户已删除",
+    "anonymousDeleteInfo": "作为匿名用户，当您退出登录或清除浏览器时，您的账户将丢失。"
   },
   "menu": {
     "anonymous": "匿名",

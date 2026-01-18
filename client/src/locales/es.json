@@ -126,7 +126,19 @@
     "passwordChanged": "Contraseña cambiada",
     "passwordChangedDesc": "Tu contraseña ha sido cambiada correctamente.",
     "changeFailed": "Error al cambiar la contraseña",
-    "anonymousWarning": "Crea una cuenta permanente para acceder a los ajustes de seguridad."
+    "anonymousWarning": "Crea una cuenta permanente para acceder a los ajustes de seguridad.",
+    "password": "Contraseña",
+    "blocked": "Bloqueados",
+    "delete": "Eliminar",
+    "blockedUsers": "Usuarios Bloqueados",
+    "noBlockedUsers": "No tienes usuarios bloqueados.",
+    "unblock": "Desbloquear",
+    "unblockedSuccess": "Usuario desbloqueado",
+    "deleteAccount": "Eliminar Cuenta",
+    "deleteAccountWarn": "Esta acción es irreversible. Se eliminarán todos tus mensajes y contactos.",
+    "confirmDelete": "Eliminar mi cuenta permanentemente",
+    "accountDeleted": "Cuenta eliminada",
+    "anonymousDeleteInfo": "Como usuario anónimo, tu cuenta se perderá al cerrar sesión o limpiar el navegador."
   },
   "menu": {
     "anonymous": "Anónimo",

@@ -137,7 +137,7 @@ export function SecurityDialog({ open, onOpenChange, isAnonymous }: SecurityDial
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="password">{t("security.password", "Contraseña")}</TabsTrigger>
             <TabsTrigger value="blocked">{t("security.blocked", "Bloqueados")}</TabsTrigger>
-            <TabsTrigger value="danger" className="text-destructive">{t("security.danger", "Peligro")}</TabsTrigger>
+            <TabsTrigger value="danger" className="text-destructive">{t("security.delete", "Eliminar")}</TabsTrigger>
           </TabsList>
 
           <ScrollArea className="flex-1 mt-4 pr-4">

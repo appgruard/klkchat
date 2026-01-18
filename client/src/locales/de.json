@@ -109,7 +109,19 @@
     "passwordChanged": "Passwort geändert",
     "passwordChangedDesc": "Ihr Passwort wurde erfolgreich geändert.",
     "changeFailed": "Passwortänderung fehlgeschlagen",
-    "anonymousWarning": "Erstellen Sie ein permanentes Konto, um auf die Sicherheitseinstellungen zuzugreifen."
+    "anonymousWarning": "Erstellen Sie ein permanentes Konto, um auf die Sicherheitseinstellungen zuzugreifen.",
+    "password": "Passwort",
+    "blocked": "Blockiert",
+    "delete": "Löschen",
+    "blockedUsers": "Blockierte Benutzer",
+    "noBlockedUsers": "Sie haben keine blockierten Benutzer.",
+    "unblock": "Entsperren",
+    "unblockedSuccess": "Benutzer entsperrt",
+    "deleteAccount": "Konto löschen",
+    "deleteAccountWarn": "Diese Aktion kann nicht rückgängig gemacht werden. Alle Ihre Nachrichten und Kontakte werden gelöscht.",
+    "confirmDelete": "Mein Konto dauerhaft löschen",
+    "accountDeleted": "Konto gelöscht",
+    "anonymousDeleteInfo": "Als anonymer Benutzer geht Ihr Konto verloren, wenn Sie sich abmelden oder Ihren Browser löschen."
   },
   "menu": {
     "anonymous": "Anonym",

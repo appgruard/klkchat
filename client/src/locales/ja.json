@@ -109,7 +109,19 @@
     "passwordChanged": "パスワードを変更しました",
     "passwordChangedDesc": "パスワードの変更に成功しました。",
     "changeFailed": "パスワードの変更に失敗しました",
-    "anonymousWarning": "セキュリティ設定にアクセスするには、恒久的なアカウントを作成してください。"
+    "anonymousWarning": "セキュリティ設定にアクセスするには、恒久的なアカウントを作成してください。",
+    "password": "パスワード",
+    "blocked": "ブロック中",
+    "delete": "削除",
+    "blockedUsers": "ブロックしたユーザー",
+    "noBlockedUsers": "ブロックしているユーザーはいません。",
+    "unblock": "ブロック解除",
+    "unblockedSuccess": "ユーザーのブロックを解除しました",
+    "deleteAccount": "アカウントを削除",
+    "deleteAccountWarn": "この操作は取り消せません。すべてのメッセージと連絡先が削除されます。",
+    "confirmDelete": "アカウントを永久に削除する",
+    "accountDeleted": "アカウントを削除しました",
+    "anonymousDeleteInfo": "匿名ユーザーの場合、ログアウトしたりブラウザをクリアしたりするとアカウントが失われます。"
   },
   "menu": {
     "anonymous": "匿名",
