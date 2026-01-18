@@ -58,10 +58,12 @@ const upload = multer({
 // Configure web-push
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
-    "mailto:example@yourdomain.com",
+    "mailto:support@fourone.com.do",
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
+} else {
+  console.warn("VAPID keys not configured, push notifications will be disabled");
 }
 
 // WebSocket clients map: userId -> WebSocket
@@ -713,7 +715,7 @@ export async function registerRoutes(
       const user = req.user as User;
       const subscription = req.body;
       
-      await storage.savePushSubscription({
+      await storage.addPushSubscription({
         userId: user.id,
         endpoint: subscription.endpoint,
         p256dh: subscription.keys.p256dh,
