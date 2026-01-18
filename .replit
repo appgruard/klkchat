@@ -44,8 +44,3 @@ integrations = ["javascript_database:1.0.0"]
 [userenv]
 
 [userenv.shared]
-VITE_VAPID_PUBLIC_KEY = "BFwkrra82Z7olrKWGsoVBEJ5Z-81d3ARKVpUOq1cyfsz3x0JyGEyHbOH7At_HnPEUUmvcGOle4qaiTt34fRaxo8"
-SMTP_HOST = "smtp.zoho.com"
-SMTP_PORT = "587"
-SMTP_USER = "info@fourone.com.do"
-SMTP_PASS = "PSzorro99**"
