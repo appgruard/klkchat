@@ -761,7 +761,7 @@ export async function registerRoutes(
         iv: randomBytes(12).toString("base64"),
         fileUrl,
         fileName: req.file?.originalname || extraData.fileName,
-        fileType: req.file?.mimetype || extraData.fileType,
+        fileType: type !== "text" ? type : (req.file?.mimetype || extraData.fileType),
         fileSize: req.file?.size?.toString() || extraData.fileSize,
         duration: extraData.duration ? parseInt(extraData.duration) : undefined,
       });
