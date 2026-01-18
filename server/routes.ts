@@ -708,6 +708,25 @@ export async function registerRoutes(
     res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
   });
 
+  app.post("/api/push/subscribe", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const subscription = req.body;
+      
+      await storage.savePushSubscription({
+        userId: user.id,
+        endpoint: subscription.endpoint,
+        p256dh: subscription.keys.p256dh,
+        auth: subscription.keys.auth,
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Push subscription error:", error);
+      res.status(500).json({ message: "Failed to save subscription" });
+    }
+  });
+
   // File upload route
   app.post("/api/upload", requireAuth, upload.single("file"), (req, res) => {
     if (!req.file) {
