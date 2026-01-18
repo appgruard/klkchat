@@ -631,17 +631,56 @@ export async function registerRoutes(
       res.status(500).json({ message: "Failed to send reset code", error: error instanceof Error ? error.message : String(error) });
     }
   });
-  app.get("/api/users/search/:query", requireAuth, async (req, res) => {
+  // Delete account
+  app.post("/api/auth/delete-account", requireAuth, async (req, res) => {
     try {
-      const { query } = req.params as { query: string };
-      if (query.length < 2) {
-        return res.json([]);
+      const user = req.user as User;
+      const { password } = req.body;
+
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
       }
-      const users = await storage.searchUsers(query, (req.user as User).id);
-      res.json(users);
+
+      // Verify password
+      const isValid = await bcrypt.compare(password, user.password);
+      if (!isValid) {
+        return res.status(401).json({ message: "Incorrect password" });
+      }
+
+      await storage.deleteUser(user.id);
+      
+      req.logout((err) => {
+        if (err) {
+          console.error("Logout error during account deletion:", err);
+        }
+        res.json({ message: "Account deleted successfully" });
+      });
     } catch (error) {
-      console.error("User search error:", error);
-      res.status(500).json({ message: "Search failed" });
+      console.error("Delete account error:", error);
+      res.status(500).json({ message: "Failed to delete account" });
+    }
+  });
+
+  app.get("/api/users/blocked", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const blockedUsers = await storage.getBlockedUsersDetailed(user.id);
+      res.json(blockedUsers);
+    } catch (error) {
+      console.error("Get blocked users error:", error);
+      res.status(500).json({ message: "Failed to get blocked users" });
+    }
+  });
+
+  app.post("/api/users/:id/unblock", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      await storage.unblockUser(user.id, id);
+      res.json({ message: "User unblocked successfully" });
+    } catch (error) {
+      console.error("Unblock user error:", error);
+      res.status(500).json({ message: "Failed to unblock user" });
     }
   });
 

@@ -60,6 +60,8 @@ export interface IStorage {
   unblockUser(blockerId: string, blockedId: string): Promise<void>;
   isUserBlocked(blockerId: string, blockedId: string): Promise<boolean>;
   getBlockedUsers(userId: string): Promise<string[]>;
+  getBlockedUsersDetailed(userId: string): Promise<UserPublic[]>;
+  deleteUser(userId: string): Promise<void>;
 
   // Push Subscriptions
   addPushSubscription(subscription: InsertPushSubscription): Promise<PushSubscription>;
@@ -431,6 +433,31 @@ export class DatabaseStorage implements IStorage {
       .from(blockedUsers)
       .where(eq(blockedUsers.blockerId, userId));
     return blocked.map((b) => b.blockedId);
+  }
+
+  async getBlockedUsersDetailed(userId: string): Promise<UserPublic[]> {
+    const results = await db
+      .select({
+        id: users.id,
+        username: users.username,
+        displayName: users.displayName,
+        isAnonymous: users.isAnonymous,
+        isOnline: users.isOnline,
+        lastSeen: users.lastSeen,
+        publicKey: users.publicKey,
+        email: users.email,
+        emailVerified: users.emailVerified,
+        avatarUrl: users.avatarUrl,
+        createdAt: users.createdAt,
+      })
+      .from(blockedUsers)
+      .innerJoin(users, eq(blockedUsers.blockedId, users.id))
+      .where(eq(blockedUsers.blockerId, userId));
+    return results;
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, userId));
   }
 
   // Push Subscriptions
