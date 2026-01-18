@@ -604,6 +604,65 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/conversations/:id/messages", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      
+      // Verify participation
+      const conversation = await storage.getConversationWithParticipants(id, user.id);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants.some(p => p.id === user.id);
+      if (!isParticipant) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const messages = await storage.getMessagesForConversation(id);
+      res.json(messages);
+    } catch (error) {
+      console.error("Get messages error:", error);
+      res.status(500).json({ message: "Failed to get messages" });
+    }
+  });
+
+  app.post("/api/conversations/:id/read", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      await storage.markMessagesAsRead(id, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Mark as read error:", error);
+      res.status(500).json({ message: "Failed to mark messages as read" });
+    }
+  });
+
+  app.delete("/api/conversations/:id/messages", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      
+      const conversation = await storage.getConversationWithParticipants(id, user.id);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      const isParticipant = conversation.participants.some(p => p.id === user.id);
+      if (!isParticipant) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.clearMessagesForConversation(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Clear chat error:", error);
+      res.status(500).json({ message: "Failed to clear chat" });
+    }
+  });
+
   app.post("/api/conversations", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
