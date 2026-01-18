@@ -228,7 +228,6 @@ export function ConversationView({
 
       await sendMessageMutation.mutateAsync({
         content: fileType === "audio" ? t("chat.sentAudio") : t("chat.sentFile", { name: originalName || (file as File).name }),
-        type: fileType,
         file: {
           fileUrl: fileData.url,
           fileName: originalName || fileData.name,
