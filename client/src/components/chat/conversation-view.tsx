@@ -303,8 +303,9 @@ export function ConversationView({
       return;
     }
     const deltaX = swipeState.currentX - swipeState.startX;
-    const threshold = swipeState.isSent ? deltaX < -60 : deltaX > 60;
-    if (threshold) {
+    const absDelta = Math.abs(deltaX);
+    const isValidDirection = swipeState.isSent ? deltaX < 0 : deltaX > 0;
+    if (isValidDirection && absDelta > 50) {
       setReplyToMessage(message);
     }
     setSwipeState(null);
