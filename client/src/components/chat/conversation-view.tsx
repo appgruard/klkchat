@@ -51,7 +51,7 @@ export function ConversationView({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
-  const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; startY: number; currentX: number; cancelled: boolean } | null>(null);
+  const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; startY: number; currentX: number; cancelled: boolean; isSent: boolean } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -272,12 +272,14 @@ export function ConversationView({
   };
 
   const handleTouchStart = (e: React.TouchEvent, message: MessageWithSender) => {
+    const isSent = message.senderId === currentUser.id;
     setSwipeState({
       messageId: message.id,
       startX: e.touches[0].clientX,
       startY: e.touches[0].clientY,
       currentX: e.touches[0].clientX,
       cancelled: false,
+      isSent,
     });
   };
 
@@ -289,7 +291,8 @@ export function ConversationView({
       setSwipeState(prev => prev ? { ...prev, cancelled: true, currentX: swipeState.startX } : null);
       return;
     }
-    if (deltaX > 0) {
+    const validSwipe = swipeState.isSent ? deltaX < 0 : deltaX > 0;
+    if (validSwipe) {
       setSwipeState(prev => prev ? { ...prev, currentX: e.touches[0].clientX } : null);
     }
   };
@@ -300,7 +303,8 @@ export function ConversationView({
       return;
     }
     const deltaX = swipeState.currentX - swipeState.startX;
-    if (deltaX > 60) {
+    const threshold = swipeState.isSent ? deltaX < -60 : deltaX > 60;
+    if (threshold) {
       setReplyToMessage(message);
     }
     setSwipeState(null);
@@ -674,9 +678,12 @@ export function ConversationView({
                   {group.messages.map((message: MessageWithSender) => {
                     const isSent = message.senderId === currentUser.id;
                     const replyMessage = message.replyToId ? messages.find(m => m.id === message.replyToId) : null;
-                    const swipeOffset = swipeState?.messageId === message.id 
-                      ? Math.min(swipeState.currentX - swipeState.startX, 80) 
+                    const rawSwipeOffset = swipeState?.messageId === message.id 
+                      ? swipeState.currentX - swipeState.startX
                       : 0;
+                    const swipeOffset = isSent 
+                      ? Math.max(rawSwipeOffset, -80)
+                      : Math.min(rawSwipeOffset, 80);
                     return (
                       <div
                         key={message.id}
@@ -687,10 +694,10 @@ export function ConversationView({
                         onTouchEnd={() => handleTouchEnd(message)}
                         onTouchCancel={handleTouchCancel}
                       >
-                        {swipeOffset > 0 && (
+                        {((isSent && swipeOffset < 0) || (!isSent && swipeOffset > 0)) && (
                           <div 
-                            className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-primary transition-opacity ${isSent ? 'right-full mr-2' : 'left-0 ml-2'}`}
-                            style={{ opacity: swipeOffset / 80 }}
+                            className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-primary transition-opacity ${isSent ? 'right-0 mr-2' : 'left-0 ml-2'}`}
+                            style={{ opacity: Math.abs(swipeOffset) / 80 }}
                           >
                             <Reply className="h-5 w-5" />
                           </div>
@@ -712,7 +719,7 @@ export function ConversationView({
                               ? "bg-muted text-foreground"
                               : "bg-card text-card-foreground"
                           } ${message.fileUrl && !replyMessage ? "bg-transparent border-0 shadow-none p-0" : message.fileUrl ? "px-3 py-2" : "px-3 py-2"}`}
-                          style={{ transform: swipeOffset > 0 ? `translateX(${swipeOffset}px)` : undefined }}
+                          style={{ transform: swipeOffset !== 0 ? `translateX(${swipeOffset}px)` : undefined }}
                         >
                           {replyMessage && (
                             <div 
