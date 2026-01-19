@@ -283,6 +283,7 @@ export class DatabaseStorage implements IStorage {
         id: messages.id,
         conversationId: messages.conversationId,
         senderId: messages.senderId,
+        replyToId: messages.replyToId,
         encryptedContent: messages.encryptedContent,
         iv: messages.iv,
         status: messages.status,
