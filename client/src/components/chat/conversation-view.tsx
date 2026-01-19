@@ -677,6 +677,20 @@ export function ConversationView({
       </ScrollArea>
 
       <footer className="p-3 border-t bg-card">
+        {isUploading && (
+          <div className="mb-2 px-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              <div className="h-3 w-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <span>{t("chat.uploading", "Enviando archivo...")} {uploadProgress}%</span>
+            </div>
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-300" 
+                style={{ width: `${uploadProgress}%` }} 
+              />
+            </div>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           {isRecording ? (
             <div className="flex-1 flex items-center gap-3 px-3 py-2 bg-primary/10 rounded-full text-primary animate-pulse">
@@ -713,7 +727,6 @@ export function ConversationView({
                 onKeyDown={handleKeyDown}
                 placeholder={t("chat.typeMessage")}
                 className="flex-1"
-                disabled={isUploading}
                 data-testid="input-message"
               />
               {messageInput.trim() ? (
@@ -730,7 +743,6 @@ export function ConversationView({
                   variant="ghost"
                   size="icon"
                   onClick={startRecording}
-                  disabled={isUploading}
                   data-testid="button-record-audio"
                 >
                   <Mic className="h-5 w-5" />
