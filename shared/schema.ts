@@ -39,6 +39,7 @@ export const messages = pgTable("messages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   conversationId: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
   senderId: varchar("sender_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  replyToId: varchar("reply_to_id"),
   encryptedContent: text("encrypted_content").notNull(),
   iv: text("iv").notNull(),
   status: text("status").default("sent").notNull(), // 'sent', 'delivered', 'read'
@@ -179,6 +180,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertMessageSchema = createInsertSchema(messages).pick({
   conversationId: true,
   senderId: true,
+  replyToId: true,
   encryptedContent: true,
   iv: true,
   fileUrl: true,
@@ -217,4 +219,5 @@ export type ConversationWithParticipants = Conversation & {
 };
 export type MessageWithSender = Message & {
   sender: UserPublic;
+  replyTo?: Message & { sender: UserPublic };
 };

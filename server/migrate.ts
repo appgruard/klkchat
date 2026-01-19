@@ -45,6 +45,7 @@ export async function runMigrations() {
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
         conversation_id VARCHAR NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
         sender_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reply_to_id VARCHAR,
         encrypted_content TEXT NOT NULL,
         iv TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'sent',
@@ -55,6 +56,10 @@ export async function runMigrations() {
         duration INTEGER,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       )
+    `);
+
+    await db.execute(sql`
+      ALTER TABLE messages ADD COLUMN IF NOT EXISTS reply_to_id VARCHAR
     `);
 
     await db.execute(sql`

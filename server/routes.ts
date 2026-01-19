@@ -920,6 +920,7 @@ export async function registerRoutes(
       const message = await storage.createMessage({
         conversationId: id,
         senderId: user.id,
+        replyToId: extraData.replyToId || null,
         encryptedContent: content || "",
         iv: randomBytes(12).toString("base64"),
         fileUrl,
