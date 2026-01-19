@@ -108,9 +108,10 @@ export function ConversationView({
   }, [messages, currentUser.id]);
 
   const sendMessageMutation = useMutation({
-    mutationFn: async (payload: { content: string; file?: any }) => {
+    mutationFn: async (payload: { content: string; type?: string; file?: any }) => {
       return await apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
         content: payload.content,
+        type: payload.type,
         ...payload.file,
         replyToId: payload.file?.replyToId
       });
