@@ -209,7 +209,7 @@ export function ProfileDialog({ open, onOpenChange, user }: ProfileDialogProps) 
             </Avatar>
             <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 cursor-pointer rounded-full transition-opacity">
               <span className="text-xs font-medium">{t("profile.change")}</span>
-              <input type="file" className="hidden" accept="image/*" onChange={onAvatarUpload} disabled={isLoading} />
+              <input type="file" className="hidden" accept="image/*,image/gif" onChange={onAvatarUpload} disabled={isLoading} />
             </label>
           </div>
           <p className="text-sm text-muted-foreground">@{user.username}</p>

@@ -51,6 +51,7 @@ export function ConversationView({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
+  const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; currentX: number } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -268,6 +269,31 @@ export function ConversationView({
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent, message: MessageWithSender) => {
+    setSwipeState({
+      messageId: message.id,
+      startX: e.touches[0].clientX,
+      currentX: e.touches[0].clientX,
+    });
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!swipeState) return;
+    const deltaX = e.touches[0].clientX - swipeState.startX;
+    if (deltaX > 0) {
+      setSwipeState(prev => prev ? { ...prev, currentX: e.touches[0].clientX } : null);
+    }
+  };
+
+  const handleTouchEnd = (message: MessageWithSender) => {
+    if (!swipeState) return;
+    const deltaX = swipeState.currentX - swipeState.startX;
+    if (deltaX > 60) {
+      setReplyToMessage(message);
+    }
+    setSwipeState(null);
   };
 
   const startRecording = async () => {
@@ -634,12 +660,26 @@ export function ConversationView({
                   {group.messages.map((message: MessageWithSender) => {
                     const isSent = message.senderId === currentUser.id;
                     const replyMessage = message.replyToId ? messages.find(m => m.id === message.replyToId) : null;
+                    const swipeOffset = swipeState?.messageId === message.id 
+                      ? Math.min(swipeState.currentX - swipeState.startX, 80) 
+                      : 0;
                     return (
                       <div
                         key={message.id}
-                        className={`flex ${isSent ? "justify-end" : "justify-start"} group/message`}
+                        className={`flex ${isSent ? "justify-end" : "justify-start"} group/message relative`}
                         data-testid={`message-${message.id}`}
+                        onTouchStart={(e) => handleTouchStart(e, message)}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={() => handleTouchEnd(message)}
                       >
+                        {swipeOffset > 0 && (
+                          <div 
+                            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-primary transition-opacity"
+                            style={{ opacity: swipeOffset / 80 }}
+                          >
+                            <Reply className="h-5 w-5" />
+                          </div>
+                        )}
                         {isSent && (
                           <Button
                             variant="ghost"
@@ -652,11 +692,12 @@ export function ConversationView({
                           </Button>
                         )}
                         <div
-                          className={`max-w-[65%] rounded-lg overflow-hidden ${
+                          className={`max-w-[65%] rounded-lg overflow-hidden transition-transform ${
                             isSent
                               ? "bg-muted text-foreground"
                               : "bg-card text-card-foreground"
                           } ${message.fileUrl && !replyMessage ? "bg-transparent border-0 shadow-none p-0" : message.fileUrl ? "px-3 py-2" : "px-3 py-2"}`}
+                          style={{ transform: swipeOffset > 0 ? `translateX(${swipeOffset}px)` : undefined }}
                         >
                           {replyMessage && (
                             <div 
