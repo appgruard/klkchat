@@ -286,15 +286,20 @@ export function ConversationView({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!swipeState || swipeState.cancelled) return;
-    const deltaX = e.touches[0].clientX - swipeState.startX;
-    const deltaY = Math.abs(e.touches[0].clientY - swipeState.startY);
-    if (deltaY > 30) {
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const deltaX = currentX - swipeState.startX;
+    const deltaY = Math.abs(currentY - swipeState.startY);
+    const absDeltaX = Math.abs(deltaX);
+    
+    if (deltaY > absDeltaX && deltaY > 10) {
       setSwipeState(prev => prev ? { ...prev, cancelled: true, currentX: swipeState.startX } : null);
       return;
     }
+    
     const validSwipe = swipeState.isSent ? deltaX < 0 : deltaX > 0;
-    if (validSwipe) {
-      setSwipeState(prev => prev ? { ...prev, currentX: e.touches[0].clientX } : null);
+    if (validSwipe || absDeltaX < 5) {
+      setSwipeState(prev => prev ? { ...prev, currentX } : null);
     }
   };
 
@@ -306,8 +311,11 @@ export function ConversationView({
     const deltaX = swipeState.currentX - swipeState.startX;
     const absDelta = Math.abs(deltaX);
     const isValidDirection = swipeState.isSent ? deltaX < 0 : deltaX > 0;
-    if (isValidDirection && absDelta > 50) {
+    if (isValidDirection && absDelta > 40) {
       setReplyToMessage(message);
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
     }
     setSwipeState(null);
   };
