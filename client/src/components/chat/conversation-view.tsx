@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Send, ArrowLeft, MoreVertical, Shield, Lock, Paperclip, File, Image as ImageIcon, Video, Download, Mic, Square, Play, Pause } from "lucide-react";
+import { Send, ArrowLeft, MoreVertical, Shield, Lock, Paperclip, File, Image as ImageIcon, Video, Download, Mic, Square, Play, Pause, Reply, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -50,6 +50,7 @@ export function ConversationView({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -108,10 +109,10 @@ export function ConversationView({
 
   const sendMessageMutation = useMutation({
     mutationFn: async (payload: { content: string; file?: any }) => {
-      // Optimistically update UI could be handled here or via queryClient.setQueryData
       return await apiRequest("POST", `/api/conversations/${conversationId}/messages`, {
         content: payload.content,
-        ...payload.file
+        ...payload.file,
+        replyToId: payload.file?.replyToId
       });
     },
     onMutate: async (newMessage) => {
@@ -253,8 +254,12 @@ export function ConversationView({
 
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
-    sendMessageMutation.mutate({ content: messageInput });
+    sendMessageMutation.mutate({ 
+      content: messageInput,
+      file: replyToMessage ? { replyToId: replyToMessage.id } : undefined
+    });
     setMessageInput("");
+    setReplyToMessage(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -627,26 +632,57 @@ export function ConversationView({
                 <div className="space-y-2">
                   {group.messages.map((message: MessageWithSender) => {
                     const isSent = message.senderId === currentUser.id;
+                    const replyMessage = message.replyToId ? messages.find(m => m.id === message.replyToId) : null;
                     return (
                       <div
                         key={message.id}
-                        className={`flex ${isSent ? "justify-end" : "justify-start"}`}
+                        className={`flex ${isSent ? "justify-end" : "justify-start"} group/message`}
                         data-testid={`message-${message.id}`}
                       >
+                        {isSent && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 opacity-0 group-hover/message:opacity-100 transition-opacity mr-1 self-center"
+                            onClick={() => setReplyToMessage(message)}
+                            data-testid={`button-reply-${message.id}`}
+                          >
+                            <Reply className="h-4 w-4" />
+                          </Button>
+                        )}
                         <div
                           className={`max-w-[65%] rounded-lg overflow-hidden ${
                             isSent
                               ? "bg-muted text-foreground"
                               : "bg-card text-card-foreground"
-                          } ${message.fileUrl ? "bg-transparent border-0 shadow-none p-0" : "px-3 py-2"}`}
+                          } ${message.fileUrl && !replyMessage ? "bg-transparent border-0 shadow-none p-0" : message.fileUrl ? "px-3 py-2" : "px-3 py-2"}`}
                         >
+                          {replyMessage && (
+                            <div 
+                              className="mb-2 p-2 rounded bg-background/50 border-l-2 border-primary cursor-pointer"
+                              onClick={() => {
+                                const element = document.querySelector(`[data-testid="message-${replyMessage.id}"]`);
+                                element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }}
+                              data-testid={`reply-quote-${message.id}`}
+                            >
+                              <p className="text-xs font-medium text-primary" data-testid={`reply-sender-${message.id}`}>
+                                {replyMessage.senderId === currentUser.id ? t("chat.you", "Tú") : replyMessage.sender?.displayName || replyMessage.sender?.username}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate max-w-[200px]" data-testid={`reply-content-${message.id}`}>
+                                {replyMessage.fileUrl 
+                                  ? (replyMessage.fileType === "image" ? t("chat.photo", "Foto") : replyMessage.fileType === "video" ? t("chat.video", "Video") : replyMessage.fileType === "audio" ? t("chat.audio", "Audio") : t("chat.file", "Archivo")) 
+                                  : replyMessage.encryptedContent}
+                              </p>
+                            </div>
+                          )}
                           {!message.fileUrl && (
                             <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
                               {message.encryptedContent}
                             </p>
                           )}
                           {renderFileContent(message)}
-                          <div className={`flex items-center justify-end gap-1 mt-1 ${message.fileUrl ? "px-1 pb-1" : ""}`}>
+                          <div className={`flex items-center justify-end gap-1 mt-1 ${message.fileUrl && !replyMessage ? "px-1 pb-1" : ""}`}>
                             <span className={`text-[11px] ${message.fileUrl ? "text-muted-foreground/80 font-medium" : "text-muted-foreground"}`}>
                               {format(new Date(message.createdAt), "h:mm a")}
                             </span>
@@ -665,6 +701,17 @@ export function ConversationView({
                             )}
                           </div>
                         </div>
+                        {!isSent && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 opacity-0 group-hover/message:opacity-100 transition-opacity ml-1 self-center"
+                            onClick={() => setReplyToMessage(message)}
+                            data-testid={`button-reply-${message.id}`}
+                          >
+                            <Reply className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     );
                   })}
@@ -677,6 +724,30 @@ export function ConversationView({
       </ScrollArea>
 
       <footer className="p-3 border-t bg-card">
+        {replyToMessage && (
+          <div className="mb-2 px-2 py-2 bg-muted/50 rounded-lg flex items-center gap-3 animate-in slide-in-from-bottom-2" data-testid="reply-preview-bar">
+            <div className="w-1 h-10 bg-primary rounded-full" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-primary" data-testid="reply-preview-sender">
+                {t("chat.replyingTo", "Respondiendo a")} {replyToMessage.senderId === currentUser.id ? t("chat.you", "Tú") : replyToMessage.sender?.displayName || replyToMessage.sender?.username}
+              </p>
+              <p className="text-sm text-muted-foreground truncate" data-testid="reply-preview-content">
+                {replyToMessage.fileUrl 
+                  ? (replyToMessage.fileType === "image" ? t("chat.photo", "Foto") : replyToMessage.fileType === "video" ? t("chat.video", "Video") : replyToMessage.fileType === "audio" ? t("chat.audio", "Audio") : t("chat.file", "Archivo")) 
+                  : replyToMessage.encryptedContent}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setReplyToMessage(null)}
+              data-testid="button-cancel-reply"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         {isUploading && (
           <div className="mb-2 px-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
