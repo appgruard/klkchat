@@ -131,6 +131,7 @@ export function ConversationView({
           conversationId,
           senderId: currentUser.id,
           encryptedContent: newMessage.content,
+          replyToId: newMessage.file?.replyToId || null,
           status: "sending",
           createdAt: new Date().toISOString(),
           sender: currentUser,
