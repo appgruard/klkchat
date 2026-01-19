@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import AuthPage from "@/pages/auth";
 import ChatPage from "@/pages/chat";
 import NotFound from "@/pages/not-found";
+import { PWAInstallDialog } from "@/components/pwa-install-dialog";
 
 function PushManager() {
   const { user } = useAuth();
@@ -89,6 +90,7 @@ function App() {
         <TooltipProvider>
           <AuthProvider>
             <PushManager />
+            <PWAInstallDialog />
             <Toaster />
             <AppRouter />
           </AuthProvider>
