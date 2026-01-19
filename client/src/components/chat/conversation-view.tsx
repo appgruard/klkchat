@@ -51,7 +51,7 @@ export function ConversationView({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
-  const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; currentX: number } | null>(null);
+  const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; startY: number; currentX: number; cancelled: boolean } | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -275,24 +275,38 @@ export function ConversationView({
     setSwipeState({
       messageId: message.id,
       startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
       currentX: e.touches[0].clientX,
+      cancelled: false,
     });
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!swipeState) return;
+    if (!swipeState || swipeState.cancelled) return;
     const deltaX = e.touches[0].clientX - swipeState.startX;
+    const deltaY = Math.abs(e.touches[0].clientY - swipeState.startY);
+    if (deltaY > 30) {
+      setSwipeState(prev => prev ? { ...prev, cancelled: true, currentX: swipeState.startX } : null);
+      return;
+    }
     if (deltaX > 0) {
       setSwipeState(prev => prev ? { ...prev, currentX: e.touches[0].clientX } : null);
     }
   };
 
   const handleTouchEnd = (message: MessageWithSender) => {
-    if (!swipeState) return;
+    if (!swipeState || swipeState.cancelled) {
+      setSwipeState(null);
+      return;
+    }
     const deltaX = swipeState.currentX - swipeState.startX;
     if (deltaX > 60) {
       setReplyToMessage(message);
     }
+    setSwipeState(null);
+  };
+
+  const handleTouchCancel = () => {
     setSwipeState(null);
   };
 
@@ -671,10 +685,11 @@ export function ConversationView({
                         onTouchStart={(e) => handleTouchStart(e, message)}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={() => handleTouchEnd(message)}
+                        onTouchCancel={handleTouchCancel}
                       >
                         {swipeOffset > 0 && (
                           <div 
-                            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center text-primary transition-opacity"
+                            className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center text-primary transition-opacity ${isSent ? 'right-full mr-2' : 'left-0 ml-2'}`}
                             style={{ opacity: swipeOffset / 80 }}
                           >
                             <Reply className="h-5 w-5" />
