@@ -34,6 +34,7 @@
     "password": "パスワード",
     "confirmPassword": "パスワード（確認）",
     "displayName": "表示名",
+    "email": "メールアドレス",
     "enterUsername": "ユーザー名を入力してください",
     "enterPassword": "パスワードを入力してください",
     "chooseUsername": "ユーザー名を選択してください",
@@ -48,7 +49,8 @@
     "passwordMin": "パスワードは6文字以上である必要があります",
     "passwordsMatch": "パスワードが一致しません",
     "displayNameRequired": "表示名は必須です",
-    "currentPasswordRequired": "現在のパスワードは必須です"
+    "currentPasswordRequired": "現在のパスワードは必須です",
+    "invalidEmail": "メールアドレスの形式が無効です"
   },
   "chat": {
     "searchOrStart": "検索または新しいチャットを開始",
@@ -68,7 +70,30 @@
     "userBlocked": "ユーザーをブロックしました",
     "userBlockedDesc": "このユーザーからメッセージを受信しなくなります。",
     "blockUserTitle": "ユーザーをブロック",
-    "blockUserConfirm": "{{name}}さんをブロックしてもよろしいですか？今後、メッセージの送受信ができなくなります。"
+    "blockUserConfirm": "{{name}}さんをブロックしてもよろしいですか？今後、メッセージの送受信ができなくなります。",
+    "voiceMessage": "音声メッセージ",
+    "sentAudio": "音声メッセージを送信しました",
+    "sentFile": "ファイルを送信しました: {{name}}",
+    "uploadFailed": "アップロードに失敗しました",
+    "chatHidden": "チャットが非表示になりました",
+    "chatUnhidden": "チャットが表示されました",
+    "hideChat": "チャットを非表示",
+    "unhideChat": "チャットを表示",
+    "enterPin": "PINを入力",
+    "hideChatDescription": "このチャットを非表示にするには4桁のPINを設定してください",
+    "verifyPinDescription": "秘密のチャットを表示するにはPINを入力してください",
+    "unhideChatDescription": "このチャットを表示するにはPINを入力してください",
+    "pinMustBe4Digits": "PINは4桁である必要があります",
+    "pinsDontMatch": "PINが一致しません",
+    "invalidPin": "PINが無効です",
+    "confirmPin": "PINを確認",
+    "unlock": "ロック解除",
+    "showHiddenChats": "秘密のチャット",
+    "hideHiddenChats": "秘密のチャットを非表示",
+    "unhide": "表示",
+    "myStickers": "マイスタンプ",
+    "defaultStickers": "デフォルトスタンプ",
+    "hiddenChat": "非表示のチャット"
   },
   "dialog": {
     "searchByUsername": "ユーザー名で検索",
@@ -88,7 +113,18 @@
     "updateFailed": "プロフィールの更新に失敗しました",
     "save": "保存",
     "saving": "保存中...",
-    "anonymous": "匿名ユーザー"
+    "anonymous": "匿名ユーザー",
+    "avatarUpdated": "アバターを更新しました",
+    "verifyNow": "今すぐ確認",
+    "verified": "確認済み",
+    "codeSent": "コードを送信しました",
+    "codeSentDesc": "メールアドレスに確認コードを送信しました",
+    "confirm": "確認",
+    "enterCode": "コードを入力",
+    "error": "エラー",
+    "sending": "送信中...",
+    "verifiedDesc": "メールアドレスが確認されました",
+    "change": "変更"
   },
   "settings": {
     "title": "設定",
@@ -132,7 +168,8 @@
     "logout": "ログアウト",
     "viewProfile": "プロフィールを表示",
     "clearChat": "チャットを消去",
-    "blockUser": "ユーザーをブロック"
+    "blockUser": "ユーザーをブロック",
+    "hideChat": "チャットを非表示"
   },
   "encryption": {
     "e2eMessage": "このチャットのメッセージはエンドツーエンド暗号化で保護されています。あなたと {{name}} さんだけが読むことができます。"

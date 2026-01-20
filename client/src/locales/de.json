@@ -34,6 +34,7 @@
     "password": "Passwort",
     "confirmPassword": "Passwort bestätigen",
     "displayName": "Anzeigename",
+    "email": "E-Mail",
     "enterUsername": "Geben Sie Ihren Benutzernamen ein",
     "enterPassword": "Geben Sie Ihr Passwort ein",
     "chooseUsername": "Wählen Sie einen Benutzernamen",
@@ -48,7 +49,8 @@
     "passwordMin": "Das Passwort muss mindestens 6 Zeichen lang sein",
     "passwordsMatch": "Passwörter stimmen nicht überein",
     "displayNameRequired": "Anzeigename ist erforderlich",
-    "currentPasswordRequired": "Aktuelles Passwort ist erforderlich"
+    "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
+    "invalidEmail": "Ungültiges E-Mail-Format"
   },
   "chat": {
     "searchOrStart": "Suchen oder neuen Chat starten",
@@ -68,7 +70,30 @@
     "userBlocked": "Benutzer blockiert",
     "userBlockedDesc": "Sie werden keine Nachrichten mehr von diesem Benutzer erhalten.",
     "blockUserTitle": "Benutzer blockieren",
-    "blockUserConfirm": "Sind Sie sicher, dass Sie {{name}} blockieren möchten? Sie können keine Nachrichten mehr von dieser Person senden oder empfangen."
+    "blockUserConfirm": "Sind Sie sicher, dass Sie {{name}} blockieren möchten? Sie können keine Nachrichten mehr von dieser Person senden oder empfangen.",
+    "voiceMessage": "Sprachnachricht",
+    "sentAudio": "Hat eine Sprachnachricht gesendet",
+    "sentFile": "Hat eine Datei gesendet: {{name}}",
+    "uploadFailed": "Upload fehlgeschlagen",
+    "chatHidden": "Chat versteckt",
+    "chatUnhidden": "Chat sichtbar",
+    "hideChat": "Chat verstecken",
+    "unhideChat": "Chat anzeigen",
+    "enterPin": "PIN eingeben",
+    "hideChatDescription": "Legen Sie eine 4-stellige PIN fest, um diesen Chat zu verstecken",
+    "verifyPinDescription": "Geben Sie die PIN ein, um geheime Chats anzuzeigen",
+    "unhideChatDescription": "Geben Sie die PIN ein, um diesen Chat anzuzeigen",
+    "pinMustBe4Digits": "PIN muss 4 Ziffern enthalten",
+    "pinsDontMatch": "PINs stimmen nicht überein",
+    "invalidPin": "Ungültige PIN",
+    "confirmPin": "PIN bestätigen",
+    "unlock": "Entsperren",
+    "showHiddenChats": "Geheime Chats",
+    "hideHiddenChats": "Geheime Chats verstecken",
+    "unhide": "Anzeigen",
+    "myStickers": "Meine Sticker",
+    "defaultStickers": "Standard-Sticker",
+    "hiddenChat": "Versteckter Chat"
   },
   "dialog": {
     "searchByUsername": "Suche nach Benutzernamen",
@@ -88,7 +113,18 @@
     "updateFailed": "Profilaktualisierung fehlgeschlagen",
     "save": "Speichern",
     "saving": "Speichern...",
-    "anonymous": "Anonymer Benutzer"
+    "anonymous": "Anonymer Benutzer",
+    "avatarUpdated": "Avatar aktualisiert",
+    "verifyNow": "Jetzt verifizieren",
+    "verified": "Verifiziert",
+    "codeSent": "Code gesendet",
+    "codeSentDesc": "Wir haben einen Bestätigungscode an Ihre E-Mail gesendet",
+    "confirm": "Bestätigen",
+    "enterCode": "Code eingeben",
+    "error": "Fehler",
+    "sending": "Wird gesendet...",
+    "verifiedDesc": "Ihre E-Mail wurde verifiziert",
+    "change": "Ändern"
   },
   "settings": {
     "title": "Einstellungen",
@@ -132,7 +168,8 @@
     "logout": "Abmelden",
     "viewProfile": "Profil anzeigen",
     "clearChat": "Chat leeren",
-    "blockUser": "Benutzer blockieren"
+    "blockUser": "Benutzer blockieren",
+    "hideChat": "Chat verstecken"
   },
   "encryption": {
     "e2eMessage": "Nachrichten in diesem Chat sind mit Ende-zu-Ende-Verschlüsselung gesichert. Nur Sie und {{name}} können sie lesen."
@@ -164,6 +201,7 @@
     "french": "Französisch",
     "german": "Deutsch",
     "russian": "Russisch",
-    "chinese": "Chinesisch"
+    "chinese": "Chinesisch",
+    "japanese": "Japanisch"
   }
 }

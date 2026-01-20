@@ -34,6 +34,7 @@
     "password": "Пароль",
     "confirmPassword": "Подтвердите пароль",
     "displayName": "Отображаемое имя",
+    "email": "Электронная почта",
     "enterUsername": "Введите имя пользователя",
     "enterPassword": "Введите пароль",
     "chooseUsername": "Выберите имя пользователя",
@@ -48,7 +49,8 @@
     "passwordMin": "Пароль должен быть не менее 6 символов",
     "passwordsMatch": "Пароли не совпадают",
     "displayNameRequired": "Отображаемое имя обязательно",
-    "currentPasswordRequired": "Текущий пароль обязателен"
+    "currentPasswordRequired": "Текущий пароль обязателен",
+    "invalidEmail": "Неверный формат электронной почты"
   },
   "chat": {
     "searchOrStart": "Поиск или новый чат",
@@ -68,7 +70,30 @@
     "userBlocked": "Пользователь заблокирован",
     "userBlockedDesc": "Вы больше не будете получать сообщения от этого пользователя.",
     "blockUserTitle": "Заблокировать пользователя",
-    "blockUserConfirm": "Вы уверены, что хотите заблокировать {{name}}? Вы больше не сможете отправлять или получать сообщения от него."
+    "blockUserConfirm": "Вы уверены, что хотите заблокировать {{name}}? Вы больше не сможете отправлять или получать сообщения от него.",
+    "voiceMessage": "Голосовое сообщение",
+    "sentAudio": "Отправил голосовое сообщение",
+    "sentFile": "Отправил файл: {{name}}",
+    "uploadFailed": "Ошибка загрузки",
+    "chatHidden": "Чат скрыт",
+    "chatUnhidden": "Чат показан",
+    "hideChat": "Скрыть чат",
+    "unhideChat": "Показать чат",
+    "enterPin": "Введите PIN",
+    "hideChatDescription": "Установите 4-значный PIN для скрытия этого чата",
+    "verifyPinDescription": "Введите PIN для просмотра скрытых чатов",
+    "unhideChatDescription": "Введите PIN для отображения этого чата",
+    "pinMustBe4Digits": "PIN должен состоять из 4 цифр",
+    "pinsDontMatch": "PIN не совпадают",
+    "invalidPin": "Неверный PIN",
+    "confirmPin": "Подтвердите PIN",
+    "unlock": "Разблокировать",
+    "showHiddenChats": "Секретные чаты",
+    "hideHiddenChats": "Скрыть секретные чаты",
+    "unhide": "Показать",
+    "myStickers": "Мои стикеры",
+    "defaultStickers": "Стикеры по умолчанию",
+    "hiddenChat": "Скрытый чат"
   },
   "dialog": {
     "searchByUsername": "Поиск по имени пользователя",
@@ -88,7 +113,18 @@
     "updateFailed": "Не удалось обновить профиль",
     "save": "Сохранить",
     "saving": "Сохранение...",
-    "anonymous": "Анонимный пользователь"
+    "anonymous": "Анонимный пользователь",
+    "avatarUpdated": "Аватар обновлен",
+    "verifyNow": "Подтвердить сейчас",
+    "verified": "Подтверждено",
+    "codeSent": "Код отправлен",
+    "codeSentDesc": "Мы отправили код подтверждения на вашу почту",
+    "confirm": "Подтвердить",
+    "enterCode": "Введите код",
+    "error": "Ошибка",
+    "sending": "Отправка...",
+    "verifiedDesc": "Ваша почта подтверждена",
+    "change": "Изменить"
   },
   "settings": {
     "title": "Настройки",
@@ -132,7 +168,8 @@
     "logout": "Выйти",
     "viewProfile": "Посмотреть профиль",
     "clearChat": "Очистить чат",
-    "blockUser": "Заблокировать"
+    "blockUser": "Заблокировать",
+    "hideChat": "Скрыть чат"
   },
   "encryption": {
     "e2eMessage": "Сообщения в этом чате защищены сквозным шифрованием. Только вы и {{name}} можете их прочитать."
@@ -164,6 +201,7 @@
     "french": "Французский",
     "german": "Немецкий",
     "russian": "Русский",
-    "chinese": "Китайский"
+    "chinese": "Китайский",
+    "japanese": "Японский"
   }
 }

@@ -34,6 +34,7 @@
     "password": "Mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
     "displayName": "Nom d'affichage",
+    "email": "E-mail",
     "enterUsername": "Entrez votre nom d'utilisateur",
     "enterPassword": "Entrez votre mot de passe",
     "chooseUsername": "Choisissez un nom d'utilisateur",
@@ -48,7 +49,8 @@
     "passwordMin": "Le mot de passe doit comporter au moins 6 caractères",
     "passwordsMatch": "Les mots de passe ne correspondent pas",
     "displayNameRequired": "Le nom d'affichage est requis",
-    "currentPasswordRequired": "Le mot de passe actuel est requis"
+    "currentPasswordRequired": "Le mot de passe actuel est requis",
+    "invalidEmail": "Format d'e-mail invalide"
   },
   "chat": {
     "searchOrStart": "Rechercher ou démarrer une nouvelle discussion",
@@ -68,7 +70,30 @@
     "userBlocked": "Utilisateur bloqué",
     "userBlockedDesc": "Vous ne recevrez plus de messages de cet utilisateur.",
     "blockUserTitle": "Bloquer l'utilisateur",
-    "blockUserConfirm": "Êtes-vous sûr de vouloir bloquer {{name}} ? Vous ne pourrez plus lui envoyer ou recevoir de messages."
+    "blockUserConfirm": "Êtes-vous sûr de vouloir bloquer {{name}} ? Vous ne pourrez plus lui envoyer ou recevoir de messages.",
+    "voiceMessage": "Message vocal",
+    "sentAudio": "A envoyé un message vocal",
+    "sentFile": "A envoyé un fichier: {{name}}",
+    "uploadFailed": "Échec du téléchargement",
+    "chatHidden": "Discussion masquée",
+    "chatUnhidden": "Discussion visible",
+    "hideChat": "Masquer la discussion",
+    "unhideChat": "Afficher la discussion",
+    "enterPin": "Entrer le code PIN",
+    "hideChatDescription": "Définir un code PIN à 4 chiffres pour masquer cette discussion",
+    "verifyPinDescription": "Entrez le code PIN pour voir les discussions secrètes",
+    "unhideChatDescription": "Entrez le code PIN pour afficher cette discussion",
+    "pinMustBe4Digits": "Le code PIN doit contenir 4 chiffres",
+    "pinsDontMatch": "Les codes PIN ne correspondent pas",
+    "invalidPin": "Code PIN invalide",
+    "confirmPin": "Confirmer le code PIN",
+    "unlock": "Déverrouiller",
+    "showHiddenChats": "Discussions secrètes",
+    "hideHiddenChats": "Masquer les discussions secrètes",
+    "unhide": "Afficher",
+    "myStickers": "Mes stickers",
+    "defaultStickers": "Stickers par défaut",
+    "hiddenChat": "Discussion masquée"
   },
   "dialog": {
     "searchByUsername": "Rechercher par nom d'utilisateur",
@@ -88,7 +113,18 @@
     "updateFailed": "Échec de la mise à jour du profil",
     "save": "Enregistrer",
     "saving": "Enregistrement...",
-    "anonymous": "Utilisateur anonyme"
+    "anonymous": "Utilisateur anonyme",
+    "avatarUpdated": "Avatar mis à jour",
+    "verifyNow": "Vérifier maintenant",
+    "verified": "Vérifié",
+    "codeSent": "Code envoyé",
+    "codeSentDesc": "Nous avons envoyé un code de vérification à votre e-mail",
+    "confirm": "Confirmer",
+    "enterCode": "Entrez le code",
+    "error": "Erreur",
+    "sending": "Envoi en cours...",
+    "verifiedDesc": "Votre e-mail a été vérifié",
+    "change": "Modifier"
   },
   "settings": {
     "title": "Paramètres",
@@ -132,7 +168,8 @@
     "logout": "Se déconnecter",
     "viewProfile": "Voir le profil",
     "clearChat": "Effacer la discussion",
-    "blockUser": "Bloquer l'utilisateur"
+    "blockUser": "Bloquer l'utilisateur",
+    "hideChat": "Masquer la discussion"
   },
   "encryption": {
     "e2eMessage": "Les messages de cette discussion sont sécurisés par un chiffrement de bout en bout. Seuls vous et {{name}} pouvez les lire."
@@ -164,6 +201,7 @@
     "french": "Français",
     "german": "Allemand",
     "russian": "Russe",
-    "chinese": "Chinois"
+    "chinese": "Chinois",
+    "japanese": "Japonais"
   }
 }

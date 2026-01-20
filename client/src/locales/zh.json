@@ -34,6 +34,7 @@
     "password": "密码",
     "confirmPassword": "确认密码",
     "displayName": "显示名称",
+    "email": "电子邮件",
     "enterUsername": "输入您的用户名",
     "enterPassword": "输入您的密码",
     "chooseUsername": "选择一个用户名",
@@ -48,7 +49,8 @@
     "passwordMin": "密码必须至少为 6 个字符",
     "passwordsMatch": "密码不匹配",
     "displayNameRequired": "必须填写显示名称",
-    "currentPasswordRequired": "必须填写当前密码"
+    "currentPasswordRequired": "必须填写当前密码",
+    "invalidEmail": "邮箱格式无效"
   },
   "chat": {
     "searchOrStart": "搜索或发起新聊天",
@@ -68,7 +70,30 @@
     "userBlocked": "用户已屏蔽",
     "userBlockedDesc": "您将不再收到此用户的消息。",
     "blockUserTitle": "屏蔽用户",
-    "blockUserConfirm": "您确定要屏蔽 {{name}} 吗？您将无法再向他们发送或接收消息。"
+    "blockUserConfirm": "您确定要屏蔽 {{name}} 吗？您将无法再向他们发送或接收消息。",
+    "voiceMessage": "语音消息",
+    "sentAudio": "发送了一条语音消息",
+    "sentFile": "发送了一个文件: {{name}}",
+    "uploadFailed": "上传失败",
+    "chatHidden": "对话已隐藏",
+    "chatUnhidden": "对话已显示",
+    "hideChat": "隐藏对话",
+    "unhideChat": "显示对话",
+    "enterPin": "输入PIN码",
+    "hideChatDescription": "设置4位PIN码以隐藏此对话",
+    "verifyPinDescription": "输入PIN码以查看隐藏对话",
+    "unhideChatDescription": "输入PIN码以显示此对话",
+    "pinMustBe4Digits": "PIN码必须是4位数字",
+    "pinsDontMatch": "PIN码不匹配",
+    "invalidPin": "PIN码无效",
+    "confirmPin": "确认PIN码",
+    "unlock": "解锁",
+    "showHiddenChats": "隐私对话",
+    "hideHiddenChats": "隐藏隐私对话",
+    "unhide": "显示",
+    "myStickers": "我的贴纸",
+    "defaultStickers": "默认贴纸",
+    "hiddenChat": "隐藏对话"
   },
   "dialog": {
     "searchByUsername": "按用户名搜索",
@@ -88,7 +113,18 @@
     "updateFailed": "更新个人资料失败",
     "save": "保存",
     "saving": "正在保存...",
-    "anonymous": "匿名用户"
+    "anonymous": "匿名用户",
+    "avatarUpdated": "头像已更新",
+    "verifyNow": "立即验证",
+    "verified": "已验证",
+    "codeSent": "验证码已发送",
+    "codeSentDesc": "我们已将验证码发送到您的邮箱",
+    "confirm": "确认",
+    "enterCode": "输入验证码",
+    "error": "错误",
+    "sending": "发送中...",
+    "verifiedDesc": "您的邮箱已验证",
+    "change": "修改"
   },
   "settings": {
     "title": "设置",
@@ -132,7 +168,8 @@
     "logout": "退出登录",
     "viewProfile": "查看个人资料",
     "clearChat": "清除聊天",
-    "blockUser": "屏蔽用户"
+    "blockUser": "屏蔽用户",
+    "hideChat": "隐藏对话"
   },
   "encryption": {
     "e2eMessage": "此聊天中的消息受端到端加密保护。只有您和 {{name}} 可以阅读它们。"
@@ -164,6 +201,7 @@
     "french": "法语",
     "german": "德语",
     "russian": "俄语",
-    "chinese": "中文"
+    "chinese": "中文",
+    "japanese": "日语"
   }
 }
