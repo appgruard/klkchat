@@ -93,7 +93,20 @@
     "unhide": "Показать",
     "myStickers": "Мои стикеры",
     "defaultStickers": "Стикеры по умолчанию",
-    "hiddenChat": "Скрытый чат"
+    "hiddenChat": "Скрытый чат",
+    "importUrl": "Ссылка",
+    "importStickerUrl": "Импорт стикера по ссылке",
+    "importStickerUrlDesc": "Вставьте ссылку на изображение, чтобы добавить его как стикер. Поддерживаются форматы PNG, GIF и WebP.",
+    "stickerUrl": "Ссылка на изображение",
+    "stickerName": "Название (необязательно)",
+    "stickerNamePlaceholder": "Мой стикер",
+    "stickerAdded": "Стикер добавлен",
+    "stickerAddedDesc": "Стикер добавлен в вашу коллекцию",
+    "stickerAddFailed": "Не удалось добавить стикер. Проверьте ссылку.",
+    "addSticker": "Добавить"
+  },
+  "common": {
+    "cancel": "Отмена"
   },
   "dialog": {
     "searchByUsername": "Поиск по имени пользователя",

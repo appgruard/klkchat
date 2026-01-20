@@ -1017,6 +1017,49 @@ export async function registerRoutes(
     }
   });
 
+  // Add sticker by URL (for external sticker packs)
+  app.post("/api/stickers/url", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { url, name } = req.body;
+
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ message: "Sticker URL is required" });
+      }
+
+      // Validate URL format
+      try {
+        new URL(url);
+      } catch {
+        return res.status(400).json({ message: "Invalid URL format" });
+      }
+
+      // Validate it's an image URL (basic check)
+      const validExtensions = ['.png', '.gif', '.webp', '.jpg', '.jpeg'];
+      const urlLower = url.toLowerCase();
+      const hasValidExtension = validExtensions.some(ext => urlLower.includes(ext));
+      const isKnownStickerProvider = urlLower.includes('fonts.gstatic.com') || 
+                                      urlLower.includes('giphy.com') ||
+                                      urlLower.includes('telegram') ||
+                                      urlLower.includes('sticker');
+      
+      if (!hasValidExtension && !isKnownStickerProvider) {
+        return res.status(400).json({ message: "URL must point to an image file (PNG, GIF, WebP, JPG)" });
+      }
+
+      const sticker = await storage.addCustomSticker({
+        userId: user.id,
+        imageUrl: url,
+        name: name || null,
+      });
+
+      res.json(sticker);
+    } catch (error) {
+      console.error("Add sticker by URL error:", error);
+      res.status(500).json({ message: "Failed to add sticker" });
+    }
+  });
+
   app.delete("/api/stickers/:id", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;

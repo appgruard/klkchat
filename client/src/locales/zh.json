@@ -93,7 +93,20 @@
     "unhide": "显示",
     "myStickers": "我的贴纸",
     "defaultStickers": "默认贴纸",
-    "hiddenChat": "隐藏对话"
+    "hiddenChat": "隐藏对话",
+    "importUrl": "网址",
+    "importStickerUrl": "从网址导入贴纸",
+    "importStickerUrlDesc": "粘贴图片网址以将其添加为贴纸。支持 PNG、GIF 和 WebP 格式。",
+    "stickerUrl": "图片网址",
+    "stickerName": "名称（可选）",
+    "stickerNamePlaceholder": "我的贴纸",
+    "stickerAdded": "贴纸已添加",
+    "stickerAddedDesc": "贴纸已添加到您的收藏",
+    "stickerAddFailed": "添加贴纸失败。请检查网址。",
+    "addSticker": "添加"
+  },
+  "common": {
+    "cancel": "取消"
   },
   "dialog": {
     "searchByUsername": "按用户名搜索",

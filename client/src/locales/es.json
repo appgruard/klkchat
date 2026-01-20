@@ -93,7 +93,20 @@
     "unhide": "Mostrar",
     "myStickers": "Mis Stickers",
     "defaultStickers": "Stickers Predeterminados",
-    "hiddenChat": "Chat Oculto"
+    "hiddenChat": "Chat Oculto",
+    "importUrl": "URL",
+    "importStickerUrl": "Importar Sticker desde URL",
+    "importStickerUrlDesc": "Pega la URL de una imagen para agregarla como sticker. Soporta formatos PNG, GIF y WebP.",
+    "stickerUrl": "URL de imagen",
+    "stickerName": "Nombre (opcional)",
+    "stickerNamePlaceholder": "Mi sticker",
+    "stickerAdded": "Sticker agregado",
+    "stickerAddedDesc": "El sticker ha sido agregado a tu colección",
+    "stickerAddFailed": "Error al agregar sticker. Verifica la URL.",
+    "addSticker": "Agregar"
+  },
+  "common": {
+    "cancel": "Cancelar"
   },
   "dialog": {
     "searchByUsername": "Buscar por nombre de usuario",

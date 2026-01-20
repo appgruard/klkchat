@@ -93,7 +93,20 @@
     "unhide": "Afficher",
     "myStickers": "Mes stickers",
     "defaultStickers": "Stickers par défaut",
-    "hiddenChat": "Discussion masquée"
+    "hiddenChat": "Discussion masquée",
+    "importUrl": "URL",
+    "importStickerUrl": "Importer un sticker depuis une URL",
+    "importStickerUrlDesc": "Collez l'URL d'une image pour l'ajouter comme sticker. Supporte les formats PNG, GIF et WebP.",
+    "stickerUrl": "URL de l'image",
+    "stickerName": "Nom (optionnel)",
+    "stickerNamePlaceholder": "Mon sticker",
+    "stickerAdded": "Sticker ajouté",
+    "stickerAddedDesc": "Le sticker a été ajouté à votre collection",
+    "stickerAddFailed": "Échec de l'ajout du sticker. Vérifiez l'URL.",
+    "addSticker": "Ajouter"
+  },
+  "common": {
+    "cancel": "Annuler"
   },
   "dialog": {
     "searchByUsername": "Rechercher par nom d'utilisateur",

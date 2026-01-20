@@ -5,8 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Search, Plus, Trash2, Image as ImageIcon } from "lucide-react";
+import { Loader2, Search, Plus, Trash2, Image as ImageIcon, Link, Package } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import type { CustomSticker } from "@shared/schema";
 
 interface GifStickerPickerProps {
@@ -57,9 +60,13 @@ const DEFAULT_GIFS: GiphyGif[] = [
 
 export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"gif" | "sticker">("gif");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [showUrlDialog, setShowUrlDialog] = useState(false);
+  const [stickerUrl, setStickerUrl] = useState("");
+  const [stickerName, setStickerName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
 
@@ -115,12 +122,44 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
     },
   });
 
+  const addStickerByUrlMutation = useMutation({
+    mutationFn: async ({ url, name }: { url: string; name: string }) => {
+      const res = await apiRequest("POST", "/api/stickers/url", { url, name });
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stickers"] });
+      setShowUrlDialog(false);
+      setStickerUrl("");
+      setStickerName("");
+      toast({
+        title: t("chat.stickerAdded") || "Sticker added",
+        description: t("chat.stickerAddedDesc") || "The sticker has been added to your collection",
+      });
+    },
+    onError: () => {
+      toast({
+        title: t("error.title") || "Error",
+        description: t("chat.stickerAddFailed") || "Failed to add sticker. Please check the URL.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       addStickerMutation.mutate(file);
     }
     e.target.value = "";
+  };
+
+  const handleAddStickerByUrl = () => {
+    if (!stickerUrl.trim()) return;
+    addStickerByUrlMutation.mutate({ 
+      url: stickerUrl.trim(), 
+      name: stickerName.trim() || "Custom Sticker" 
+    });
   };
 
   const handleGifSelect = (gif: GiphyGif) => {
@@ -170,7 +209,17 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                 ) : (
                   <Plus className="h-4 w-4 mr-2" />
                 )}
-                {t("chat.addSticker") || "Add Sticker"}
+                {t("chat.addSticker") || "Add"}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUrlDialog(true)}
+                className="flex-1"
+                data-testid="button-add-sticker-url"
+              >
+                <Link className="h-4 w-4 mr-2" />
+                {t("chat.importUrl") || "URL"}
               </Button>
               <input
                 ref={fileInputRef}
@@ -287,6 +336,69 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
           </ScrollArea>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog for adding sticker by URL */}
+      <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("chat.importStickerUrl") || "Import Sticker from URL"}</DialogTitle>
+            <DialogDescription>
+              {t("chat.importStickerUrlDesc") || "Paste the URL of an image to add it as a sticker. Supports PNG, GIF, and WebP formats."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="sticker-url">{t("chat.stickerUrl") || "Image URL"}</Label>
+              <Input
+                id="sticker-url"
+                placeholder="https://example.com/sticker.png"
+                value={stickerUrl}
+                onChange={(e) => setStickerUrl(e.target.value)}
+                data-testid="input-sticker-url"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sticker-name">{t("chat.stickerName") || "Name (optional)"}</Label>
+              <Input
+                id="sticker-name"
+                placeholder={t("chat.stickerNamePlaceholder") || "My sticker"}
+                value={stickerName}
+                onChange={(e) => setStickerName(e.target.value)}
+                data-testid="input-sticker-name"
+              />
+            </div>
+            {stickerUrl && (
+              <div className="flex justify-center p-4 bg-muted rounded-lg">
+                <img 
+                  src={stickerUrl} 
+                  alt="Preview" 
+                  className="max-w-[120px] max-h-[120px] object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowUrlDialog(false)}>
+              {t("common.cancel") || "Cancel"}
+            </Button>
+            <Button 
+              onClick={handleAddStickerByUrl}
+              disabled={!stickerUrl.trim() || addStickerByUrlMutation.isPending}
+              data-testid="button-confirm-add-sticker-url"
+            >
+              {addStickerByUrlMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Package className="h-4 w-4 mr-2" />
+              )}
+              {t("chat.addSticker") || "Add Sticker"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

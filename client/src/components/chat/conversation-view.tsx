@@ -280,12 +280,18 @@ export function ConversationView({
   const handleGifStickerSelect = async (url: string, type: "gif" | "sticker") => {
     setShowGifPicker(false);
     try {
+      // Use prefixed filename for identification: klk-sticker_ or klk-gif_
+      const timestamp = Date.now();
+      const fileName = type === "gif" 
+        ? `klk-gif_${timestamp}.gif` 
+        : `klk-sticker_${timestamp}.png`;
+      
       await sendMessageMutation.mutateAsync({
         content: type === "gif" ? "GIF" : "Sticker",
         type: "image",
         file: {
           fileUrl: url,
-          fileName: type === "gif" ? "gif.gif" : "sticker.png",
+          fileName,
           fileType: "image",
           replyToId: replyToMessage?.id,
         },
@@ -411,9 +417,9 @@ export function ConversationView({
       const isExternalUrl = message.fileUrl?.startsWith('http://') || message.fileUrl?.startsWith('https://');
       const imageUrl = isExternalUrl ? message.fileUrl : (message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`);
       
-      // Detect if it's a sticker or GIF (smaller display size ~140x140)
-      const isSticker = message.fileName === 'sticker.png' || message.fileUrl?.includes('fonts.gstatic.com');
-      const isGif = message.fileName === 'gif.gif' || message.fileUrl?.includes('giphy.com');
+      // Detect if it's a sticker or GIF by prefix or URL patterns (smaller display size ~140x140)
+      const isSticker = message.fileName?.startsWith('klk-sticker_') || message.fileName === 'sticker.png' || message.fileUrl?.includes('fonts.gstatic.com');
+      const isGif = message.fileName?.startsWith('klk-gif_') || message.fileName === 'gif.gif' || message.fileUrl?.includes('giphy.com');
       const isCompact = isSticker || isGif;
       
       if (isCompact) {

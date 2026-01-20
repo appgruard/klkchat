@@ -93,7 +93,20 @@
     "unhide": "表示",
     "myStickers": "マイスタンプ",
     "defaultStickers": "デフォルトスタンプ",
-    "hiddenChat": "非表示のチャット"
+    "hiddenChat": "非表示のチャット",
+    "importUrl": "URL",
+    "importStickerUrl": "URLからスタンプをインポート",
+    "importStickerUrlDesc": "画像のURLを貼り付けてスタンプとして追加します。PNG、GIF、WebP形式に対応。",
+    "stickerUrl": "画像URL",
+    "stickerName": "名前（任意）",
+    "stickerNamePlaceholder": "マイスタンプ",
+    "stickerAdded": "スタンプを追加しました",
+    "stickerAddedDesc": "スタンプがコレクションに追加されました",
+    "stickerAddFailed": "スタンプの追加に失敗しました。URLを確認してください。",
+    "addSticker": "追加"
+  },
+  "common": {
+    "cancel": "キャンセル"
   },
   "dialog": {
     "searchByUsername": "ユーザー名で検索",
