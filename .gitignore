@@ -8,3 +8,6 @@ secrets-output/
 *.jks
 *.p12
 *.mobileprovision
+
+# GitHub workflows (push manually with workflow scope)
+.github/workflows/
