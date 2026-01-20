@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Search, Plus, MessageCircle, Shield } from "lucide-react";
+import { Search, Plus, MessageCircle, Shield, Lock, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -9,6 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ConversationWithParticipants, UserPublic } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import logoPath from "@assets/generated_images/klk!_favicon_icon.png";
+import { PinDialog } from "./pin-dialog";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ChatListProps {
   currentUser: UserPublic;
@@ -24,18 +27,83 @@ export function ChatList({
   onNewChat,
 }: ChatListProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showHidden, setShowHidden] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pinDialogMode, setPinDialogMode] = useState<"set" | "verify" | "remove">("verify");
+  const [selectedHiddenConvId, setSelectedHiddenConvId] = useState<string | null>(null);
+  const [verifiedConversations, setVerifiedConversations] = useState<Set<string>>(new Set());
 
   const { data: conversations = [], isLoading } = useQuery<ConversationWithParticipants[]>({
     queryKey: ["/api/conversations"],
   });
 
-  const filteredConversations = conversations.filter((conv) => {
+  const { data: hiddenConversationIds = [] } = useQuery<string[]>({
+    queryKey: ["/api/hidden-conversations"],
+  });
+
+  const unhideChatMutation = useMutation({
+    mutationFn: async ({ conversationId, pin }: { conversationId: string; pin: string }) => {
+      return await apiRequest("POST", `/api/conversations/${conversationId}/unhide`, { pin });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hidden-conversations"] });
+      toast({ title: t("chat.chatUnhidden") || "Chat unhidden" });
+      setSelectedHiddenConvId(null);
+    },
+    onError: () => {
+      toast({ title: t("chat.invalidPin") || "Invalid PIN", variant: "destructive" });
+    },
+  });
+
+  const visibleConversations = conversations.filter((conv) => !hiddenConversationIds.includes(conv.id));
+  const hiddenConversations = conversations.filter((conv) => hiddenConversationIds.includes(conv.id));
+
+  const filteredConversations = (showHidden ? hiddenConversations : visibleConversations).filter((conv) => {
     const otherParticipant = conv.participants.find((p) => p.id !== currentUser.id);
     if (!otherParticipant) return false;
     const name = otherParticipant.displayName || otherParticipant.username;
     return name.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  const handleVerifyConversationPin = async (pin: string): Promise<boolean> => {
+    if (!selectedHiddenConvId) return false;
+    try {
+      await apiRequest("POST", `/api/conversations/${selectedHiddenConvId}/verify-pin`, { pin });
+      setVerifiedConversations(prev => new Set(prev).add(selectedHiddenConvId));
+      onSelectConversation(selectedHiddenConvId);
+      setSelectedHiddenConvId(null);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleUnhideChat = async (pin: string): Promise<boolean> => {
+    if (!selectedHiddenConvId) return false;
+    try {
+      await unhideChatMutation.mutateAsync({ conversationId: selectedHiddenConvId, pin });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSelectConversation = (conversationId: string) => {
+    const isHidden = hiddenConversationIds.includes(conversationId);
+    const isVerified = verifiedConversations.has(conversationId);
+    
+    if (isHidden && !isVerified) {
+      setSelectedHiddenConvId(conversationId);
+      setPinDialogMode("verify");
+      setPinDialogOpen(true);
+    } else {
+      onSelectConversation(conversationId);
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -111,13 +179,16 @@ export function ChatList({
               );
               if (!otherParticipant) return null;
 
-              const name = otherParticipant.displayName || otherParticipant.username;
+              const actualName = otherParticipant.displayName || otherParticipant.username;
               const isSelected = selectedConversationId === conversation.id;
+              const isHiddenChat = showHidden && hiddenConversationIds.includes(conversation.id);
+              const isVerifiedHidden = verifiedConversations.has(conversation.id);
+              const displayName = isHiddenChat && !isVerifiedHidden ? t("chat.hiddenChat") || "Hidden Chat" : actualName;
 
               return (
                 <button
                   key={conversation.id}
-                  onClick={() => onSelectConversation(conversation.id)}
+                  onClick={() => handleSelectConversation(conversation.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 transition-colors hover-elevate ${
                     isSelected ? "bg-sidebar-accent" : ""
                   }`}
@@ -125,22 +196,27 @@ export function ChatList({
                 >
                   <div className="relative">
                     <Avatar className="h-12 w-12">
-                      {otherParticipant.avatarUrl ? (
-                        <img src={otherParticipant.avatarUrl} alt={name} className="h-full w-full object-cover" />
+                      {isHiddenChat && !isVerifiedHidden ? (
+                        <AvatarFallback className="bg-muted text-muted-foreground">
+                          <Lock className="h-5 w-5" />
+                        </AvatarFallback>
+                      ) : otherParticipant.avatarUrl ? (
+                        <img src={otherParticipant.avatarUrl} alt={displayName} className="h-full w-full object-cover" />
                       ) : (
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          {getInitials(name)}
+                          {getInitials(actualName)}
                         </AvatarFallback>
                       )}
                     </Avatar>
-                    {otherParticipant.isOnline && (
+                    {otherParticipant.isOnline && !isHiddenChat && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 bg-status-online rounded-full border-2 border-sidebar" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-sidebar-foreground truncate">
-                        {name}
+                      <span className="font-medium text-sidebar-foreground truncate flex items-center gap-1.5">
+                        {isHiddenChat && <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
+                        {displayName}
                       </span>
                       {conversation.lastMessage && (
                         <span className="text-xs text-muted-foreground flex-shrink-0">
@@ -156,11 +232,25 @@ export function ChatList({
                           ? t("chat.encryptedMessage")
                           : t("chat.startConversation")}
                       </p>
-                      {conversation.unreadCount && conversation.unreadCount > 0 && (
+                      {showHidden ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedHiddenConvId(conversation.id);
+                            setPinDialogMode("remove");
+                            setPinDialogOpen(true);
+                          }}
+                          data-testid={`button-unhide-${conversation.id}`}
+                        >
+                          {t("chat.unhide") || "Unhide"}
+                        </Button>
+                      ) : conversation.unreadCount && conversation.unreadCount > 0 ? (
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                           {conversation.unreadCount}
                         </span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </button>
@@ -170,7 +260,19 @@ export function ChatList({
         )}
       </ScrollArea>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border space-y-2">
+        {hiddenConversationIds.length > 0 && (
+          <Button
+            variant={showHidden ? "secondary" : "outline"}
+            onClick={() => setShowHidden(!showHidden)}
+            className="w-full gap-2"
+            data-testid="button-hidden-chats"
+          >
+            {showHidden ? <EyeOff className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+            {showHidden ? t("chat.hideHiddenChats") || "Hide Secret Chats" : t("chat.showHiddenChats") || "Secret Chats"}
+            {!showHidden && <span className="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded">{hiddenConversationIds.length}</span>}
+          </Button>
+        )}
         <Button
           onClick={onNewChat}
           className="w-full gap-2"
@@ -180,6 +282,14 @@ export function ChatList({
           {t("chat.newChat")}
         </Button>
       </div>
+
+      <PinDialog
+        open={pinDialogOpen}
+        onOpenChange={setPinDialogOpen}
+        mode={pinDialogMode}
+        onSubmit={pinDialogMode === "remove" ? handleUnhideChat : handleVerifyConversationPin}
+        isLoading={unhideChatMutation.isPending}
+      />
     </div>
   );
 }

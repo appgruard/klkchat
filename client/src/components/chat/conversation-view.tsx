@@ -28,6 +28,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileDialog } from "./user-profile-dialog";
 import { GifStickerPicker } from "./gif-sticker-picker";
+import { PinDialog } from "./pin-dialog";
 
 interface ConversationViewProps {
   conversationId: string;
@@ -54,6 +55,8 @@ export function ConversationView({
   const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
   const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; startY: number; currentX: number; cancelled: boolean; isSent: boolean } | null>(null);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [pinDialogOpen, setPinDialogOpen] = useState(false);
+  const [pinDialogMode, setPinDialogMode] = useState<"set" | "verify" | "remove">("set");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -570,6 +573,30 @@ export function ConversationView({
     },
   });
 
+  const hideChatMutation = useMutation({
+    mutationFn: async (pin: string) => {
+      return await apiRequest("POST", `/api/conversations/${conversationId}/hide`, { pin });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/hidden-conversations"] });
+      toast({ title: t("chat.chatHidden") || "Chat hidden" });
+      onBack();
+    },
+    onError: () => {
+      toast({ title: t("common.error"), variant: "destructive" });
+    },
+  });
+
+  const handleHideChat = async (pin: string): Promise<boolean> => {
+    try {
+      await hideChatMutation.mutateAsync(pin);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -664,6 +691,15 @@ export function ConversationView({
               data-testid="menu-clear-chat"
             >
               {t("menu.clearChat")}
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setPinDialogMode("set");
+                setPinDialogOpen(true);
+              }}
+              data-testid="menu-hide-chat"
+            >
+              {t("menu.hideChat") || "Hide Chat"}
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => setBlockUserOpen(true)}
@@ -968,6 +1004,14 @@ export function ConversationView({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PinDialog
+        open={pinDialogOpen}
+        onOpenChange={setPinDialogOpen}
+        mode={pinDialogMode}
+        onSubmit={handleHideChat}
+        isLoading={hideChatMutation.isPending}
+      />
 
       <AlertDialog open={blockUserOpen} onOpenChange={setBlockUserOpen}>
         <AlertDialogContent>

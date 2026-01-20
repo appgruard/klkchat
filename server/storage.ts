@@ -7,6 +7,7 @@ import {
   blockedUsers,
   pushSubscriptions,
   customStickers,
+  hiddenConversations,
   type User,
   type InsertUser,
   type Message,
@@ -23,6 +24,8 @@ import {
   type InsertPushSubscription,
   type CustomSticker,
   type InsertCustomSticker,
+  type HiddenConversation,
+  type InsertHiddenConversation,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
@@ -76,6 +79,12 @@ export interface IStorage {
   getCustomStickers(userId: string): Promise<CustomSticker[]>;
   addCustomSticker(sticker: InsertCustomSticker): Promise<CustomSticker>;
   deleteCustomSticker(stickerId: string, userId: string): Promise<void>;
+
+  // Hidden Conversations
+  getHiddenConversations(userId: string): Promise<HiddenConversation[]>;
+  hideConversation(hidden: InsertHiddenConversation): Promise<HiddenConversation>;
+  unhideConversation(conversationId: string, userId: string): Promise<void>;
+  getHiddenConversation(conversationId: string, userId: string): Promise<HiddenConversation | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -504,6 +513,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCustomSticker(stickerId: string, userId: string): Promise<void> {
     await db.delete(customStickers).where(and(eq(customStickers.id, stickerId), eq(customStickers.userId, userId)));
+  }
+
+  // Hidden Conversations
+  async getHiddenConversations(userId: string): Promise<HiddenConversation[]> {
+    return db.select().from(hiddenConversations).where(eq(hiddenConversations.userId, userId));
+  }
+
+  async hideConversation(hidden: InsertHiddenConversation): Promise<HiddenConversation> {
+    const [result] = await db.insert(hiddenConversations).values(hidden).returning();
+    return result;
+  }
+
+  async unhideConversation(conversationId: string, userId: string): Promise<void> {
+    await db.delete(hiddenConversations).where(
+      and(eq(hiddenConversations.conversationId, conversationId), eq(hiddenConversations.userId, userId))
+    );
+  }
+
+  async getHiddenConversation(conversationId: string, userId: string): Promise<HiddenConversation | undefined> {
+    const [result] = await db.select().from(hiddenConversations).where(
+      and(eq(hiddenConversations.conversationId, conversationId), eq(hiddenConversations.userId, userId))
+    );
+    return result || undefined;
   }
 }
 

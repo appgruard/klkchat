@@ -74,7 +74,26 @@
     "voiceMessage": "Mensaje de voz",
     "sentFile": "Envió un archivo: {{name}}",
     "sentAudio": "Envió un mensaje de voz",
-    "uploadFailed": "Error al subir el archivo"
+    "uploadFailed": "Error al subir el archivo",
+    "chatHidden": "Chat oculto",
+    "chatUnhidden": "Chat visible",
+    "hideChat": "Ocultar Chat",
+    "unhideChat": "Mostrar Chat",
+    "enterPin": "Ingresar PIN",
+    "hideChatDescription": "Establece un PIN de 4 dígitos para ocultar este chat",
+    "verifyPinDescription": "Ingresa el PIN para ver los chats ocultos",
+    "unhideChatDescription": "Ingresa el PIN para mostrar este chat",
+    "pinMustBe4Digits": "El PIN debe tener 4 dígitos",
+    "pinsDontMatch": "Los PINs no coinciden",
+    "invalidPin": "PIN inválido",
+    "confirmPin": "Confirmar PIN",
+    "unlock": "Desbloquear",
+    "showHiddenChats": "Chats Secretos",
+    "hideHiddenChats": "Ocultar Chats Secretos",
+    "unhide": "Mostrar",
+    "myStickers": "Mis Stickers",
+    "defaultStickers": "Stickers Predeterminados",
+    "hiddenChat": "Chat Oculto"
   },
   "dialog": {
     "searchByUsername": "Buscar por nombre de usuario",
@@ -149,6 +168,7 @@
     "logout": "Cerrar sesión",
     "viewProfile": "Ver perfil",
     "clearChat": "Limpiar chat",
+    "hideChat": "Ocultar Chat",
     "blockUser": "Bloquear usuario"
   },
   "encryption": {

@@ -1029,5 +1029,89 @@ export async function registerRoutes(
     }
   });
 
+  // Hidden Conversations Routes
+  app.get("/api/hidden-conversations", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const hidden = await storage.getHiddenConversations(user.id);
+      res.json(hidden.map(h => h.conversationId));
+    } catch (error) {
+      console.error("Get hidden conversations error:", error);
+      res.status(500).json({ message: "Failed to get hidden conversations" });
+    }
+  });
+
+  app.post("/api/conversations/:id/hide", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      const { pin } = req.body;
+
+      if (!pin || !/^\d{4}$/.test(pin)) {
+        return res.status(400).json({ message: "PIN must be 4 digits" });
+      }
+
+      const existing = await storage.getHiddenConversation(id as string, user.id);
+      if (existing) {
+        return res.status(400).json({ message: "Conversation is already hidden" });
+      }
+
+      const pinHash = await bcrypt.hash(pin, 10);
+      await storage.hideConversation({
+        userId: user.id,
+        conversationId: id as string,
+        pinHash,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Hide conversation error:", error);
+      res.status(500).json({ message: "Failed to hide conversation" });
+    }
+  });
+
+  app.post("/api/conversations/:id/unhide", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      const { pin } = req.body;
+
+      const hidden = await storage.getHiddenConversation(id as string, user.id);
+      if (!hidden) {
+        return res.status(404).json({ message: "Conversation is not hidden" });
+      }
+
+      const isValid = await bcrypt.compare(pin, hidden.pinHash);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid PIN" });
+      }
+
+      await storage.unhideConversation(id as string, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Unhide conversation error:", error);
+      res.status(500).json({ message: "Failed to unhide conversation" });
+    }
+  });
+
+  app.post("/api/conversations/:id/verify-pin", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      const { pin } = req.body;
+
+      const hidden = await storage.getHiddenConversation(id as string, user.id);
+      if (!hidden) {
+        return res.status(404).json({ message: "Conversation is not hidden" });
+      }
+
+      const isValid = await bcrypt.compare(pin, hidden.pinHash);
+      res.json({ valid: isValid });
+    } catch (error) {
+      console.error("Verify PIN error:", error);
+      res.status(500).json({ message: "Failed to verify PIN" });
+    }
+  });
+
   return httpServer;
 }

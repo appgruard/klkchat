@@ -97,6 +97,17 @@ export const customStickers = pgTable("custom_stickers", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Hidden conversations (locked with PIN)
+export const hiddenConversations = pgTable("hidden_conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  conversationId: varchar("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  pinHash: text("pin_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  uniqueHidden: unique("unique_user_conversation_hidden").on(table.userId, table.conversationId),
+}));
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sentMessages: many(messages),
@@ -122,6 +133,17 @@ export const customStickersRelations = relations(customStickers, ({ one }) => ({
   }),
 }));
 
+export const hiddenConversationsRelations = relations(hiddenConversations, ({ one }) => ({
+  user: one(users, {
+    fields: [hiddenConversations.userId],
+    references: [users.id],
+  }),
+  conversation: one(conversations, {
+    fields: [hiddenConversations.conversationId],
+    references: [conversations.id],
+  }),
+}));
+
 export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
   id: true,
   createdAt: true,
@@ -137,6 +159,14 @@ export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema
 
 export type CustomSticker = typeof customStickers.$inferSelect;
 export type InsertCustomSticker = z.infer<typeof insertCustomStickerSchema>;
+
+export const insertHiddenConversationSchema = createInsertSchema(hiddenConversations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type HiddenConversation = typeof hiddenConversations.$inferSelect;
+export type InsertHiddenConversation = z.infer<typeof insertHiddenConversationSchema>;
 
 export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
   blocker: one(users, {

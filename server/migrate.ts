@@ -116,6 +116,17 @@ export async function runMigrations() {
       )
     `);
 
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS hidden_conversations (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        conversation_id VARCHAR NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        pin_hash TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        CONSTRAINT unique_user_conversation_hidden UNIQUE(user_id, conversation_id)
+      )
+    `);
+
     console.log("Database schema sync completed successfully");
   } catch (error) {
     console.error("Error syncing database schema:", error);

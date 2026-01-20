@@ -28,6 +28,21 @@ interface GiphyGif {
   };
 }
 
+const DEFAULT_STICKERS = [
+  { id: "default-1", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44d/512.gif", name: "thumbs-up" },
+  { id: "default-2", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/2764_fe0f/512.gif", name: "heart" },
+  { id: "default-3", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f602/512.gif", name: "joy" },
+  { id: "default-4", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60d/512.gif", name: "heart-eyes" },
+  { id: "default-5", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f525/512.gif", name: "fire" },
+  { id: "default-6", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif", name: "party" },
+  { id: "default-7", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44b/512.gif", name: "wave" },
+  { id: "default-8", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f60e/512.gif", name: "cool" },
+  { id: "default-9", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f62d/512.gif", name: "crying" },
+  { id: "default-10", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f914/512.gif", name: "thinking" },
+  { id: "default-11", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f917/512.gif", name: "hug" },
+  { id: "default-12", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif", name: "clap" },
+];
+
 export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"gif" | "sticker">("gif");
@@ -195,44 +210,64 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : stickers && stickers.length > 0 ? (
-              <div className="grid grid-cols-3 gap-2">
-                {stickers.map((sticker) => (
-                  <div
-                    key={sticker.id}
-                    className="relative group"
-                    data-testid={`sticker-item-${sticker.id}`}
-                  >
-                    <button
-                      onClick={() => handleStickerSelect(sticker)}
-                      className="w-full aspect-square overflow-hidden rounded-md hover-elevate active-elevate-2 cursor-pointer bg-muted/50"
-                    >
-                      <img
-                        src={sticker.imageUrl}
-                        alt={sticker.name || "Sticker"}
-                        className="w-full h-full object-contain p-1"
-                        loading="lazy"
-                      />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteStickerMutation.mutate(sticker.id);
-                      }}
-                      className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      data-testid={`button-delete-sticker-${sticker.id}`}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <ImageIcon className="h-8 w-8 mb-2" />
-                <p className="text-sm text-center">
-                  {t("chat.noStickers") || "No stickers yet. Add your own!"}
-                </p>
+              <div className="space-y-4">
+                {stickers && stickers.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2 font-medium">{t("chat.myStickers") || "My Stickers"}</p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {stickers.map((sticker) => (
+                        <div
+                          key={sticker.id}
+                          className="relative group"
+                          data-testid={`sticker-item-${sticker.id}`}
+                        >
+                          <button
+                            onClick={() => handleStickerSelect(sticker)}
+                            className="w-full aspect-square rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                          >
+                            <img
+                              src={sticker.imageUrl}
+                              alt={sticker.name || "Sticker"}
+                              className="w-full h-full object-contain p-1"
+                              loading="lazy"
+                            />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteStickerMutation.mutate(sticker.id);
+                            }}
+                            className="absolute -top-1 -right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            data-testid={`button-delete-sticker-${sticker.id}`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">{t("chat.defaultStickers") || "Default Stickers"}</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {DEFAULT_STICKERS.map((sticker) => (
+                      <button
+                        key={sticker.id}
+                        onClick={() => onSelect(sticker.url, "sticker")}
+                        className="w-full aspect-square rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                        data-testid={`sticker-default-${sticker.id}`}
+                      >
+                        <img
+                          src={sticker.url}
+                          alt={sticker.name}
+                          className="w-full h-full object-contain p-1"
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </ScrollArea>
