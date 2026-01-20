@@ -43,6 +43,18 @@ const DEFAULT_STICKERS = [
   { id: "default-12", url: "https://fonts.gstatic.com/s/e/notoemoji/latest/1f44f/512.gif", name: "clap" },
 ];
 
+// Popular default GIFs as fallback when GIPHY API is unavailable
+const DEFAULT_GIFS: GiphyGif[] = [
+  { id: "fallback-1", images: { fixed_height: { url: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/200.gif", width: "356", height: "200" }, original: { url: "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" } } },
+  { id: "fallback-2", images: { fixed_height: { url: "https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/200.gif", width: "356", height: "200" }, original: { url: "https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif" } } },
+  { id: "fallback-3", images: { fixed_height: { url: "https://media.giphy.com/media/l4FGuhL4U2WyjdkaY/200.gif", width: "270", height: "200" }, original: { url: "https://media.giphy.com/media/l4FGuhL4U2WyjdkaY/giphy.gif" } } },
+  { id: "fallback-4", images: { fixed_height: { url: "https://media.giphy.com/media/3o7TKU8RvQuomFfUUU/200.gif", width: "360", height: "200" }, original: { url: "https://media.giphy.com/media/3o7TKU8RvQuomFfUUU/giphy.gif" } } },
+  { id: "fallback-5", images: { fixed_height: { url: "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/200.gif", width: "356", height: "200" }, original: { url: "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif" } } },
+  { id: "fallback-6", images: { fixed_height: { url: "https://media.giphy.com/media/3ohzdIuqJoo8QdKlnW/200.gif", width: "480", height: "200" }, original: { url: "https://media.giphy.com/media/3ohzdIuqJoo8QdKlnW/giphy.gif" } } },
+  { id: "fallback-7", images: { fixed_height: { url: "https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/200.gif", width: "267", height: "200" }, original: { url: "https://media.giphy.com/media/l0MYGb1LuZ3n7dRnO/giphy.gif" } } },
+  { id: "fallback-8", images: { fixed_height: { url: "https://media.giphy.com/media/xT0GqssRweIhlz209i/200.gif", width: "400", height: "200" }, original: { url: "https://media.giphy.com/media/xT0GqssRweIhlz209i/giphy.gif" } } },
+];
+
 export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"gif" | "sticker">("gif");
@@ -177,9 +189,10 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
               <div className="flex items-center justify-center h-full">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : gifs && gifs.length > 0 ? (
+            ) : (
               <div className="grid grid-cols-2 gap-2">
-                {gifs.map((gif) => (
+                {/* Show API results if available, otherwise show default GIFs */}
+                {(gifs && gifs.length > 0 ? gifs : (!debouncedQuery ? DEFAULT_GIFS : [])).map((gif) => (
                   <button
                     key={gif.id}
                     onClick={() => handleGifSelect(gif)}
@@ -194,11 +207,12 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                     />
                   </button>
                 ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <ImageIcon className="h-8 w-8 mb-2" />
-                <p className="text-sm">{t("chat.noGifsFound") || "No GIFs found"}</p>
+                {(!gifs || gifs.length === 0) && debouncedQuery && (
+                  <div className="col-span-2 flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <ImageIcon className="h-8 w-8 mb-2" />
+                    <p className="text-sm">{t("chat.noGifsFound") || "No GIFs found"}</p>
+                  </div>
+                )}
               </div>
             )}
           </ScrollArea>

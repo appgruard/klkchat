@@ -407,7 +407,9 @@ export function ConversationView({
     if (!message.fileUrl) return null;
 
     if (message.fileType === "image") {
-      const imageUrl = message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`;
+      // Handle both local paths (/uploads/...) and external URLs (https://...)
+      const isExternalUrl = message.fileUrl?.startsWith('http://') || message.fileUrl?.startsWith('https://');
+      const imageUrl = isExternalUrl ? message.fileUrl : (message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`);
       return (
         <div className="mt-2 relative rounded-lg overflow-hidden border border-muted/30 bg-background/50 shadow-sm group">
           <img 
