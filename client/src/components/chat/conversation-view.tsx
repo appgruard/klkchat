@@ -410,6 +410,25 @@ export function ConversationView({
       // Handle both local paths (/uploads/...) and external URLs (https://...)
       const isExternalUrl = message.fileUrl?.startsWith('http://') || message.fileUrl?.startsWith('https://');
       const imageUrl = isExternalUrl ? message.fileUrl : (message.fileUrl?.startsWith('/') ? message.fileUrl : `/${message.fileUrl}`);
+      
+      // Detect if it's a sticker or GIF (smaller display size ~140x140)
+      const isSticker = message.fileName === 'sticker.png' || message.fileUrl?.includes('fonts.gstatic.com');
+      const isGif = message.fileName === 'gif.gif' || message.fileUrl?.includes('giphy.com');
+      const isCompact = isSticker || isGif;
+      
+      if (isCompact) {
+        return (
+          <div className="mt-1">
+            <img 
+              src={imageUrl} 
+              alt={message.fileName || "Sticker"} 
+              className="w-[140px] h-[140px] object-contain rounded-lg"
+              style={{ maxWidth: '140px', maxHeight: '140px' }}
+            />
+          </div>
+        );
+      }
+      
       return (
         <div className="mt-2 relative rounded-lg overflow-hidden border border-muted/30 bg-background/50 shadow-sm group">
           <img 
