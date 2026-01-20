@@ -207,3 +207,102 @@ The server is configured to accept requests from:
 - https://app.gruard.com
 - capacitor://localhost (mobile apps)
 - ionic://localhost (mobile apps)
+
+---
+
+## GitHub Actions CI/CD
+
+The project includes GitHub Actions workflows for automated builds. The workflows are located in `.github/workflows/`.
+
+### Available Workflows
+
+| Workflow | Trigger | Description |
+|----------|---------|-------------|
+| `build-android.yml` | Push to main, PR, Manual | Builds Android APK or AAB |
+| `build-ios.yml` | Push to main, PR, Manual | Builds iOS IPA |
+| `build-all.yml` | Release, Manual | Builds all platforms |
+
+### Setting Up GitHub Secrets
+
+Go to your GitHub repository **Settings > Secrets and variables > Actions** and add the following secrets:
+
+#### Android Secrets
+
+| Secret Name | Description | How to Get |
+|-------------|-------------|------------|
+| `RELEASE_KEYSTORE` | Base64-encoded keystore file | `base64 -i release.jks` |
+| `RELEASE_KEYSTORE_PASSWORD` | Keystore password | Set during keystore creation |
+| `KEYSTORE_KEY_ALIAS` | Key alias name | Set during keystore creation |
+| `KEYSTORE_KEY_PASSWORD` | Key password | Set during keystore creation |
+
+**Create Android Keystore:**
+```bash
+keytool -genkey -v -keystore release.jks \
+  -alias klk-release \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+**Encode for GitHub Secret:**
+```bash
+base64 -i release.jks | pbcopy  # macOS
+base64 -w 0 release.jks         # Linux
+```
+
+#### iOS Secrets
+
+| Secret Name | Description | How to Get |
+|-------------|-------------|------------|
+| `BUILD_CERTIFICATE_BASE64` | Base64-encoded .p12 certificate | Export from Keychain, then `base64 -i cert.p12` |
+| `P12_PASSWORD` | Certificate export password | Set during export |
+| `BUILD_PROVISION_PROFILE_BASE64` | Base64-encoded provisioning profile | `base64 -i profile.mobileprovision` |
+| `KEYCHAIN_PASSWORD` | Temporary keychain password | Generate random string |
+| `APPLE_TEAM_ID` | Apple Developer Team ID | Apple Developer Portal |
+| `PROVISIONING_PROFILE_NAME` | Provisioning profile name | Apple Developer Portal |
+
+**Create iOS Certificate:**
+1. In Xcode: **Settings > Accounts > Manage Certificates**
+2. Click **+** > **Apple Distribution**
+3. Export as .p12 file from Keychain Access
+
+**Create Provisioning Profile:**
+1. Go to [Apple Developer Profiles](https://developer.apple.com/account/resources/profiles)
+2. Create **App Store** distribution profile
+3. Select app ID: `com.fourone.klk`
+4. Download .mobileprovision file
+
+### Running Workflows Manually
+
+1. Go to **Actions** tab in your GitHub repository
+2. Select the workflow (Build Android or Build iOS)
+3. Click **Run workflow**
+4. Choose options (build type, export method)
+5. Click **Run workflow**
+
+### Build Artifacts
+
+After a successful build, artifacts are available:
+- **Android**: `app-release.apk` or `app-release.aab`
+- **iOS**: `app-release.ipa`
+
+Download from the workflow run's **Artifacts** section.
+
+### Pull Request Builds
+
+For pull requests:
+- **Android**: Builds debug APK (unsigned)
+- **iOS**: Builds for simulator only (no signing required)
+
+This allows testing without needing signing credentials.
+
+### Costs
+
+| Platform | Runner | Cost (Private Repo) |
+|----------|--------|---------------------|
+| Android | ubuntu-latest | ~$0.008/min |
+| iOS | macos-14 | ~$0.08/min |
+
+Typical build times:
+- Android: 3-5 minutes (~$0.04/build)
+- iOS: 10-15 minutes (~$1.20/build)
+
+Free tiers available for public repos and limited minutes for private repos.
