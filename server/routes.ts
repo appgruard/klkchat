@@ -90,6 +90,10 @@ export async function registerRoutes(
   // Session setup with PostgreSQL store
   const PgSession = connectPgSimple(session);
   
+  // Configure session cookie based on environment
+  // For production with mobile apps, use sameSite: "none" to allow cross-origin
+  const isProduction = process.env.NODE_ENV === "production";
+  
   app.use(
     session({
       store: new PgSession({
@@ -102,8 +106,8 @@ export async function registerRoutes(
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax", // "none" required for Capacitor mobile apps with remote server
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       },
@@ -848,6 +852,28 @@ export async function registerRoutes(
 
   app.get("/api/push/key", (req, res) => {
     res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+  });
+
+  // Register native push token (FCM/APNs) for mobile apps
+  app.post("/api/push/register", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { token, platform } = req.body;
+
+      if (!token || !platform) {
+        return res.status(400).json({ message: "Token and platform are required" });
+      }
+
+      if (!['android', 'ios', 'web'].includes(platform)) {
+        return res.status(400).json({ message: "Invalid platform" });
+      }
+
+      await storage.saveNativePushToken(user.id, token, platform);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Native push registration error:", error);
+      res.status(500).json({ message: "Failed to register push token" });
+    }
   });
 
   app.post("/api/push/subscribe", requireAuth, async (req, res) => {

@@ -8,6 +8,7 @@ import {
   pushSubscriptions,
   customStickers,
   hiddenConversations,
+  nativePushTokens,
   type User,
   type InsertUser,
   type Message,
@@ -85,6 +86,11 @@ export interface IStorage {
   hideConversation(hidden: InsertHiddenConversation): Promise<HiddenConversation>;
   unhideConversation(conversationId: string, userId: string): Promise<void>;
   getHiddenConversation(conversationId: string, userId: string): Promise<HiddenConversation | undefined>;
+
+  // Native Push Tokens (FCM/APNs)
+  saveNativePushToken(userId: string, token: string, platform: string): Promise<void>;
+  getNativePushTokens(userId: string): Promise<{ token: string; platform: string }[]>;
+  deleteNativePushToken(userId: string, platform: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -536,6 +542,30 @@ export class DatabaseStorage implements IStorage {
       and(eq(hiddenConversations.conversationId, conversationId), eq(hiddenConversations.userId, userId))
     );
     return result || undefined;
+  }
+
+  // Native Push Tokens
+  async saveNativePushToken(userId: string, token: string, platform: string): Promise<void> {
+    await db.insert(nativePushTokens)
+      .values({ userId, token, platform })
+      .onConflictDoUpdate({
+        target: [nativePushTokens.userId, nativePushTokens.platform],
+        set: { token, updatedAt: new Date() },
+      });
+  }
+
+  async getNativePushTokens(userId: string): Promise<{ token: string; platform: string }[]> {
+    const results = await db.select({
+      token: nativePushTokens.token,
+      platform: nativePushTokens.platform,
+    }).from(nativePushTokens).where(eq(nativePushTokens.userId, userId));
+    return results;
+  }
+
+  async deleteNativePushToken(userId: string, platform: string): Promise<void> {
+    await db.delete(nativePushTokens).where(
+      and(eq(nativePushTokens.userId, userId), eq(nativePushTokens.platform, platform))
+    );
   }
 }
 

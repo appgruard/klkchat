@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -6,6 +7,53 @@ import { runMigrations } from "./migrate";
 
 const app = express();
 app.set("trust proxy", 1);
+
+// Configure CORS for mobile apps and web origins
+const allowedOrigins = [
+  // Production domains
+  "https://klk.fourone.com.do",
+  "https://fourone.com.do",
+  "https://captain.gruard.com.do",
+  "https://gruard.com",
+  "https://app.gruard.com",
+  "https://www.gruard.com",
+  // HTTP variants (for development/testing)
+  "http://klk.fourone.com.do",
+  "http://fourone.com.do",
+  // Capacitor mobile app origins
+  "capacitor://localhost",
+  "ionic://localhost",
+  "http://localhost",
+  "http://localhost:5000",
+  "http://localhost:3000",
+  // Development
+  "http://0.0.0.0:5000",
+];
+
+// Check if request is from a native mobile app
+function isMobileAppOrigin(origin: string | undefined): boolean {
+  if (!origin) return true; // No origin means native app or server-to-server
+  return origin.startsWith('capacitor://') || origin.startsWith('ionic://');
+}
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin) || 
+        origin.endsWith('.replit.dev') || 
+        origin.endsWith('.repl.co')) {
+      return callback(null, true);
+    }
+    
+    callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
+
 const httpServer = createServer(app);
 
 declare module "http" {
