@@ -106,6 +106,16 @@ export async function runMigrations() {
       )
     `);
 
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS custom_stickers (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        image_url TEXT NOT NULL,
+        name TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
     console.log("Database schema sync completed successfully");
   } catch (error) {
     console.error("Error syncing database schema:", error);

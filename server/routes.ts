@@ -965,5 +965,69 @@ export async function registerRoutes(
     }
   });
 
+  // GIPHY Proxy (to protect API key)
+  app.get("/api/giphy/search", requireAuth, async (req, res) => {
+    try {
+      const { q } = req.query;
+      const apiKey = process.env.GIPHY_API_KEY || "dc6zaTOxFJmzC";
+      const endpoint = q
+        ? `https://api.giphy.com/v1/gifs/search?api_key=${apiKey}&q=${encodeURIComponent(q as string)}&limit=20&rating=g`
+        : `https://api.giphy.com/v1/gifs/trending?api_key=${apiKey}&limit=20&rating=g`;
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("GIPHY proxy error:", error);
+      res.status(500).json({ message: "Failed to fetch GIFs" });
+    }
+  });
+
+  // Custom Stickers Routes
+  app.get("/api/stickers", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const stickers = await storage.getCustomStickers(user.id);
+      res.json(stickers);
+    } catch (error) {
+      console.error("Get stickers error:", error);
+      res.status(500).json({ message: "Failed to get stickers" });
+    }
+  });
+
+  app.post("/api/stickers", requireAuth, upload.single("sticker"), async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { name } = req.body;
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Sticker image is required" });
+      }
+
+      const imageUrl = `/uploads/${req.file.filename}`;
+      const sticker = await storage.addCustomSticker({
+        userId: user.id,
+        imageUrl,
+        name: name || null,
+      });
+
+      res.json(sticker);
+    } catch (error) {
+      console.error("Add sticker error:", error);
+      res.status(500).json({ message: "Failed to add sticker" });
+    }
+  });
+
+  app.delete("/api/stickers/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      await storage.deleteCustomSticker(id as string, user.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete sticker error:", error);
+      res.status(500).json({ message: "Failed to delete sticker" });
+    }
+  });
+
   return httpServer;
 }

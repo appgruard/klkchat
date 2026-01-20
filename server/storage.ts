@@ -6,6 +6,7 @@ import {
   recoveryCodes,
   blockedUsers,
   pushSubscriptions,
+  customStickers,
   type User,
   type InsertUser,
   type Message,
@@ -20,6 +21,8 @@ import {
   type BlockedUser,
   type PushSubscription,
   type InsertPushSubscription,
+  type CustomSticker,
+  type InsertCustomSticker,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
@@ -68,6 +71,11 @@ export interface IStorage {
   getPushSubscriptions(userId: string): Promise<PushSubscription[]>;
   deletePushSubscription(endpoint: string): Promise<void>;
   getUserByEmail(email: string): Promise<User[]>;
+
+  // Custom Stickers
+  getCustomStickers(userId: string): Promise<CustomSticker[]>;
+  addCustomSticker(sticker: InsertCustomSticker): Promise<CustomSticker>;
+  deleteCustomSticker(stickerId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -482,6 +490,20 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByEmail(email: string): Promise<User[]> {
     return db.select().from(users).where(eq(users.email, email));
+  }
+
+  // Custom Stickers
+  async getCustomStickers(userId: string): Promise<CustomSticker[]> {
+    return db.select().from(customStickers).where(eq(customStickers.userId, userId)).orderBy(desc(customStickers.createdAt));
+  }
+
+  async addCustomSticker(sticker: InsertCustomSticker): Promise<CustomSticker> {
+    const [result] = await db.insert(customStickers).values(sticker).returning();
+    return result;
+  }
+
+  async deleteCustomSticker(stickerId: string, userId: string): Promise<void> {
+    await db.delete(customStickers).where(and(eq(customStickers.id, stickerId), eq(customStickers.userId, userId)));
   }
 }
 

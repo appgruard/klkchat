@@ -88,6 +88,15 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Custom stickers table
+export const customStickers = pgTable("custom_stickers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  name: text("name"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   sentMessages: many(messages),
@@ -96,6 +105,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   blockedUsers: many(blockedUsers, { relationName: "blocker" }),
   blockedBy: many(blockedUsers, { relationName: "blocked" }),
   pushSubscriptions: many(pushSubscriptions),
+  customStickers: many(customStickers),
 }));
 
 export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one }) => ({
@@ -105,13 +115,28 @@ export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one })
   }),
 }));
 
+export const customStickersRelations = relations(customStickers, ({ one }) => ({
+  user: one(users, {
+    fields: [customStickers.userId],
+    references: [users.id],
+  }),
+}));
+
 export const insertPushSubscriptionSchema = createInsertSchema(pushSubscriptions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCustomStickerSchema = createInsertSchema(customStickers).omit({
   id: true,
   createdAt: true,
 });
 
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;
 export type InsertPushSubscription = z.infer<typeof insertPushSubscriptionSchema>;
+
+export type CustomSticker = typeof customStickers.$inferSelect;
+export type InsertCustomSticker = z.infer<typeof insertCustomStickerSchema>;
 
 export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
   blocker: one(users, {

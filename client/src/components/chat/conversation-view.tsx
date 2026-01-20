@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Send, ArrowLeft, MoreVertical, Shield, Lock, Paperclip, File, Image as ImageIcon, Video, Download, Mic, Square, Play, Pause, Reply, X } from "lucide-react";
+import { Send, ArrowLeft, MoreVertical, Shield, Lock, Paperclip, File, Image as ImageIcon, Video, Download, Mic, Square, Play, Pause, Reply, X, Smile } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -27,6 +27,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { UserProfileDialog } from "./user-profile-dialog";
+import { GifStickerPicker } from "./gif-sticker-picker";
 
 interface ConversationViewProps {
   conversationId: string;
@@ -52,6 +53,7 @@ export function ConversationView({
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [replyToMessage, setReplyToMessage] = useState<MessageWithSender | null>(null);
   const [swipeState, setSwipeState] = useState<{ messageId: string; startX: number; startY: number; currentX: number; cancelled: boolean; isSent: boolean } | null>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -269,6 +271,29 @@ export function ConversationView({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  const handleGifStickerSelect = async (url: string, type: "gif" | "sticker") => {
+    setShowGifPicker(false);
+    try {
+      await sendMessageMutation.mutateAsync({
+        content: type === "gif" ? "GIF" : "Sticker",
+        type: "image",
+        file: {
+          fileUrl: url,
+          fileName: type === "gif" ? "gif.gif" : "sticker.png",
+          fileType: "image",
+          replyToId: replyToMessage?.id,
+        },
+      });
+      setReplyToMessage(null);
+    } catch (error) {
+      toast({
+        title: t("error.title"),
+        description: t("error.sendFailed"),
+        variant: "destructive",
+      });
     }
   };
 
@@ -798,6 +823,14 @@ export function ConversationView({
       </ScrollArea>
 
       <footer className="p-3 border-t bg-card">
+        {showGifPicker && (
+          <div className="mb-2 animate-in slide-in-from-bottom-2">
+            <GifStickerPicker
+              onSelect={handleGifStickerSelect}
+              onClose={() => setShowGifPicker(false)}
+            />
+          </div>
+        )}
         {replyToMessage && (
           <div className="mb-2 px-2 py-2 bg-muted/50 rounded-lg flex items-center gap-3 animate-in slide-in-from-bottom-2" data-testid="reply-preview-bar">
             <div className="w-1 h-10 bg-primary rounded-full" />
@@ -865,6 +898,15 @@ export function ConversationView({
                 data-testid="button-attach-file"
               >
                 <Paperclip className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowGifPicker(!showGifPicker)}
+                disabled={isUploading || sendMessageMutation.isPending}
+                data-testid="button-gif-sticker"
+              >
+                <Smile className="h-5 w-5" />
               </Button>
               <Input
                 value={messageInput}

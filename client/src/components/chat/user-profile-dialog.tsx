@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { UserPublic } from "@shared/schema";
 import { format } from "date-fns";
@@ -41,6 +41,9 @@ export function UserProfileDialog({ open, onOpenChange, user }: UserProfileDialo
 
         <div className="flex flex-col items-center gap-4 py-4">
           <Avatar className="h-24 w-24">
+            {user.avatarUrl && (
+              <AvatarImage src={user.avatarUrl} alt={displayName} />
+            )}
             <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
               {getInitials(displayName)}
             </AvatarFallback>
