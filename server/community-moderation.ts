@@ -65,126 +65,23 @@ const idPatterns = [
 
 // Explicit content word list (expanded)
 const explicitWords = [
-  // =========================
-  // INGLÉS (base + variantes)
-  // =========================
-  'fuck','fucking','fucker','motherfucker','mf',
-  'shit','bullshit','shithead',
-  'bitch','bitches','bitching',
-  'ass','asshole','dumbass','badass',
-  'dick','dicks','dickhead',
-  'cock','cocks',
-  'pussy','pussies',
-  'cunt','cunts',
-  'whore','whores',
-  'slut','sluts',
-  'porn','porno','pornhub',
-  'sex','sexy','sexual',
-  'xxx','hardcore','softcore',
-  'nude','nudes','naked',
-  'horny','kinky',
-  'bastard', 'tosser', 'wanker', 'twat', 'clunge', 'bollocks', 'bloody', 'bugger',
-  'shag', 'jizz', 'cum', 'ejaculate', 'orgasm', 'fetish', 'bdsm', 'erotic',
-
-  // evasiones comunes
-  'fvck','f*ck','f**k',
-  'sh1t','$hit',
-  'b1tch',
-  'p0rn','s3x',
-  'n00d','n00ds',
-  'f u c k', 's h i t',
-
-  // =========================
-  // ESPAÑOL GENERAL
-  // =========================
-  'puta','puto','putas','putos','putita','putazo',
-  'mierda','mierdas',
-  'joder','jodido','jodete',
-  'coño','cojones',
-  'verga','vergazo',
-  'culo','culos','culazo',
-  'pene','penes',
-  'vagina','vaginas',
-  'sexo','sexual','sexualidad',
-  'zorra','zorras',
-  'perra','perras',
-  'chingar','chingando','chingadera',
-  'coger','cogiendo','cogida',
-  'follar','follando',
-  'mamar','mamando','mamado',
-  'pajero','pajeros','paja',
-  'masturbar','masturbacion','masturbando',
-  'orgasmo','orgasmos',
-  'eyacular','eyaculacion',
-  'semen',
-  'pendejo', 'pendeja', 'pendejada', 'pendejos',
-  'estupido', 'estupida', 'idiota', 'imbecil', 'baboso', 'boludo',
-  'maricon', 'mariconazo', 'culon', 'culona', 'tetas', 'tetonas',
-  'chupar', 'chupada', 'lamer', 'clavar', 'reventar',
-
-  // =========================
-  // CARIBE / RD / DOMINICANO
-  // =========================
-  'cabron','cabrón','cabrona','cabrones',
-  'mamaguevo','mamagueva','mamaguevos',
-  'mmg','mmgv',
-  'singar','singando','singao',
-  'cuero','cuera','cueros',       // RD: prostituta
-  'come mierda','comemierda',
-  'rastrero','rastrera',
-  'pariguayo','pariguaya',
-  'boludo','boluda',              // muy usado informalmente
-  'mardito','maldito','maldita',
-  'diablo','diache',              // usados como insulto
-  'ñema','ñemazo',                // vulgar RD
-  'toto','totico',
-  'bimbin','bimbazo',
-  'popola', 'greca', 'chapeadora', 'tiguere', 'guayando',
-  'palomo', 'guerrero', 'chopo', 'chopa', 'tutu', 'fulano',
-
-  // =========================
-  // INSULTOS SEXUALES / ACOSO
-  // =========================
-  'pervertido','pervertida',
-  'degenerado','degenerada',
-  'asqueroso','asquerosa',
-  'cochino','cochina',
-  'enfermo','enferma',
-  'acosador', 'acosadora', 'violador', 'pedofilo', 'violacion',
-
-  // =========================
-  // REDES / CONTACTO SEXUAL
-  // (útiles para bloquear intentos)
-  // =========================
-  'onlyfans','fansly',
-  'snapchat','snap',
-  'telegram','tg',
-  'whatsapp','wsp','ws',
-  'instagram','insta','ig',
-  'xhamster', 'redtube', 'xnxx', 'youporn',
-
-  // =========================
-  // ABREVIATURAS / CLAVES
-  // =========================
-  'hpt','hp',
-  'ptm','ctm',
-  'lpm','jpm',
-  'vete a la mierda', 'vete a la verga', 'hijo de puta', 'hija de puta',
-
-  // =========================
-  // ADICIONALES (Para llegar a 100+)
-  // =========================
-  'anal', 'anus', 'balls', 'blowjob', 'boobs', 'butt', 'clitoris', 'condom',
-  'deepthroat', 'dildo', 'erection', 'escort', 'foreskin', 'handjob', 'hentai',
-  'incest', 'intercourse', 'labia', 'milf', 'orgies', 'orgy', 'panties', 'pedophile',
-  'penis', 'prostitute', 'rape', 'rectum', 'scrotum', 'sperm', 'strip', 'testicle',
-  'vagina', 'vulva', 'gay', 'lesbian', 'bisexual', 'transgender', 'queer', 'homo',
-  'dyke', 'faggot', 'nigger', 'nigga', 'beaner', 'chink', 'gook', 'kike', 'spic',
-  'wetback', 'retard', 'spastic', 'cripple', 'whore', 'hoe', 'skank', 'tramp',
-  'wench', 'bimbo', 'gigolo', 'hooker', 'pimp', 'stripper', 'bondage', 'dominatrix',
-  'sadism', 'masochism', 'swapping', 'threesome', 'foursome', 'gangbang', 'gloryhole',
-  'bukkake', 'facials', 'creampie', 'squirt', 'bondage', 'kink', 'fetish', 'bdsm',
-  'voyeur', 'exhibitionist', 'necrophilia', 'bestiality', 'zoophilia', 'pedophilia'
+  'fuck','fucking','fucker','motherfucker','mf','shit','bullshit','shithead',
+  'bitch','bitches','bitching','ass','asshole','dumbass','badass',
+  'dick','dicks','dickhead','cock','cocks','pussy','pussies','cunt','cunts',
+  'whore','whores','slut','sluts','porn','porno','pornhub','sex','sexy','sexual',
+  'xxx','hardcore','softcore','nude','nudes','naked','horny','kinky','bastard',
+  'tosser','wanker','twat','clunge','bollocks','bloody','bugger','shag','jizz',
+  'cum','ejaculate','orgasm','fetish','bdsm','erotic','fvck','f*ck','f**k',
+  'sh1t','$hit','b1tch','p0rn','s3x','n00d','n00ds','puta','puto','putas','putos',
+  'putita','putazo','mierda','mierdas','joder','jodido','jodete','coño','cojones',
+  'verga','vergazo','culo','culos','culazo','pene','penes','vagina','vaginas',
+  'zorra','zorras','perra','perras','chingar','chingando','chingadera','coger',
+  'cogiendo','cogida','follar','follando','mamar','mamando','mamado','pajero',
+  'pajeros','paja','masturbar','masturbacion','masturbando','orgasmo','semen',
+  'pendejo','pendeja','pendejos','estupido','idiota','imbecil','baboso','boludo',
+  'maricon','tetas','tetonas','chupar','cabron','mamaguevo','mmg','mmgv','singar',
+  'cuero','comemierda','rastrero','pariguayo','mardito','maldito','diablo',
+  'ñema','toto','popola','onlyfans','snapchat','snap','hpt','hp','ptm','anal'
 ];
 
 export interface ModerationResult {
@@ -193,134 +90,65 @@ export interface ModerationResult {
   isExplicit: boolean;
 }
 
+const homoglyphs: Record<string, string> = {
+  '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '8': 'b',
+  '@': 'a', '$': 's', '€': 'e', '£': 'l', '¢': 'c', '¥': 'y',
+  '¡': 'i', '¿': '?', '!' : 'i',
+  '⓪': '0', '①': '1', '②': '2', '③': '3', '④': '4', '⑤': '5', '⑥': '6', '⑦': '7', '⑧': '8', '⑨': '9',
+  'ⓐ': 'a', 'ⓑ': 'b', 'ⓒ': 'c', 'ⓓ': 'd', 'ⓔ': 'e', 'ⓕ': 'f', 'ⓖ': 'g', 'ⓗ': 'h', 'ⓘ': 'i', 'ⓙ': 'j',
+  'ⓚ': 'k', 'ⓛ': 'l', 'ⓜ': 'm', 'ⓝ': 'n', 'ⓞ': 'o', 'ⓟ': 'p', 'ⓠ': 'q', 'ⓡ': 'r', 'ⓢ': 's', 'ⓣ': 't',
+  'ⓤ': 'u', 'ⓥ': 'v', 'ⓦ': 'w', 'ⓧ': 'x', 'ⓨ': 'y', 'ⓩ': 'z'
+};
+
+function normalizeAdvanced(text: string): string {
+  let normalized = text.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  let result = '';
+  for (const char of normalized) {
+    result += homoglyphs[char] || char;
+  }
+
+  return result.replace(/[^a-z0-9]/g, '');
+}
+
 export function moderateContent(text: string): ModerationResult {
   if (!text || typeof text !== 'string') {
     return { allowed: true, isExplicit: false };
   }
 
-  // 1. Normalize text for aggressive pattern matching (Remove spaces and common separators)
-  const compressedText = text
-    .replace(/\s+/g, '')
-    .replace(/[-.\(\)]/g, '');
+  const normalized = normalizeAdvanced(text);
 
-  // 2. Check for phone numbers
-  // Check compressed text for long digit sequences (likely phone numbers)
-  if (/\d{7,}/.test(compressedText)) {
-    // Basic verification to avoid blocking simple numbers like "123456" (if they are shorter than 7)
-    // But 8090000000 is 10 digits, so it will be caught.
-    return { 
-      allowed: false, 
-      reason: 'phone_number',
-      isExplicit: false 
-    };
+  if (/\d{7,}/.test(normalized)) {
+    return { allowed: false, reason: 'phone_number', isExplicit: false };
   }
 
-  // Check original text for patterns
-  for (const pattern of phonePatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'phone_number',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
+  const blockedPhrases = [
+    'vivoen', 'estoyen', 'nosvemosen', 'quedamosen', 'micasaes', 'miubicaciones',
+    'lamilagrosa', 'parquecaceres', 'calle', 'avenida', 'sector', 'barrio', 'edificio',
+    'apartamento', 'num', 'numero', 'tel', 'whatsapp', 'wsp', 'escribeme', 'llamame'
+  ];
+
+  if (blockedPhrases.some(phrase => normalized.includes(phrase))) {
+    return { allowed: false, reason: 'personal_info', isExplicit: false };
   }
 
-  // Check for emails
-  for (const pattern of emailPatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'email',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
+  const compressedNoSymbols = text.replace(/[^a-z0-9.]/gi, '').toLowerCase();
+  if (/\b[a-z0-9-]+\.[a-z]{2,}\b/i.test(compressedNoSymbols)) {
+    return { allowed: false, reason: 'external_link', isExplicit: false };
   }
 
-  // Check for social media
-  for (const pattern of socialPatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'social_media',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
-  }
-
-  // Check for URLs/links
-  for (const pattern of urlPatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'external_link',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
-  }
-
-  // Check for addresses
-  for (const pattern of addressPatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'address',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
-  }
-
-  // Check for personal identifiers
-  for (const pattern of idPatterns) {
-    if (pattern.test(text)) {
-      return { 
-        allowed: false, 
-        reason: 'personal_id',
-        isExplicit: false 
-      };
-    }
-    pattern.lastIndex = 0;
-  }
-
-  // 2. Normalize text for explicit content detection
-  // Lowercase, remove accents, remove all symbols and whitespace
-  const normalizedText = text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
-    .replace(/[^a-z0-9]/g, '');      // Remove everything except letters and numbers
-
-  // 3. Check for explicit content using normalized text
   const isExplicit = explicitWords.some(word => {
-    // Normalize the target word as well (just in case)
-    const normalizedWord = word
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, '');
-    
-    // Check if the normalized text contains the normalized word
-    return normalizedText.includes(normalizedWord);
+    const normalizedWord = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+    return normalized.includes(normalizedWord);
   });
 
   return { allowed: true, isExplicit };
 }
 
-// Generate random pseudonym for anonymous identity
-const adjectives = [
-  'Swift', 'Bright', 'Calm', 'Bold', 'Cool', 'Fast', 'Kind', 'Wise', 'Free', 'Pure',
-  'Veloz', 'Alegre', 'Sereno', 'Audaz', 'Fresco', 'Amable', 'Sabio', 'Libre', 'Noble', 'Fuerte'
-];
-
-const nouns = [
-  'Fox', 'Eagle', 'Wolf', 'Bear', 'Hawk', 'Lion', 'Tiger', 'Panda', 'Otter', 'Raven',
-  'Zorro', 'Aguila', 'Lobo', 'Oso', 'Halcon', 'Leon', 'Tigre', 'Delfin', 'Buho', 'Cuervo'
-];
+export const adjectives = ['Swift', 'Bright', 'Calm', 'Bold', 'Cool', 'Fast', 'Kind', 'Wise', 'Free', 'Pure'];
+export const nouns = ['Fox', 'Eagle', 'Wolf', 'Bear', 'Hawk', 'Lion', 'Tiger', 'Panda', 'Otter', 'Raven'];
 
 export function generatePseudonym(): string {
   const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -329,15 +157,8 @@ export function generatePseudonym(): string {
   return `${adj}${noun}${num}`;
 }
 
-// Rate limit cooldowns in milliseconds
-export const RATE_LIMITS = {
-  text: 9000,      // 9 seconds
-  audio: 38000,    // 38 seconds
-  sticker: 24000,  // 24 seconds
-  gif: 24000,      // 24 seconds
-};
-
+export const RATE_LIMITS = { text: 9000, audio: 38000, sticker: 24000, gif: 24000 };
 export const MAX_MESSAGES_PER_24H = 100;
-export const MAX_AUDIO_DURATION = 30; // seconds
+export const MAX_AUDIO_DURATION = 30;
 export const SILENCE_DURATION_HOURS = 1;
 export const BLOCKS_BEFORE_SILENCE = 5;
