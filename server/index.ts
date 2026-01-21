@@ -70,7 +70,17 @@ app.use((req, res, next) => {
           { lat: 18.4321, lng: -69.9543 }, // Malecon
           { lat: 18.4987, lng: -69.8923 }, // Los Mina
           { lat: 18.4654, lng: -69.9765 }, // Luperon
-          { lat: 18.5234, lng: -69.9432 }  // Arroyo Hondo
+          { lat: 18.5234, lng: -69.9432 }, // Arroyo Hondo
+          { lat: 18.4812, lng: -69.9123 }, // San Carlos
+          { lat: 18.4756, lng: -69.9456 }, // Bella Vista
+          { lat: 18.4623, lng: -69.9287 }, // Ciudad Universitaria
+          { lat: 18.5045, lng: -69.9512 }, // Los Rios
+          { lat: 18.5212, lng: -69.8912 }, // Alma Rosa
+          { lat: 18.4912, lng: -69.8512 }, // Lucerna
+          { lat: 18.5512, lng: -69.9712 }, // Los Alcarrizos
+          { lat: 18.4412, lng: -69.9812 }, // Haina/Itabo
+          { lat: 18.5812, lng: -69.8212 }, // San Isidro
+          { lat: 18.5012, lng: -70.0112 }  // Pedro Brand
         ];
 
         for (const loc of locations) {
