@@ -83,7 +83,12 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
       // Allow swipe only if at scroll top or if dragging header/TabsList
       if (scrollArea.scrollTop > 5) return;
     }
-    touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
+    touchStartRef.current = { 
+      y: e.touches[0].clientY, 
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      time: Date.now() 
+    };
     setIsDragging(true);
   }, []);
 
@@ -91,12 +96,17 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
     if (!touchStartRef.current) return;
     const deltaY = e.touches[0].clientY - touchStartRef.current.y;
     const deltaX = Math.abs(e.touches[0].clientX - (touchStartRef.current as any).startX || 0);
+    const totalDeltaY = Math.abs(e.touches[0].clientY - (touchStartRef.current as any).startY || 0);
     
     // Improved vertical vs horizontal detection
+    // If it's a clear downward swipe (deltaY > 0) and more vertical than horizontal
     if (deltaY > 10 && deltaY > deltaX) {
-      setDragY(Math.min(deltaY, 300)); // Increased cap
+      setDragY(Math.min(deltaY, 300));
+      // Critically important: prevent default only if we are clearly swiping down
+      // to avoid triggering browser refresh on some mobile browsers
       if (e.cancelable) e.preventDefault();
-    } else if (deltaY < -20) {
+    } else if (deltaY < -20 || (deltaX > 20 && deltaX > totalDeltaY)) {
+      // User is scrolling up or swiping horizontally, cancel drag
       setIsDragging(false);
       touchStartRef.current = null;
     }

@@ -311,7 +311,7 @@ export default function CommunityPage() {
         
         // Upload file
         const formData = new FormData();
-        formData.append("file", audioBlob, `community-audio-${Date.now()}.webm`);
+        formData.append("file", audioBlob, `audio-${Date.now()}.webm`);
         
         try {
           const uploadRes = await fetch("/api/upload", {
@@ -482,15 +482,18 @@ export default function CommunityPage() {
                   )}
                   {(msg.contentType === 'sticker' || msg.contentType === 'gif') && (
                     <img 
-                      src={msg.content || msg.fileUrl || ''} 
+                      src={msg.fileUrl || msg.content || ''} 
                       alt={msg.contentType} 
-                      className="max-w-[140px] max-h-[140px] rounded"
+                      className="max-w-[140px] max-h-[140px] rounded object-contain"
                     />
                   )}
                   {msg.contentType === 'audio' && (
-                    <audio controls className="max-w-full">
-                      <source src={msg.fileUrl || ''} type="audio/webm" />
-                    </audio>
+                    <div className="flex items-center gap-2 p-1 min-w-[200px]">
+                      <Mic className="h-4 w-4 opacity-70" />
+                      <audio controls className="h-8 w-full filter grayscale contrast-125">
+                        <source src={msg.fileUrl || ''} type="audio/webm" />
+                      </audio>
+                    </div>
                   )}
                 </div>
                 <span className="text-xs text-muted-foreground mt-1">
