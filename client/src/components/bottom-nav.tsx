@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { Home, Radio, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
@@ -42,25 +43,27 @@ export function BottomNav({ onProfileClick }: BottomNavProps) {
           const active = isActive(item.path);
           
           return (
-            <button
+            <Button
               key={item.id}
+              variant="ghost"
               onClick={() => setLocation(item.path)}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
+                "flex flex-col items-center justify-center flex-1 h-full rounded-none gap-0.5",
+                active ? "text-foreground" : "text-muted-foreground"
               )}
-              data-testid={`nav-${item.id}`}
+              data-testid={`button-nav-${item.id}`}
             >
               <Icon className="h-5 w-5" />
-              <span className="text-xs mt-0.5">{item.label}</span>
-            </button>
+              <span className="text-xs">{item.label}</span>
+            </Button>
           );
         })}
 
-        <button
+        <Button
+          variant="ghost"
           onClick={onProfileClick}
-          className="flex flex-col items-center justify-center flex-1 h-full text-muted-foreground"
-          data-testid="nav-profile"
+          className="flex flex-col items-center justify-center flex-1 h-full rounded-none gap-0.5 text-muted-foreground"
+          data-testid="button-nav-profile"
         >
           <Avatar className="h-6 w-6">
             <AvatarImage src={user?.avatarUrl || undefined} />
@@ -68,8 +71,8 @@ export function BottomNav({ onProfileClick }: BottomNavProps) {
               {user?.displayName?.[0] || user?.username?.[0] || <User className="h-3 w-3" />}
             </AvatarFallback>
           </Avatar>
-          <span className="text-xs mt-0.5">{t("nav.profile")}</span>
-        </button>
+          <span className="text-xs">{t("nav.profile")}</span>
+        </Button>
       </div>
     </nav>
   );
