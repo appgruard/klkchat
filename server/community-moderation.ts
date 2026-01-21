@@ -43,6 +43,15 @@ const addressPatterns = [
   /\bcalle\s+[A-Za-z0-9\s]+(?:no?\.?\s*\d+)?/gi, // Spanish: Calle X No. 123
   /\bavenida\s+[A-Za-z0-9\s]+/gi, // Spanish: Avenida X
   /\b(?:apt|apartment|suite|unit|#)\s*\d+/gi,
+  /\bvivo\s+en\s+[A-Za-z0-9\s]+/gi, // "Vivo en X"
+  /\ben\s+la\s+milagrosa\b/gi, // Specific reference mentioned by user
+  /\bnos\s+vemos\s+en\s+[A-Za-z0-9\s]+/gi, // Meeting points: "Nos vemos en X"
+  /\bquedamos\s+en\s+[A-Za-z0-9\s]+/gi, // Spanish meeting points
+  /\ben\s+el\s+parque\s+[A-Za-z0-9\s]+/gi, // "En el parque X"
+  /\bparque\s+Cáceres\b/gi, // Specific location mentioned by user
+  /\bmi\s+ubicacion\s+es\b/gi, // "Mi ubicación es"
+  /\bmi\s+casa\s+es\b/gi, // "Mi casa es"
+  /\bestoy\s+en\b/gi, // "Estoy en"
 ];
 
 // Personal identifier patterns
