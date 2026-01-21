@@ -113,6 +113,22 @@ function normalizeAdvanced(text: string): string {
   return result.replace(/[^a-z0-9]/g, '');
 }
 
+const PROFANITY_LIST = [
+  "mierda", "puta", "hijo de puta", "cabron", "cabrón", "malparido", "pendejo", "zorra", "maldito", "idiota", "estupido", "estúpido", "maricon", "maricón",
+  "fuck", "shit", "bitch", "asshole", "dick", "cunt"
+];
+
+export function filterProfanity(text: string, age: number): string {
+  if (age >= 16) return text;
+  
+  let filtered = text;
+  PROFANITY_LIST.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    filtered = filtered.replace(regex, '****');
+  });
+  return filtered;
+}
+
 export function moderateContent(text: string, contentType?: string, content?: string): ModerationResult {
   if (!text && !content) {
     return { allowed: true, isExplicit: false };

@@ -19,6 +19,7 @@ import fs from "fs";
 import { 
   moderateContent, 
   generatePseudonym, 
+  filterProfanity,
   RATE_LIMITS, 
   MAX_MESSAGES_PER_24H,
   MAX_AUDIO_DURATION,
@@ -1380,6 +1381,13 @@ export async function registerRoutes(
         return res.status(404).json({ message: "Target session not found" });
       }
 
+      // Prevent blocking admins
+      const ADMIN_USERNAMES = ["KlkCEO", "mysticFoxyy"];
+      const targetUser = await storage.getUser(targetSession.userId);
+      if (targetUser && ADMIN_USERNAMES.includes(targetUser.username)) {
+        return res.status(403).json({ message: "Cannot block administrator users" });
+      }
+
       if (targetSession.userId === user.id) {
         return res.status(400).json({ message: "You cannot block yourself" });
       }
@@ -1512,6 +1520,13 @@ export async function registerRoutes(
       // Moderate text content
       let isExplicit = false;
       const moderation = moderateContent(content || '', contentType, content);
+      
+      // Filter profanity for users under 16
+      let finalContent = content || '';
+      if (contentType === 'text' && session.age < 16) {
+        finalContent = filterProfanity(finalContent, session.age);
+      }
+
       if (!moderation.allowed) {
         // Increment block count
         const newBlockCount = await storage.incrementSessionBlockCount(sessionId);
@@ -1555,7 +1570,7 @@ export async function registerRoutes(
         sessionId,
         zoneId: session.zoneId,
         contentType,
-        content: contentType === 'text' ? content : (content || ''), // Asegurar que no sea null
+        content: contentType === 'text' ? finalContent : (content || ''), // Usar contenido filtrado
         fileUrl: contentType !== 'text' ? content : undefined,
         duration: contentType === 'audio' ? duration : undefined,
         expiresAt,

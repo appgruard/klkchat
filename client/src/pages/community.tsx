@@ -282,6 +282,32 @@ export default function CommunityPage() {
         duration,
       });
 
+      if (res.status === 429) {
+        const data = await res.json();
+        setCooldowns(prev => ({
+          ...prev,
+          [contentType]: (data.waitSeconds || 5) * 1000
+        }));
+        toast({
+          title: t('community.cooldown'),
+          description: t('community.cooldownDesc', { seconds: data.waitSeconds || 5 }),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        const error = await res.json();
+        if (error.message === "silenced") {
+          toast({
+            title: t('community.silenced'),
+            description: t('community.silencedDesc'),
+            variant: 'destructive',
+          });
+        }
+        throw new Error(error.message || "Failed to send message");
+      }
+
       const response = await res.json();
       if (response.success) {
         setCooldowns(prev => ({ ...prev, [contentType]: COOLDOWNS[contentType] }));
