@@ -118,11 +118,13 @@ export function moderateContent(text: string, contentType?: string, content?: st
     return { allowed: true, isExplicit: false };
   }
 
-  // Block gallery stickers in community chat
-  // Solo se bloquean los stickers que se subieron (uploads)
-  // Se permiten stickers externos (sticker.ly, URLs directas, etc)
-  if (contentType === 'sticker' && content && content.includes('/uploads/')) {
-    return { allowed: false, reason: 'gallery_stickers_blocked', isExplicit: false };
+  // Block only uploaded gallery stickers in community chat
+  // content might be a URL or a filename. We check for /uploads/ prefix
+  if (contentType === 'sticker' && content) {
+    const isUpload = content.includes('/uploads/') || content.startsWith('sticker-');
+    if (isUpload) {
+      return { allowed: false, reason: 'gallery_stickers_blocked', isExplicit: false };
+    }
   }
 
   if (!text || typeof text !== 'string') {

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Search, Plus, Trash2, Image as ImageIcon, Link, Package, ChevronDown } from "lucide-react";
+import { Loader2, Search, Plus, Trash2, Image as ImageIcon, Link, Package, ChevronDown, ShieldAlert } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -459,6 +459,11 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                               style={{ maxWidth: '70px', maxHeight: '70px' }}
                               loading="lazy"
                             />
+                            {isCommunity && sticker.imageUrl.includes('/uploads/') && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-background/60 rounded-md">
+                                <ShieldAlert className="h-5 w-5 text-destructive" />
+                              </div>
+                            )}
                           </button>
                           <button
                             onClick={(e) => {

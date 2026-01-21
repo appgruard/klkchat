@@ -73,6 +73,7 @@ export default function CommunityPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [cooldowns, setCooldowns] = useState<Record<CooldownType, number>>({ text: 0, sticker: 0, gif: 0 });
+  const [resetTimer, setResetTimer] = useState<string>("");
   const [sessionToBlock, setSessionToBlock] = useState<string | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -216,9 +217,26 @@ export default function CommunityPage() {
           gif: Math.max(0, prev.gif - 1000),
         };
       });
+
+      if (session?.expiresAt) {
+        const expires = new Date(session.expiresAt).getTime();
+        const now = new Date().getTime();
+        const diff = expires - now;
+        
+        if (diff <= 0) {
+          setResetTimer("00:00:00");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setResetTimer(
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          );
+        }
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [session?.expiresAt]);
 
   const handleAgeSubmit = async () => {
     const userAge = parseInt(age);
@@ -446,9 +464,15 @@ export default function CommunityPage() {
           <MapPin className="h-4 w-4 text-primary" />
           <span className="font-medium">{session.zoneName}</span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Clock className="h-3 w-3" />
-          <span>{t('community.messagesRemaining', { count: 100 - session.messageCount })}</span>
+        <div className="flex flex-col items-end gap-1 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            <span>{t('community.messagesRemaining', { count: 100 - session.messageCount })}</span>
+          </div>
+          <div className="flex items-center gap-1 bg-muted/50 px-1.5 py-0.5 rounded-full font-mono">
+            <Trash2 className="h-2.5 w-2.5" />
+            <span>{resetTimer || "00:00:00"}</span>
+          </div>
         </div>
       </div>
 
@@ -560,24 +584,39 @@ export default function CommunityPage() {
 
       <div className="p-3 border-t bg-background">
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setShowPicker(!showPicker)}
-            disabled={cooldowns.sticker > 0 && cooldowns.gif > 0}
-            data-testid="button-sticker-picker"
-          >
-            <Smile className="h-5 w-5" />
-          </Button>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowPicker(!showPicker)}
+              disabled={(cooldowns.sticker > 0 && cooldowns.gif > 0) || isLoading}
+              data-testid="button-sticker-picker"
+            >
+              <Smile className="h-5 w-5" />
+            </Button>
+            {(cooldowns.sticker > 0 || cooldowns.gif > 0) && (
+              <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center pointer-events-none animate-in fade-in zoom-in">
+                {Math.ceil(Math.max(cooldowns.sticker, cooldowns.gif) / 1000)}
+              </div>
+            )}
+          </div>
           
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder={t('community.typeMessage')}
-            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendText()}
-            disabled={isLoading || cooldowns.text > 0}
-            data-testid="input-community-message"
-          />
+          <div className="flex-1 relative">
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder={t('community.typeMessage')}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendText()}
+              disabled={isLoading || (cooldowns.text > 0 && !newMessage.trim())}
+              className={cn(cooldowns.text > 0 && "opacity-80")}
+              data-testid="input-community-message"
+            />
+            {cooldowns.text > 0 && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-muted-foreground bg-background/80 px-1 rounded">
+                {Math.ceil(cooldowns.text / 1000)}s
+              </div>
+            )}
+          </div>
 
           {newMessage.trim() ? (
             <Button
