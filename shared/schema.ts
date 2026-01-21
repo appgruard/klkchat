@@ -370,13 +370,13 @@ export const insertCommunityZoneSchema = createInsertSchema(communityZones).omit
 export const insertCommunitySessionSchema = createInsertSchema(communitySessions).omit({
   id: true,
   createdAt: true,
-  avatarSeed: true,
   messageCount: true,
   blockCount: true,
   silencedUntil: true,
   expelledUntil: true,
   lastLocationCheck: true,
 }).extend({
+  avatarSeed: z.string(),
   age: z.number().min(13).max(120),
 });
 
