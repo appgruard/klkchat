@@ -80,7 +80,7 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
     const isScrollable = target.closest('[data-radix-scroll-area-viewport]');
     if (isScrollable) {
       const scrollArea = isScrollable as HTMLElement;
-      // Allow swipe only if at scroll top
+      // Allow swipe only if at scroll top or if dragging header/TabsList
       if (scrollArea.scrollTop > 5) return;
     }
     touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
@@ -90,12 +90,13 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStartRef.current) return;
     const deltaY = e.touches[0].clientY - touchStartRef.current.y;
-    // Only drag down, not up
-    if (deltaY > 0) {
-      setDragY(Math.min(deltaY, 150)); // Cap max drag
-      e.preventDefault(); // Prevent scroll while dragging
-    } else if (deltaY < -10) {
-      // User is scrolling up, cancel drag
+    const deltaX = Math.abs(e.touches[0].clientX - (touchStartRef.current as any).startX || 0);
+    
+    // Improved vertical vs horizontal detection
+    if (deltaY > 10 && deltaY > deltaX) {
+      setDragY(Math.min(deltaY, 300)); // Increased cap
+      if (e.cancelable) e.preventDefault();
+    } else if (deltaY < -20) {
       setIsDragging(false);
       touchStartRef.current = null;
     }
@@ -107,10 +108,11 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
       setIsDragging(false);
       return;
     }
-    const velocity = dragY / (Date.now() - touchStartRef.current.time);
+    const duration = Date.now() - touchStartRef.current.time;
+    const velocity = dragY / duration;
     
-    // Close if dragged more than 60px or fast swipe
-    if (dragY > 60 || velocity > 0.4) {
+    // Close if dragged more than 80px or fast swipe down
+    if (dragY > 80 || (velocity > 0.5 && dragY > 20)) {
       onClose();
     }
     

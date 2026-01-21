@@ -293,6 +293,74 @@ export default function CommunityPage() {
     setShowPicker(false);
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+      
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      const startTime = Date.now();
+      
+      mediaRecorder.onstop = async () => {
+        const duration = Math.round((Date.now() - startTime) / 1000);
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        
+        // Upload file
+        const formData = new FormData();
+        formData.append("file", audioBlob, `community-audio-${Date.now()}.webm`);
+        
+        try {
+          const uploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const fileData = await uploadRes.json();
+          sendMessage('audio', fileData.url, duration);
+        } catch (error) {
+          console.error("Upload error:", error);
+          toast({
+            title: t("error.title"),
+            description: t("error.uploadFailed"),
+            variant: "destructive",
+          });
+        }
+        
+        stream.getTracks().forEach(track => track.stop());
+        setIsLoading(false);
+      };
+
+      mediaRecorder.start();
+      setIsLoading(true);
+      
+      // Auto-stop at 30s
+      const timeoutId = setTimeout(() => {
+        if (mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
+      }, 30000);
+
+      // We need a way to stop it manually
+      (window as any).stopCommunityRecording = () => {
+        clearTimeout(timeoutId);
+        if (mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
+      };
+
+    } catch (err) {
+      console.error("Mic access error:", err);
+      toast({
+        title: t("error.title"),
+        description: t("error.micAccess"),
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
@@ -462,19 +530,41 @@ export default function CommunityPage() {
             disabled={isLoading || cooldowns.text > 0}
             data-testid="input-community-message"
           />
-          
-          <Button
-            size="icon"
-            onClick={handleSendText}
-            disabled={!newMessage.trim() || isLoading || cooldowns.text > 0}
-            data-testid="button-send-community"
-          >
-            {cooldowns.text > 0 ? (
-              <span className="text-xs">{Math.ceil(cooldowns.text / 1000)}</span>
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </Button>
+
+          {newMessage.trim() ? (
+            <Button
+              size="icon"
+              onClick={handleSendText}
+              disabled={isLoading || cooldowns.text > 0}
+              data-testid="button-send-community"
+            >
+              {cooldowns.text > 0 ? (
+                <span className="text-xs">{Math.ceil(cooldowns.text / 1000)}</span>
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              variant={isLoading ? "destructive" : "secondary"}
+              onClick={() => {
+                if (isLoading) {
+                  if ((window as any).stopCommunityRecording) (window as any).stopCommunityRecording();
+                } else {
+                  startRecording();
+                }
+              }}
+              disabled={cooldowns.audio > 0}
+              data-testid="button-audio-community"
+            >
+              {cooldowns.audio > 0 ? (
+                <span className="text-xs">{Math.ceil(cooldowns.audio / 1000)}</span>
+              ) : (
+                <Mic className={cn("h-5 w-5", isLoading && "animate-pulse")} />
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>
