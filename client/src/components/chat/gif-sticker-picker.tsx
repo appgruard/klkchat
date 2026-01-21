@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Loader2, Search, Plus, Trash2, Image as ImageIcon, Link, Package } from "lucide-react";
+import { Loader2, Search, Plus, Trash2, Image as ImageIcon, Link, Package, ChevronDown } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -67,8 +67,57 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const [showUrlDialog, setShowUrlDialog] = useState(false);
   const [stickerUrl, setStickerUrl] = useState("");
   const [stickerName, setStickerName] = useState("");
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>();
+  const touchStartRef = useRef<{ y: number; time: number } | null>(null);
+
+  // Swipe down to close gesture - works on entire picker
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    // Only start drag if not scrolling inside ScrollArea
+    const target = e.target as HTMLElement;
+    const isScrollable = target.closest('[data-radix-scroll-area-viewport]');
+    if (isScrollable) {
+      const scrollArea = isScrollable as HTMLElement;
+      // Allow swipe only if at scroll top
+      if (scrollArea.scrollTop > 5) return;
+    }
+    touchStartRef.current = { y: e.touches[0].clientY, time: Date.now() };
+    setIsDragging(true);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const deltaY = e.touches[0].clientY - touchStartRef.current.y;
+    // Only drag down, not up
+    if (deltaY > 0) {
+      setDragY(Math.min(deltaY, 150)); // Cap max drag
+      e.preventDefault(); // Prevent scroll while dragging
+    } else if (deltaY < -10) {
+      // User is scrolling up, cancel drag
+      setIsDragging(false);
+      touchStartRef.current = null;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current) {
+      setDragY(0);
+      setIsDragging(false);
+      return;
+    }
+    const velocity = dragY / (Date.now() - touchStartRef.current.time);
+    
+    // Close if dragged more than 60px or fast swipe
+    if (dragY > 60 || velocity > 0.4) {
+      onClose();
+    }
+    
+    setDragY(0);
+    setIsDragging(false);
+    touchStartRef.current = null;
+  }, [dragY, onClose]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -173,7 +222,26 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   };
 
   return (
-    <div className="w-full bg-background border rounded-lg shadow-lg" data-testid="gif-sticker-picker">
+    <div 
+      className="w-full bg-background border rounded-t-xl shadow-lg overflow-hidden"
+      style={{
+        transform: `translateY(${dragY}px)`,
+        opacity: isDragging ? Math.max(0.5, 1 - dragY / 200) : 1,
+        transition: isDragging ? 'none' : 'transform 0.2s ease-out, opacity 0.2s ease-out'
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      data-testid="gif-sticker-picker"
+    >
+      {/* Drag handle indicator */}
+      <div className="flex justify-center py-2 cursor-grab active:cursor-grabbing">
+        <div className="flex flex-col items-center gap-0.5">
+          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground/40" />
+        </div>
+      </div>
+      
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "gif" | "sticker")}>
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="gif" data-testid="tab-gif">GIFs</TabsTrigger>
@@ -287,12 +355,13 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                         >
                           <button
                             onClick={() => handleStickerSelect(sticker)}
-                            className="w-full aspect-square rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                            className="w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto"
                           >
                             <img
                               src={sticker.imageUrl}
                               alt={sticker.name || "Sticker"}
                               className="w-full h-full object-contain p-1"
+                              style={{ maxWidth: '70px', maxHeight: '70px' }}
                               loading="lazy"
                             />
                           </button>
@@ -318,13 +387,14 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                       <button
                         key={sticker.id}
                         onClick={() => onSelect(sticker.url, "sticker")}
-                        className="w-full aspect-square rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                        className="w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto"
                         data-testid={`sticker-default-${sticker.id}`}
                       >
                         <img
                           src={sticker.url}
                           alt={sticker.name}
                           className="w-full h-full object-contain p-1"
+                          style={{ maxWidth: '70px', maxHeight: '70px' }}
                           loading="lazy"
                         />
                       </button>

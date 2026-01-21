@@ -121,7 +121,7 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit, isLoading }: Pin
     const prefix = isConfirm ? "input-confirm-pin" : "input-pin";
     
     return (
-      <div className="flex items-center justify-center gap-2 sm:gap-3">
+      <div className="flex items-center justify-center gap-2">
         {[0, 1, 2, 3].map((index) => (
           <input
             key={index}
@@ -131,7 +131,7 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit, isLoading }: Pin
             value={targetPin[index]}
             onChange={(e) => handlePinInput(index, e.target.value, isConfirm)}
             onKeyDown={(e) => handleKeyDown(index, e, isConfirm)}
-            className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="w-11 aspect-square text-center text-xl font-mono rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             data-testid={`${prefix}-${index}`}
             autoFocus={index === 0 && !isConfirm}
           />
@@ -140,7 +140,6 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit, isLoading }: Pin
           type="button"
           variant="ghost"
           size="icon"
-          className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0"
           onClick={() => setShowPin(!showPin)}
           data-testid="button-toggle-pin-visibility"
         >
