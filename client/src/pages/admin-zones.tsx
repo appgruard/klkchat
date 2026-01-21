@@ -66,26 +66,106 @@ export default function AdminZonesPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.4861, -69.9312]);
 
   const cities = [
+    // República Dominicana
     { name: "Santo Domingo, DO", lat: 18.4861, lng: -69.9312 },
-    { name: "Santiago, DO", lat: 19.4517, lng: -70.6970 },
+    { name: "Santiago de los Caballeros, DO", lat: 19.4517, lng: -70.6970 },
     { name: "Moca, DO", lat: 19.3941, lng: -70.5250 },
     { name: "Sosúa, DO", lat: 19.7525, lng: -70.5186 },
+    { name: "Puerto Plata, DO", lat: 19.7934, lng: -70.6884 },
+    { name: "La Romana, DO", lat: 18.4274, lng: -68.9728 },
+    { name: "San Pedro de Macorís, DO", lat: 18.4500, lng: -69.3000 },
+    { name: "Higüey, DO", lat: 18.6150, lng: -68.7078 },
+    { name: "San Francisco de Macorís, DO", lat: 19.3000, lng: -70.2500 },
+    { name: "Bonao, DO", lat: 18.9400, lng: -70.4000 },
+    { name: "Baní, DO", lat: 18.2800, lng: -70.3300 },
+    { name: "San Cristóbal, DO", lat: 18.4167, lng: -70.1083 },
+    // Colombia
     { name: "Bogotá, CO", lat: 4.7110, lng: -74.0721 },
     { name: "Medellín, CO", lat: 6.2442, lng: -75.5812 },
+    { name: "Cali, CO", lat: 3.4516, lng: -76.5320 },
+    { name: "Barranquilla, CO", lat: 10.9639, lng: -74.7964 },
+    { name: "Cartagena, CO", lat: 10.3910, lng: -75.4794 },
+    { name: "Bucaramanga, CO", lat: 7.1193, lng: -73.1227 },
+    { name: "Pereira, CO", lat: 4.8133, lng: -75.6961 },
+    // Argentina
     { name: "Buenos Aires, AR", lat: -34.6037, lng: -58.3816 },
     { name: "Córdoba, AR", lat: -31.4167, lng: -64.1833 },
+    { name: "Rosario, AR", lat: -32.9468, lng: -60.6393 },
+    { name: "Mendoza, AR", lat: -32.8895, lng: -68.8458 },
+    { name: "San Miguel de Tucumán, AR", lat: -26.8241, lng: -65.2226 },
+    { name: "La Plata, AR", lat: -34.9214, lng: -57.9545 },
+    { name: "Mar del Plata, AR", lat: -38.0055, lng: -57.5426 },
+    // Venezuela
     { name: "Caracas, VE", lat: 10.4806, lng: -66.9036 },
+    { name: "Maracaibo, VE", lat: 10.6427, lng: -71.6125 },
+    { name: "Valencia, VE", lat: 10.1620, lng: -68.0077 },
+    { name: "Barquisimeto, VE", lat: 10.0678, lng: -69.3474 },
+    { name: "Maracay, VE", lat: 10.2442, lng: -67.5919 },
+    { name: "Ciudad Guayana, VE", lat: 8.2965, lng: -62.7117 },
+    // Panamá
     { name: "Ciudad de Panamá, PA", lat: 8.9824, lng: -79.5199 },
+    { name: "San Miguelito, PA", lat: 9.0333, lng: -79.5000 },
+    { name: "Arraiján, PA", lat: 8.9500, lng: -79.6500 },
+    { name: "Chorrera, PA", lat: 8.8833, lng: -79.7833 },
+    { name: "David, PA", lat: 8.4333, lng: -82.4333 },
+    // Chile
     { name: "Santiago, CL", lat: -33.4489, lng: -70.6693 },
+    { name: "Puente Alto, CL", lat: -33.6167, lng: -70.5833 },
+    { name: "Antofagasta, CL", lat: -23.6500, lng: -70.4000 },
+    { name: "Viña del Mar, CL", lat: -33.0245, lng: -71.5518 },
+    { name: "Valparaíso, CL", lat: -33.0472, lng: -71.6127 },
+    { name: "Concepción, CL", lat: -36.8201, lng: -73.0444 },
+    // Ecuador
     { name: "Quito, EC", lat: -0.1807, lng: -78.4678 },
     { name: "Guayaquil, EC", lat: -2.1708, lng: -79.9224 },
+    { name: "Cuenca, EC", lat: -2.9001, lng: -79.0059 },
+    { name: "Santo Domingo, EC", lat: -0.2530, lng: -79.1754 },
+    { name: "Machala, EC", lat: -3.2581, lng: -79.9554 },
+    { name: "Manta, EC", lat: -0.9621, lng: -80.7127 },
+    // El Salvador
     { name: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+    { name: "Santa Ana, SV", lat: 13.9942, lng: -89.5597 },
+    { name: "San Miguel, SV", lat: 13.4833, lng: -88.1833 },
+    { name: "Santa Tecla, SV", lat: 13.6769, lng: -89.2797 },
+    // Uruguay
     { name: "Montevideo, UY", lat: -34.9011, lng: -56.1645 },
+    { name: "Salto, UY", lat: -31.3833, lng: -57.9667 },
+    { name: "Ciudad de la Costa, UY", lat: -34.8250, lng: -55.9500 },
+    { name: "Paysandú, UY", lat: -32.3167, lng: -58.0833 },
+    // Estados Unidos
     { name: "New York, US", lat: 40.7128, lng: -74.0060 },
     { name: "Miami, US", lat: 25.7617, lng: -80.1918 },
     { name: "Los Angeles, US", lat: 34.0522, lng: -118.2437 },
+    { name: "Chicago, IL, US", lat: 41.8781, lng: -87.6298 },
+    { name: "Houston, TX, US", lat: 29.7604, lng: -95.3698 },
+    { name: "Phoenix, AZ, US", lat: 33.4484, lng: -112.0740 },
+    { name: "Philadelphia, PA, US", lat: 39.9526, lng: -75.1652 },
+    { name: "San Antonio, TX, US", lat: 29.4241, lng: -98.4936 },
+    { name: "San Diego, CA, US", lat: 32.7157, lng: -117.1611 },
+    { name: "Dallas, TX, US", lat: 32.7767, lng: -96.7970 },
+    // España
     { name: "Madrid, ES", lat: 40.4168, lng: -3.7038 },
+    { name: "Barcelona, ES", lat: 41.3851, lng: 2.1734 },
+    { name: "Valencia, ES", lat: 39.4699, lng: -0.3763 },
+    { name: "Sevilla, ES", lat: 37.3891, lng: -5.9845 },
+    { name: "Zaragoza, ES", lat: 41.6488, lng: -0.8891 },
+    // Puerto Rico
     { name: "San Juan, PR", lat: 18.4655, lng: -66.1057 },
+    { name: "Bayamón, PR", lat: 18.3833, lng: -66.1558 },
+    { name: "Carolina, PR", lat: 18.3808, lng: -65.9574 },
+    { name: "Ponce, PR", lat: 18.0111, lng: -66.6141 },
+    // México
+    { name: "Ciudad de México, MX", lat: 19.4326, lng: -99.1332 },
+    { name: "Guadalajara, MX", lat: 20.6597, lng: -103.3496 },
+    { name: "Monterrey, MX", lat: 25.6866, lng: -100.3161 },
+    { name: "Puebla, MX", lat: 19.0413, lng: -98.2062 },
+    { name: "Tijuana, MX", lat: 32.5149, lng: -117.0382 },
+    { name: "León, MX", lat: 21.1227, lng: -101.6800 },
+    // Perú
+    { name: "Lima, PE", lat: -12.0464, lng: -77.0428 },
+    { name: "Arequipa, PE", lat: -16.4090, lng: -71.5375 },
+    { name: "Trujillo, PE", lat: -8.1159, lng: -79.0299 },
+    { name: "Chiclayo, PE", lat: -6.7719, lng: -79.8406 },
   ];
 
   const handleCitySelect = (cityName: string) => {
