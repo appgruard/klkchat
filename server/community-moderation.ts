@@ -188,8 +188,24 @@ export function moderateContent(text: string): ModerationResult {
     return { allowed: true, isExplicit: false };
   }
 
-  // 1. Basic check for blocked patterns (un-normalized to catch specific formats)
-  // Check for phone numbers
+  // 1. Normalize text for aggressive pattern matching (Remove spaces and common separators)
+  const compressedText = text
+    .replace(/\s+/g, '')
+    .replace(/[-.\(\)]/g, '');
+
+  // 2. Check for phone numbers
+  // Check compressed text for long digit sequences (likely phone numbers)
+  if (/\d{7,}/.test(compressedText)) {
+    // Basic verification to avoid blocking simple numbers like "123456" (if they are shorter than 7)
+    // But 8090000000 is 10 digits, so it will be caught.
+    return { 
+      allowed: false, 
+      reason: 'phone_number',
+      isExplicit: false 
+    };
+  }
+
+  // Check original text for patterns
   for (const pattern of phonePatterns) {
     if (pattern.test(text)) {
       return { 
