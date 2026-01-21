@@ -16,6 +16,8 @@ export const users = pgTable("users", {
   isOnline: boolean("is_online").default(false).notNull(),
   lastSeen: timestamp("last_seen").defaultNow(),
   publicKey: text("public_key"),
+  ageVerified: integer("age_verified"), // null = not verified, number = verified age
+  isAdmin: boolean("is_admin").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

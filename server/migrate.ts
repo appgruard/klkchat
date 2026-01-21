@@ -20,8 +20,18 @@ export async function runMigrations() {
         is_online BOOLEAN NOT NULL DEFAULT false,
         last_seen TIMESTAMP DEFAULT NOW(),
         public_key TEXT,
+        age_verified INTEGER,
+        is_admin BOOLEAN NOT NULL DEFAULT false,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       )
+    `);
+
+    // Add age_verified and is_admin columns if they don't exist
+    await db.execute(sql`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS age_verified INTEGER
+    `);
+    await db.execute(sql`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false
     `);
 
     await db.execute(sql`
