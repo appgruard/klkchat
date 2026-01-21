@@ -487,8 +487,8 @@ export default function CommunityPage() {
                   className={cn(
                     "rounded-2xl px-3 py-2 shadow-sm border",
                     isOwn 
-                      ? "bg-[#E2FDC5] dark:bg-[#005C4B] text-foreground dark:text-white border-[#C8EAB0] dark:border-[#005C4B] rounded-tr-none" 
-                      : "bg-white dark:bg-[#202C33] text-foreground dark:text-white border-white dark:border-[#202C33] rounded-tl-none"
+                      ? "bg-primary text-primary-foreground border-primary rounded-tr-none" 
+                      : "bg-muted text-muted-foreground border-muted rounded-tl-none"
                   )}
                 >
                   {msg.contentType === 'text' && (
@@ -507,12 +507,15 @@ export default function CommunityPage() {
                     <div className="flex items-center gap-2 p-1 min-w-[220px]">
                       <div className={cn(
                         "p-2 rounded-full",
-                        isOwn ? "bg-black/5 dark:bg-white/10" : "bg-muted"
+                        isOwn ? "bg-primary-foreground/10 text-primary-foreground" : "bg-background text-muted-foreground"
                       )}>
                         <Mic className="h-4 w-4 opacity-70" />
                       </div>
                       <div className="flex-1">
-                        <audio controls className="h-8 w-full filter grayscale contrast-125 dark:invert">
+                        <audio controls className={cn(
+                          "h-8 w-full filter grayscale contrast-125",
+                          isOwn ? "invert brightness-200" : "dark:invert"
+                        )}>
                           <source src={msg.fileUrl || ''} type="audio/webm" />
                         </audio>
                       </div>
