@@ -131,9 +131,12 @@ export async function runMigrations() {
       CREATE TABLE IF NOT EXISTS community_zones (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL,
-        latitude DOUBLE PRECISION NOT NULL,
-        longitude DOUBLE PRECISION NOT NULL,
-        radius INTEGER NOT NULL DEFAULT 100,
+        description TEXT,
+        center_lat DOUBLE PRECISION NOT NULL,
+        center_lng DOUBLE PRECISION NOT NULL,
+        radius_meters INTEGER NOT NULL DEFAULT 100,
+        zone_type TEXT NOT NULL,
+        active BOOLEAN NOT NULL DEFAULT true,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       )
     `);
@@ -144,26 +147,29 @@ export async function runMigrations() {
         user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         zone_id VARCHAR NOT NULL REFERENCES community_zones(id) ON DELETE CASCADE,
         pseudonym TEXT NOT NULL,
-        avatar_seed TEXT NOT NULL,
-        age_verified BOOLEAN NOT NULL DEFAULT false,
-        is_under_16 BOOLEAN NOT NULL DEFAULT false,
-        last_activity TIMESTAMP NOT NULL DEFAULT NOW(),
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        age INTEGER NOT NULL,
+        message_count INTEGER NOT NULL DEFAULT 0,
+        block_count INTEGER NOT NULL DEFAULT 0,
+        silenced_until TIMESTAMP,
+        expelled_until TIMESTAMP,
+        last_location_check TIMESTAMP DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        expires_at TIMESTAMP NOT NULL
       )
     `);
 
     await db.execute(sql`
       CREATE TABLE IF NOT EXISTS community_messages (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-        zone_id VARCHAR NOT NULL REFERENCES community_zones(id) ON DELETE CASCADE,
         session_id VARCHAR NOT NULL REFERENCES community_sessions(id) ON DELETE CASCADE,
-        content TEXT NOT NULL,
-        message_type TEXT NOT NULL DEFAULT 'text',
+        zone_id VARCHAR NOT NULL REFERENCES community_zones(id) ON DELETE CASCADE,
+        content_type TEXT NOT NULL,
+        content TEXT,
         file_url TEXT,
         duration INTEGER,
         is_explicit BOOLEAN NOT NULL DEFAULT false,
-        expires_at TIMESTAMP NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        expires_at TIMESTAMP NOT NULL
       )
     `);
 
@@ -173,6 +179,59 @@ export async function runMigrations() {
 
     await db.execute(sql`
       CREATE INDEX IF NOT EXISTS idx_community_messages_expires ON community_messages(expires_at)
+    `);
+
+    // Add missing columns to community tables if they were created with old schema
+    await db.execute(sql`
+      ALTER TABLE community_zones ADD COLUMN IF NOT EXISTS description TEXT
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_zones ADD COLUMN IF NOT EXISTS zone_type TEXT DEFAULT 'neighborhood'
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_zones ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true
+    `);
+    
+    // Rename columns if needed (handle old schema)
+    try {
+      await db.execute(sql`ALTER TABLE community_zones RENAME COLUMN latitude TO center_lat`);
+    } catch (e) { /* Column may already be named correctly */ }
+    try {
+      await db.execute(sql`ALTER TABLE community_zones RENAME COLUMN longitude TO center_lng`);
+    } catch (e) { /* Column may already be named correctly */ }
+    try {
+      await db.execute(sql`ALTER TABLE community_zones RENAME COLUMN radius TO radius_meters`);
+    } catch (e) { /* Column may already be named correctly */ }
+
+    // Add missing columns to community_sessions
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS age INTEGER DEFAULT 18
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS message_count INTEGER DEFAULT 0
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS block_count INTEGER DEFAULT 0
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS silenced_until TIMESTAMP
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS expelled_until TIMESTAMP
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS last_location_check TIMESTAMP DEFAULT NOW()
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours'
+    `);
+
+    // Add missing columns to community_messages
+    await db.execute(sql`
+      ALTER TABLE community_messages ADD COLUMN IF NOT EXISTS content_type TEXT DEFAULT 'text'
+    `);
+    await db.execute(sql`
+      ALTER TABLE community_messages ADD COLUMN IF NOT EXISTS content TEXT
     `);
 
     console.log("Database schema sync completed successfully");
