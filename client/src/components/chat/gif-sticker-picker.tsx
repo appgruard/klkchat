@@ -94,23 +94,27 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStartRef.current) return;
-    const deltaY = e.touches[0].clientY - touchStartRef.current.y;
-    const deltaX = Math.abs(e.touches[0].clientX - (touchStartRef.current as any).startX || 0);
-    const totalDeltaY = Math.abs(e.touches[0].clientY - (touchStartRef.current as any).startY || 0);
+    const currentY = e.touches[0].clientY;
+    const currentX = e.touches[0].clientX;
+    const deltaY = currentY - touchStartRef.current.y;
+    const deltaX = Math.abs(currentX - (touchStartRef.current as any).startX || 0);
+    const totalDeltaY = Math.abs(currentY - (touchStartRef.current as any).startY || 0);
     
-    // Improved vertical vs horizontal detection
-    // If it's a clear downward swipe (deltaY > 0) and more vertical than horizontal
-    if (deltaY > 10 && deltaY > deltaX) {
-      setDragY(Math.min(deltaY, 300));
+    // Improved vertical vs horizontal detection for mobile
+    // If it's a clear downward swipe (deltaY > 5) and more vertical than horizontal
+    if (deltaY > 5 && deltaY > deltaX) {
+      setDragY(deltaY);
+      setIsDragging(true);
       // Critically important: prevent default only if we are clearly swiping down
-      // to avoid triggering browser refresh on some mobile browsers
       if (e.cancelable) e.preventDefault();
-    } else if (deltaY < -20 || (deltaX > 20 && deltaX > totalDeltaY)) {
-      // User is scrolling up or swiping horizontally, cancel drag
-      setIsDragging(false);
-      touchStartRef.current = null;
+    } else if (totalDeltaY > 10 || deltaX > 10) {
+      // If there's significant movement but not a downward swipe, stop dragging logic
+      // but only if we haven't already started a clear downward drag
+      if (!isDragging) {
+        touchStartRef.current = null;
+      }
     }
-  }, []);
+  }, [isDragging]);
 
   const handleTouchEnd = useCallback(() => {
     if (!touchStartRef.current) {
