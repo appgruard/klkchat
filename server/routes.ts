@@ -1306,6 +1306,25 @@ export async function registerRoutes(
     }
   });
 
+  // Delete community message (moderators only)
+  app.delete("/api/community/messages/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { id } = req.params;
+      
+      const moderators = ['KlkCEO', 'mysticFoxyy'];
+      if (!moderators.includes(user.username)) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+
+      await storage.deleteCommunityMessage(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Delete community message error:", error);
+      res.status(500).json({ message: "Failed to delete message" });
+    }
+  });
+
   // Get community messages
   app.get("/api/community/messages/:zoneId", requireAuth, async (req, res) => {
     try {

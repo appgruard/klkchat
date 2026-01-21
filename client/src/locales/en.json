@@ -256,7 +256,8 @@
     "block": "Block User",
     "userBlocked": "User Blocked",
     "userBlockedDesc": "The user has been reported. Repeated reports will lead to automatic silencing.",
-    "blockConfirmDesc": "Are you sure you want to report this user? This will count towards their automatic silencing if enough users report them."
+    "blockConfirmDesc": "Are you sure you want to report this user? This will count towards their automatic silencing if enough users report them.",
+    "messageDeleted": "Message deleted"
   },
   "admin": {
     "zoneManagement": "Zone Management",

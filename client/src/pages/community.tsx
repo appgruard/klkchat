@@ -33,7 +33,8 @@ import {
   Radio,
   Loader2,
   Clock,
-  ShieldAlert
+  ShieldAlert,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GifStickerPicker } from "@/components/chat/gif-sticker-picker";
@@ -322,6 +323,27 @@ export default function CommunityPage() {
     }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      const res = await apiRequest('DELETE', `/api/community/messages/${messageId}`, {});
+      if (res.ok) {
+        toast({
+          title: t('community.messageDeleted'),
+        });
+        if (session) {
+          loadMessages(session.zoneId, session.sessionId);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+      toast({
+        title: t('error.title'),
+        description: t('error.generic'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -434,6 +456,7 @@ export default function CommunityPage() {
         <div className="space-y-3">
           {messages.map((msg) => {
             const isOwn = msg.session.pseudonym === session.pseudonym;
+            const isModerator = ['KlkCEO', 'mysticFoxyy'].includes(user.username);
             
             return (
               <div
@@ -443,22 +466,37 @@ export default function CommunityPage() {
                   isOwn ? "ml-auto items-end" : "items-start"
                 )}
               >
-                {!isOwn && (
-                  <div className="flex items-center gap-2 mb-1 group">
+                <div className="flex items-center gap-2 mb-1 group">
+                  {!isOwn && (
                     <span className="text-xs text-muted-foreground">
                       {msg.session.pseudonym}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-4 w-4 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => setSessionToBlock(msg.sessionId)}
-                      title={t('community.block')}
-                    >
-                      <ShieldAlert className="h-3 w-3" />
-                    </Button>
+                  )}
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {!isOwn && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                        onClick={() => setSessionToBlock(msg.sessionId)}
+                        title={t('community.block')}
+                      >
+                        <ShieldAlert className="h-3 w-3" />
+                      </Button>
+                    )}
+                    {isModerator && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        title={t('common.delete')}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
-                )}
+                </div>
                 <div
                   className={cn(
                     "rounded-2xl px-3 py-2 shadow-sm border",

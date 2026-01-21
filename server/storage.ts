@@ -115,6 +115,7 @@ export interface IStorage {
   // Community Messages
   getCommunityMessages(zoneId: string, hideExplicit: boolean): Promise<CommunityMessageWithSession[]>;
   createCommunityMessage(message: InsertCommunityMessage): Promise<CommunityMessage>;
+  deleteCommunityMessage(id: string): Promise<void>;
   cleanupExpiredMessages(): Promise<void>;
   getSessionMessageCountLast24h(sessionId: string): Promise<number>;
   getLastMessageTime(sessionId: string, contentType: string): Promise<Date | undefined>;
@@ -701,6 +702,10 @@ export class DatabaseStorage implements IStorage {
   async createCommunityMessage(message: InsertCommunityMessage): Promise<CommunityMessage> {
     const [result] = await db.insert(communityMessages).values(message).returning();
     return result;
+  }
+
+  async deleteCommunityMessage(id: string): Promise<void> {
+    await db.delete(communityMessages).where(eq(communityMessages.id, id));
   }
 
   async cleanupExpiredMessages(): Promise<void> {
