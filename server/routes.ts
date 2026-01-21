@@ -549,6 +549,43 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/stickers/stickerly", requireAuth, async (req, res) => {
+    try {
+      const { url } = req.body;
+      if (!url || !url.includes("sticker.ly/s/")) {
+        return res.status(400).json({ message: "URL de Sticker.ly inválida" });
+      }
+
+      const response = await fetch(url);
+      const html = await response.text();
+      
+      // Basic regex to extract sticker URLs from the page
+      const stickerUrls = [...html.matchAll(/https:\/\/stickerly\.pstatic\.net\/sticker_pack\/[^"]+\.png/g)].map(m => m[0]);
+      const uniqueUrls = [...new Set(stickerUrls)];
+
+      if (uniqueUrls.length === 0) {
+        return res.status(404).json({ message: "No se encontraron stickers en este paquete" });
+      }
+
+      const user = req.user as User;
+      const createdStickers = [];
+
+      for (const imageUrl of uniqueUrls) {
+        const sticker = await storage.createCustomSticker({
+          userId: user.id,
+          imageUrl,
+          name: "Sticker.ly Import",
+        });
+        createdStickers.push(sticker);
+      }
+
+      res.json({ success: true, count: createdStickers.length });
+    } catch (error) {
+      console.error("Sticker.ly import error:", error);
+      res.status(500).json({ message: "Error al importar desde Sticker.ly" });
+    }
+  });
+
   // User routes
   app.use("/uploads", express.static(uploadDir));
 

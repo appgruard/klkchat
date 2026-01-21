@@ -69,6 +69,8 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const [showUrlDialog, setShowUrlDialog] = useState(false);
   const [stickerUrl, setStickerUrl] = useState("");
   const [stickerName, setStickerName] = useState("");
+  const [stickerlyUrl, setStickerlyUrl] = useState("");
+  const [showStickerlyDialog, setShowStickerlyUrlDialog] = useState(false);
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -213,6 +215,35 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
     },
   });
 
+  const addStickerlyMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const res = await apiRequest("POST", "/api/stickers/stickerly", { url });
+      if (!res.ok) throw new Error("Failed to import from Sticker.ly");
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stickers"] });
+      setShowStickerlyUrlDialog(false);
+      setStickerlyUrl("");
+      toast({
+        title: t("chat.stickerAdded") || "Stickers imported",
+        description: `Successfully imported ${data.count} stickers from Sticker.ly`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: t("error.title") || "Error",
+        description: "Failed to import from Sticker.ly. Please check the URL.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddStickerly = () => {
+    if (!stickerlyUrl.trim()) return;
+    addStickerlyMutation.mutate(stickerlyUrl.trim());
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -308,6 +339,16 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                   >
                     <Link className="h-4 w-4 mr-2" />
                     {t("chat.importUrl") || "URL"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowStickerlyUrlDialog(true)}
+                    className="flex-1 text-[10px] px-1"
+                    data-testid="button-add-stickerly"
+                  >
+                    <Package className="h-4 w-4 mr-1" />
+                    Sticker.ly
                   </Button>
                   <input
                     ref={fileInputRef}
@@ -495,6 +536,47 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                 <Package className="h-4 w-4 mr-2" />
               )}
               {t("chat.addSticker") || "Add Sticker"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for adding stickers from Sticker.ly */}
+      <Dialog open={showStickerlyDialog} onOpenChange={setShowStickerlyUrlDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import from Sticker.ly</DialogTitle>
+            <DialogDescription>
+              Paste a Sticker.ly pack URL (e.g., https://sticker.ly/s/XXXXXX) to import the entire pack.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="stickerly-url">Pack URL</Label>
+              <Input
+                id="stickerly-url"
+                placeholder="https://sticker.ly/s/PMTPGQ"
+                value={stickerlyUrl}
+                onChange={(e) => setStickerlyUrl(e.target.value)}
+                data-testid="input-stickerly-url"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowStickerlyUrlDialog(false)}>
+              {t("common.cancel") || "Cancel"}
+            </Button>
+            <Button 
+              onClick={handleAddStickerly}
+              disabled={!stickerlyUrl.trim() || addStickerlyMutation.isPending}
+              data-testid="button-confirm-add-stickerly"
+            >
+              {addStickerlyMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Package className="h-4 w-4 mr-2" />
+              )}
+              Import Pack
             </Button>
           </DialogFooter>
         </DialogContent>
