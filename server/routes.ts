@@ -571,7 +571,7 @@ export async function registerRoutes(
       const createdStickers = [];
 
       for (const imageUrl of uniqueUrls) {
-        const sticker = await storage.createCustomSticker({
+        const sticker = await storage.addCustomSticker({
           userId: user.id,
           imageUrl,
           name: "Sticker.ly Import",
