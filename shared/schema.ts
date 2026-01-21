@@ -131,6 +131,7 @@ export const communitySessions = pgTable("community_sessions", {
   userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   zoneId: varchar("zone_id").notNull().references(() => communityZones.id, { onDelete: "cascade" }),
   pseudonym: text("pseudonym").notNull(), // Anonymous identity
+  avatarSeed: text("avatar_seed").notNull(), // Avatar seed
   age: integer("age").notNull(),
   messageCount: integer("message_count").default(0).notNull(),
   blockCount: integer("block_count").default(0).notNull(),
