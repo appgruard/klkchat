@@ -4,12 +4,10 @@ import { useTranslation } from "react-i18next";
 import { ChatList } from "@/components/chat/chat-list";
 import { ConversationView } from "@/components/chat/conversation-view";
 import { NewChatDialog } from "@/components/chat/new-chat-dialog";
-import { UserMenu } from "@/components/chat/user-menu";
-import { ConvertAccountDialog } from "@/components/chat/convert-account-dialog";
 import { useAuth } from "@/lib/auth-context";
 import { useWebSocket, type WebSocketMessage } from "@/lib/websocket";
 import logoPath from "@/assets/logo.png";
-import { MessageCircle, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import type { MessageWithSender } from "@shared/schema";
 
 export default function ChatPage() {
@@ -17,7 +15,6 @@ export default function ChatPage() {
   const { user } = useAuth();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
-  const [showConvertDialog, setShowConvertDialog] = useState(false);
   const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -63,7 +60,7 @@ export default function ChatPage() {
   if (!user) return null;
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="h-full flex bg-background pb-14">
       <div
         className={`w-full lg:w-[360px] flex-shrink-0 flex flex-col border-r ${
           isMobileConversationOpen ? "hidden lg:flex" : "flex"
@@ -74,10 +71,6 @@ export default function ChatPage() {
           selectedConversationId={selectedConversationId}
           onSelectConversation={handleSelectConversation}
           onNewChat={handleNewChat}
-        />
-        <UserMenu
-          user={user}
-          onConvertAnonymous={user.isAnonymous ? () => setShowConvertDialog(true) : undefined}
         />
         
         {!isConnected && (
@@ -120,11 +113,6 @@ export default function ChatPage() {
         onOpenChange={setShowNewChatDialog}
         currentUser={user}
         onChatCreated={handleChatCreated}
-      />
-
-      <ConvertAccountDialog
-        open={showConvertDialog}
-        onOpenChange={setShowConvertDialog}
       />
     </div>
   );

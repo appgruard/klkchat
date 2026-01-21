@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "Cancel",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "retry": "Retry"
   },
   "error": {
     "title": "Error",
@@ -219,5 +221,35 @@
     "russian": "Russian",
     "chinese": "Chinese",
     "japanese": "Japanese"
+  },
+  "nav": {
+    "home": "Home",
+    "community": "Community",
+    "profile": "Profile"
+  },
+  "community": {
+    "checkingLocation": "Checking your location",
+    "checkingLocationDesc": "We need your location to show community chats in your area.",
+    "ageVerification": "Age Verification",
+    "ageVerificationDesc": "Please enter your age to continue. This helps us keep the community safe.",
+    "enterAge": "Enter your age",
+    "invalidAge": "Please enter a valid age (13-120)",
+    "locationDenied": "Location Access Denied",
+    "locationDeniedDesc": "We need your location to show community chats in your area. Please enable location access in your browser settings.",
+    "noZone": "No Community Nearby",
+    "noZoneDesc": "There are no community conversations in your current area. Try again when you're in a designated zone.",
+    "checkAgain": "Check Again",
+    "error": "Something went wrong",
+    "errorDesc": "We couldn't access your location. Please try again later.",
+    "leftZone": "Left Community Zone",
+    "leftZoneDesc": "You've left the community area. Return to continue chatting.",
+    "messagesRemaining": "{{count}} messages left",
+    "typeMessage": "Type a message...",
+    "cooldown": "Please wait",
+    "cooldownDesc": "Wait {{seconds}} seconds before sending another message.",
+    "contentBlocked": "Message Blocked",
+    "contentBlockedDesc": "This message contains information that is not allowed in this channel.",
+    "silenced": "Temporarily Silenced",
+    "silencedDesc": "You've been silenced for 1 hour due to repeated violations."
   }
 }

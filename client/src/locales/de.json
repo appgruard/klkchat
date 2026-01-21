@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "Abbrechen",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "confirm": "Bestätigen",
+    "retry": "Erneut versuchen"
   },
   "error": {
     "title": "Fehler",
@@ -219,5 +221,35 @@
     "russian": "Russisch",
     "chinese": "Chinesisch",
     "japanese": "Japanisch"
+  },
+  "nav": {
+    "home": "Startseite",
+    "community": "Gemeinschaft",
+    "profile": "Profil"
+  },
+  "community": {
+    "checkingLocation": "Überprüfung Ihres Standorts",
+    "checkingLocationDesc": "Wir benötigen Ihren Standort, um Community-Chats in Ihrer Nähe anzuzeigen.",
+    "ageVerification": "Altersbestätigung",
+    "ageVerificationDesc": "Bitte geben Sie Ihr Alter ein, um fortzufahren. Dies hilft uns, die Gemeinschaft sicher zu halten.",
+    "enterAge": "Geben Sie Ihr Alter ein",
+    "invalidAge": "Bitte geben Sie ein gültiges Alter ein (13-120)",
+    "locationDenied": "Standortzugriff verweigert",
+    "locationDeniedDesc": "Wir benötigen Ihren Standort, um Community-Chats in Ihrer Nähe anzuzeigen. Bitte aktivieren Sie den Standortzugriff in Ihren Browsereinstellungen.",
+    "noZone": "Keine Gemeinschaft in der Nähe",
+    "noZoneDesc": "In Ihrer aktuellen Gegend gibt es keine Community-Gespräche. Versuchen Sie es erneut, wenn Sie sich in einer ausgewiesenen Zone befinden.",
+    "checkAgain": "Erneut überprüfen",
+    "error": "Es ist etwas schief gelaufen",
+    "errorDesc": "Wir konnten nicht auf Ihren Standort zugreifen. Bitte versuchen Sie es später erneut.",
+    "leftZone": "Community-Zone verlassen",
+    "leftZoneDesc": "Sie haben die Community-Zone verlassen. Kehren Sie zurück, um weiter zu chatten.",
+    "messagesRemaining": "{{count}} Nachrichten verbleibend",
+    "typeMessage": "Schreiben Sie eine Nachricht...",
+    "cooldown": "Bitte warten",
+    "cooldownDesc": "Warten Sie {{seconds}} Sekunden, bevor Sie eine andere Nachricht senden.",
+    "contentBlocked": "Nachricht blockiert",
+    "contentBlockedDesc": "Diese Nachricht enthält Informationen, die in diesem Kanal nicht zulässig sind.",
+    "silenced": "Vorübergehend stummgeschaltet",
+    "silencedDesc": "Sie wurden aufgrund wiederholter Verstöße für 1 Stunde stummgeschaltet."
   }
 }

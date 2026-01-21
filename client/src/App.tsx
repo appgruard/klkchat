@@ -5,11 +5,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AuthPage from "@/pages/auth";
 import ChatPage from "@/pages/chat";
+import CommunityPage from "@/pages/community";
 import NotFound from "@/pages/not-found";
 import { PWAInstallDialog } from "@/components/pwa-install-dialog";
+import { BottomNav } from "@/components/bottom-nav";
+import { UserMenu } from "@/components/chat/user-menu";
+import { ConvertAccountDialog } from "@/components/chat/convert-account-dialog";
 
 function PushManager() {
   const { user } = useAuth();
@@ -59,6 +63,8 @@ function PushManager() {
 
 function AppRouter() {
   const { user, isLoading } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
 
   if (isLoading) {
     return (
@@ -76,10 +82,32 @@ function AppRouter() {
   }
 
   return (
-    <Switch>
-      <Route path="/" component={ChatPage} />
-      <Route component={NotFound} />
-    </Switch>
+    <div className="h-screen flex flex-col bg-background">
+      <div className="flex-1 overflow-hidden">
+        <Switch>
+          <Route path="/" component={ChatPage} />
+          <Route path="/community" component={CommunityPage} />
+          <Route component={NotFound} />
+        </Switch>
+      </div>
+      <BottomNav onProfileClick={() => setShowProfileMenu(true)} />
+      
+      {showProfileMenu && (
+        <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm" onClick={() => setShowProfileMenu(false)}>
+          <div className="fixed bottom-16 right-4 w-64" onClick={e => e.stopPropagation()}>
+            <UserMenu
+              user={user}
+              onConvertAnonymous={user.isAnonymous ? () => setShowConvertDialog(true) : undefined}
+            />
+          </div>
+        </div>
+      )}
+      
+      <ConvertAccountDialog
+        open={showConvertDialog}
+        onOpenChange={setShowConvertDialog}
+      />
+    </div>
   );
 }
 

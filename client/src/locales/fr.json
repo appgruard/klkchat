@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "Annuler",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "confirm": "Confirmer",
+    "retry": "Réessayer"
   },
   "error": {
     "title": "Erreur",
@@ -219,5 +221,35 @@
     "russian": "Russe",
     "chinese": "Chinois",
     "japanese": "Japonais"
+  },
+  "nav": {
+    "home": "Accueil",
+    "community": "Communauté",
+    "profile": "Profil"
+  },
+  "community": {
+    "checkingLocation": "Vérification de votre localisation",
+    "checkingLocationDesc": "Nous avons besoin de votre localisation pour afficher les discussions communautaires dans votre région.",
+    "ageVerification": "Vérification de l'âge",
+    "ageVerificationDesc": "Veuillez entrer votre âge pour continuer. Cela nous aide à garder la communauté sûre.",
+    "enterAge": "Entrez votre âge",
+    "invalidAge": "Veuillez entrer un âge valide (13-120)",
+    "locationDenied": "Accès à la localisation refusé",
+    "locationDeniedDesc": "Nous avons besoin de votre localisation pour afficher les discussions communautaires dans votre région. Veuillez activer l'accès à la localisation dans les paramètres de votre navigateur.",
+    "noZone": "Aucune communauté à proximité",
+    "noZoneDesc": "Il n'y a pas de discussions communautaires dans votre région actuelle. Réessayez lorsque vous êtes dans une zone désignée.",
+    "checkAgain": "Vérifier à nouveau",
+    "error": "Une erreur est survenue",
+    "errorDesc": "Nous n'avons pas pu accéder à votre localisation. Veuillez réessayer plus tard.",
+    "leftZone": "Zone communautaire quittée",
+    "leftZoneDesc": "Vous avez quitté la zone communautaire. Revenez pour continuer à discuter.",
+    "messagesRemaining": "{{count}} messages restants",
+    "typeMessage": "Tapez un message...",
+    "cooldown": "Veuillez patienter",
+    "cooldownDesc": "Attendez {{seconds}} secondes avant d'envoyer un autre message.",
+    "contentBlocked": "Message bloqué",
+    "contentBlockedDesc": "Ce message contient des informations qui ne sont pas autorisées dans ce canal.",
+    "silenced": "Temporairement silencié",
+    "silencedDesc": "Vous avez été silencié pendant 1 heure en raison de violations répétées."
   }
 }

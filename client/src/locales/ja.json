@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "キャンセル",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "confirm": "確認",
+    "retry": "再試行"
   },
   "error": {
     "title": "エラー",
@@ -219,5 +221,35 @@
     "russian": "ロシア語",
     "chinese": "中国語",
     "japanese": "日本語"
+  },
+  "nav": {
+    "home": "ホーム",
+    "community": "コミュニティ",
+    "profile": "プロフィール"
+  },
+  "community": {
+    "checkingLocation": "あなたの位置を確認中",
+    "checkingLocationDesc": "あなたの地域のコミュニティチャットを表示するために、あなたの位置が必要です。",
+    "ageVerification": "年齢確認",
+    "ageVerificationDesc": "続行するには年齢を入力してください。これはコミュニティの安全を保つのに役立ちます。",
+    "enterAge": "年齢を入力",
+    "invalidAge": "有効な年齢を入力してください（13-120）",
+    "locationDenied": "位置情報へのアクセスが拒否されました",
+    "locationDeniedDesc": "あなたの地域のコミュニティチャットを表示するために、あなたの位置が必要です。ブラウザの設定で位置情報へのアクセスを有効にしてください。",
+    "noZone": "近くにコミュニティがありません",
+    "noZoneDesc": "現在地付近にコミュニティの会話はありません。指定されたゾーンにいるときに再度お試しください。",
+    "checkAgain": "もう一度確認",
+    "error": "エラーが発生しました",
+    "errorDesc": "位置情報にアクセスできませんでした。後でもう一度試してください。",
+    "leftZone": "コミュニティゾーンを離脱しました",
+    "leftZoneDesc": "コミュニティエリアを離脱しました。チャットを続けるために戻ってください。",
+    "messagesRemaining": "{{count}} 件のメッセージが残っています",
+    "typeMessage": "メッセージを入力...",
+    "cooldown": "お待ちください",
+    "cooldownDesc": "別のメッセージを送信する前に {{seconds}} 秒待ってください。",
+    "contentBlocked": "メッセージがブロックされました",
+    "contentBlockedDesc": "このメッセージには、このチャネルで許可されていない情報が含まれています。",
+    "silenced": "一時的に沈黙しています",
+    "silencedDesc": "繰り返される違反のため、1 時間の沈黙を与えられました。"
   }
 }

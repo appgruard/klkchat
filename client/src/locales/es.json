@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "Cancelar",
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "confirm": "Confirmar",
+    "retry": "Reintentar"
   },
   "error": {
     "title": "Error",
@@ -219,5 +221,35 @@
     "russian": "Pусский",
     "chinese": "中文",
     "japanese": "日本語"
+  },
+  "nav": {
+    "home": "Inicio",
+    "community": "Comunidad",
+    "profile": "Perfil"
+  },
+  "community": {
+    "checkingLocation": "Verificando tu ubicación",
+    "checkingLocationDesc": "Necesitamos tu ubicación para mostrar los chats comunitarios en tu área.",
+    "ageVerification": "Verificación de edad",
+    "ageVerificationDesc": "Por favor ingresa tu edad para continuar. Esto nos ayuda a mantener la comunidad segura.",
+    "enterAge": "Ingresa tu edad",
+    "invalidAge": "Por favor ingresa una edad válida (13-120)",
+    "locationDenied": "Acceso a ubicación denegado",
+    "locationDeniedDesc": "Necesitamos tu ubicación para mostrar los chats comunitarios en tu área. Por favor habilita el acceso a tu ubicación en la configuración de tu navegador.",
+    "noZone": "Sin comunidad cerca",
+    "noZoneDesc": "No hay conversaciones comunitarias en tu área actual. Intenta de nuevo cuando estés en una zona designada.",
+    "checkAgain": "Verificar de nuevo",
+    "error": "Algo salió mal",
+    "errorDesc": "No pudimos acceder a tu ubicación. Por favor intenta de nuevo más tarde.",
+    "leftZone": "Saliste de la zona comunitaria",
+    "leftZoneDesc": "Has salido del área comunitaria. Regresa para continuar chateando.",
+    "messagesRemaining": "{{count}} mensajes restantes",
+    "typeMessage": "Escribe un mensaje...",
+    "cooldown": "Por favor espera",
+    "cooldownDesc": "Espera {{seconds}} segundos antes de enviar otro mensaje.",
+    "contentBlocked": "Mensaje bloqueado",
+    "contentBlockedDesc": "Este mensaje contiene información que no está permitida en este canal.",
+    "silenced": "Silenciado temporalmente",
+    "silencedDesc": "Has sido silenciado por 1 hora debido a violaciones repetidas."
   }
 }

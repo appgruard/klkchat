@@ -199,7 +199,9 @@
   },
   "common": {
     "cancel": "取消",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "confirm": "确认",
+    "retry": "重试"
   },
   "error": {
     "title": "错误",
@@ -219,5 +221,35 @@
     "russian": "俄语",
     "chinese": "中文",
     "japanese": "日语"
+  },
+  "nav": {
+    "home": "首页",
+    "community": "社区",
+    "profile": "个人资料"
+  },
+  "community": {
+    "checkingLocation": "正在检查您的位置",
+    "checkingLocationDesc": "我们需要您的位置以显示您地区的社区聊天。",
+    "ageVerification": "年龄验证",
+    "ageVerificationDesc": "请输入您的年龄以继续。这有助于我们保护社区安全。",
+    "enterAge": "输入您的年龄",
+    "invalidAge": "请输入有效的年龄（13-120）",
+    "locationDenied": "位置访问被拒绝",
+    "locationDeniedDesc": "我们需要您的位置以显示您地区的社区聊天。请在浏览器设置中启用位置访问。",
+    "noZone": "附近没有社区",
+    "noZoneDesc": "您当前位置没有社区对话。当您在指定区域时，请重试。",
+    "checkAgain": "重新检查",
+    "error": "出错了",
+    "errorDesc": "我们无法访问您的位置。请稍后重试。",
+    "leftZone": "已离开社区区域",
+    "leftZoneDesc": "您已离开社区区域。返回以继续聊天。",
+    "messagesRemaining": "还剩 {{count}} 条消息",
+    "typeMessage": "输入消息...",
+    "cooldown": "请稍候",
+    "cooldownDesc": "在发送另一条消息之前请等待 {{seconds}} 秒。",
+    "contentBlocked": "消息被阻止",
+    "contentBlockedDesc": "此消息包含此频道不允许的信息。",
+    "silenced": "暂时被禁言",
+    "silencedDesc": "由于重复违规，您被禁言 1 小时。"
   }
 }
