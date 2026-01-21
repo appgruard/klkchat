@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useRoute, useLocation } from "wouter";
 import { ChatList } from "@/components/chat/chat-list";
 import { ConversationView } from "@/components/chat/conversation-view";
 import { NewChatDialog } from "@/components/chat/new-chat-dialog";
@@ -13,10 +14,19 @@ import type { MessageWithSender } from "@shared/schema";
 export default function ChatPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [, params] = useRoute("/conversations/:id");
+  const [, setLocation] = useLocation();
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(params?.id || null);
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
-  const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(false);
+  const [isMobileConversationOpen, setIsMobileConversationOpen] = useState(!!params?.id);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (params?.id && params.id !== selectedConversationId) {
+      setSelectedConversationId(params.id);
+      setIsMobileConversationOpen(true);
+    }
+  }, [params?.id]);
 
   const { lastMessage, isConnected } = useWebSocket(user?.id);
 

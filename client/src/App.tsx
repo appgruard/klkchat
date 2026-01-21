@@ -86,6 +86,7 @@ function AppRouter() {
       <div className="flex-1 overflow-hidden">
         <Switch>
           <Route path="/" component={ChatPage} />
+          <Route path="/conversations/:id" component={ChatPage} />
           <Route path="/community" component={CommunityPage} />
           <Route component={NotFound} />
         </Switch>
