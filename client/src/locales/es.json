@@ -252,7 +252,10 @@
     "contentBlocked": "Mensaje bloqueado",
     "contentBlockedDesc": "Este mensaje contiene información que no está permitida en este canal.",
     "silenced": "Silenciado temporalmente",
-    "silencedDesc": "Has sido silenciado por 1 hora debido a violaciones repetidas."
+    "silencedDesc": "Has sido silenciado por 1 hora debido a violaciones repetidas.",
+    "block": "Bloquear Usuario",
+    "userBlocked": "Usuario Bloqueado",
+    "userBlockedDesc": "El usuario ha sido reportado. Reportes repetidos resultarán en silencio automático."
   },
   "admin": {
     "zoneManagement": "Gestión de Zonas",
