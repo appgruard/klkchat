@@ -66,16 +66,26 @@ export default function AdminZonesPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.4861, -69.9312]);
 
   const cities = [
-    { name: "Santo Domingo", lat: 18.4861, lng: -69.9312 },
-    { name: "Santiago", lat: 19.4517, lng: -70.6970 },
-    { name: "Moca", lat: 19.3941, lng: -70.5250 },
-    { name: "Sosúa", lat: 19.7525, lng: -70.5186 },
-    { name: "Puerto Plata", lat: 19.7934, lng: -70.6884 },
-    { name: "La Romana", lat: 18.4274, lng: -68.9728 },
-    { name: "Punta Cana", lat: 18.5601, lng: -68.3725 },
-    { name: "San Francisco de Macorís", lat: 19.3000, lng: -70.2500 },
-    { name: "Bonao", lat: 18.9400, lng: -70.4000 },
-    { name: "Baní", lat: 18.2800, lng: -70.3300 },
+    { name: "Santo Domingo, DO", lat: 18.4861, lng: -69.9312 },
+    { name: "Santiago, DO", lat: 19.4517, lng: -70.6970 },
+    { name: "Moca, DO", lat: 19.3941, lng: -70.5250 },
+    { name: "Sosúa, DO", lat: 19.7525, lng: -70.5186 },
+    { name: "Bogotá, CO", lat: 4.7110, lng: -74.0721 },
+    { name: "Medellín, CO", lat: 6.2442, lng: -75.5812 },
+    { name: "Buenos Aires, AR", lat: -34.6037, lng: -58.3816 },
+    { name: "Córdoba, AR", lat: -31.4167, lng: -64.1833 },
+    { name: "Caracas, VE", lat: 10.4806, lng: -66.9036 },
+    { name: "Ciudad de Panamá, PA", lat: 8.9824, lng: -79.5199 },
+    { name: "Santiago, CL", lat: -33.4489, lng: -70.6693 },
+    { name: "Quito, EC", lat: -0.1807, lng: -78.4678 },
+    { name: "Guayaquil, EC", lat: -2.1708, lng: -79.9224 },
+    { name: "San Salvador, SV", lat: 13.6929, lng: -89.2182 },
+    { name: "Montevideo, UY", lat: -34.9011, lng: -56.1645 },
+    { name: "New York, US", lat: 40.7128, lng: -74.0060 },
+    { name: "Miami, US", lat: 25.7617, lng: -80.1918 },
+    { name: "Los Angeles, US", lat: 34.0522, lng: -118.2437 },
+    { name: "Madrid, ES", lat: 40.4168, lng: -3.7038 },
+    { name: "San Juan, PR", lat: 18.4655, lng: -66.1057 },
   ];
 
   const handleCitySelect = (cityName: string) => {
