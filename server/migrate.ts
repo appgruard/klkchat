@@ -127,6 +127,54 @@ export async function runMigrations() {
       )
     `);
 
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS community_zones (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        name TEXT NOT NULL,
+        latitude DOUBLE PRECISION NOT NULL,
+        longitude DOUBLE PRECISION NOT NULL,
+        radius INTEGER NOT NULL DEFAULT 100,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS community_sessions (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        zone_id VARCHAR NOT NULL REFERENCES community_zones(id) ON DELETE CASCADE,
+        pseudonym TEXT NOT NULL,
+        avatar_seed TEXT NOT NULL,
+        age_verified BOOLEAN NOT NULL DEFAULT false,
+        is_under_16 BOOLEAN NOT NULL DEFAULT false,
+        last_activity TIMESTAMP NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE TABLE IF NOT EXISTS community_messages (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        zone_id VARCHAR NOT NULL REFERENCES community_zones(id) ON DELETE CASCADE,
+        session_id VARCHAR NOT NULL REFERENCES community_sessions(id) ON DELETE CASCADE,
+        content TEXT NOT NULL,
+        message_type TEXT NOT NULL DEFAULT 'text',
+        file_url TEXT,
+        duration INTEGER,
+        is_explicit BOOLEAN NOT NULL DEFAULT false,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      )
+    `);
+
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_community_messages_zone ON community_messages(zone_id)
+    `);
+
+    await db.execute(sql`
+      CREATE INDEX IF NOT EXISTS idx_community_messages_expires ON community_messages(expires_at)
+    `);
+
     console.log("Database schema sync completed successfully");
   } catch (error) {
     console.error("Error syncing database schema:", error);
