@@ -491,7 +491,7 @@ export default function CommunityPage() {
                   {msg.contentType === 'audio' && (
                     <div className="flex items-center gap-2 p-1 min-w-[200px]">
                       <Mic className="h-4 w-4 opacity-70" />
-                      <audio controls key={msg.id} className="h-8 w-full filter grayscale contrast-125">
+                      <audio controls className="h-8 w-full filter grayscale contrast-125">
                         <source src={msg.fileUrl || ''} type="audio/webm" />
                       </audio>
                     </div>
