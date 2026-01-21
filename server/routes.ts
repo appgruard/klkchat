@@ -25,6 +25,7 @@ import {
   SILENCE_DURATION_HOURS,
   BLOCKS_BEFORE_SILENCE
 } from "./community-moderation";
+import { findNearbyPlaces } from "./geopify";
 
 import nodemailer from "nodemailer";
 
@@ -486,6 +487,45 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Test email error:", error);
       res.status(500).json({ message: "Failed to send test email", error: error instanceof Error ? error.message : String(error) });
+    }
+  });
+
+  app.post("/api/admin/zones/discover", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!user.isAdmin && user.username !== 'KlkCEO' && user.username !== 'mysticFoxyy') {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const { lat, lng } = req.body;
+      if (!lat || !lng) {
+        return res.status(400).json({ message: "Latitude and longitude are required" });
+      }
+
+      const places = await findNearbyPlaces(lat, lng);
+      const createdZones = [];
+
+      for (const place of places) {
+        // Check if a zone with similar name and location already exists
+        const existingZones = await storage.getCommunityZones();
+        const duplicate = existingZones.find(z => 
+          z.name === place.name || 
+          (Math.abs(z.centerLat - place.centerLat) < 0.0001 && Math.abs(z.centerLng - place.centerLng) < 0.0001)
+        );
+
+        if (!duplicate) {
+          const newZone = await storage.createCommunityZone(place);
+          createdZones.push(newZone);
+        }
+      }
+
+      res.json({ 
+        message: `Discovered and created ${createdZones.length} new zones`,
+        zones: createdZones 
+      });
+    } catch (error) {
+      console.error("Zone discovery error:", error);
+      res.status(500).json({ message: "Failed to discover zones" });
     }
   });
 

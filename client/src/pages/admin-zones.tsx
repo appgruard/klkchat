@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { MapContainer, TileLayer, Marker, useMapEvents, Circle } from "react-leaflet";
 import { Icon, LatLng } from "leaflet";
-import { Plus, MapPin, Trash2, Radio, Loader2 } from "lucide-react";
+import { Plus, MapPin, Trash2, Radio, Loader2, Search } from "lucide-react";
 import type { CommunityZone } from "@shared/schema";
 import "leaflet/dist/leaflet.css";
 
@@ -61,6 +61,7 @@ export default function AdminZonesPage() {
   const [zoneType, setZoneType] = useState<string>("neighborhood");
   const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isDiscovering, setIsDiscovering] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.4861, -69.9312]);
 
   const { data: zones, isLoading } = useQuery<CommunityZone[]>({
@@ -79,7 +80,33 @@ export default function AdminZonesPage() {
     }
   }, []);
 
-  if (!user?.isAdmin && user?.username !== 'KlkCEO') {
+  const handleDiscoverZones = async () => {
+    setIsDiscovering(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/zones/discover", {
+        lat: mapCenter[0],
+        lng: mapCenter[1],
+      });
+      const data = await response.json();
+      
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/zones"] });
+      
+      toast({
+        title: t("admin.success"),
+        description: data.message,
+      });
+    } catch (error) {
+      toast({
+        title: t("admin.error"),
+        description: "Failed to discover nearby zones",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDiscovering(false);
+    }
+  };
+
+  if (!user?.isAdmin && user?.username !== 'KlkCEO' && user?.username !== 'mysticFoxyy') {
     return (
       <div className="h-full flex items-center justify-center pb-14">
         <p className="text-muted-foreground">{t("common.accessDenied")}</p>
@@ -153,14 +180,30 @@ export default function AdminZonesPage() {
           <Radio className="h-5 w-5 text-primary" />
           <h1 className="text-lg font-semibold">{t("admin.zoneManagement")}</h1>
         </div>
-        <Button 
-          size="sm" 
-          onClick={() => setShowCreateDialog(true)}
-          data-testid="button-create-zone"
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          {t("admin.createZone")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleDiscoverZones}
+            disabled={isDiscovering}
+            data-testid="button-discover-zones"
+          >
+            {isDiscovering ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <Search className="h-4 w-4 mr-1" />
+            )}
+            Auto-Detectar
+          </Button>
+          <Button 
+            size="sm" 
+            onClick={() => setShowCreateDialog(true)}
+            data-testid="button-create-zone"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            {t("admin.createZone")}
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="flex-1">
