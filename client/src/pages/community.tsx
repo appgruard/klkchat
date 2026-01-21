@@ -297,7 +297,7 @@ export default function CommunityPage() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
-  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startRecording = async () => {
     try {
@@ -365,6 +365,7 @@ export default function CommunityPage() {
         description: t("error.micAccess"),
         variant: "destructive",
       });
+      setIsRecording(false);
     }
   };
 
