@@ -195,7 +195,7 @@ export default function AdminZonesPage() {
 
   const { data: zones, isLoading } = useQuery<CommunityZone[]>({
     queryKey: ["/api/admin/zones"],
-    enabled: user?.isAdmin === true,
+    enabled: !!user?.isAdmin || user?.username === 'KlkCEO' || user?.username === 'mysticFoxyy',
   });
 
   useEffect(() => {
