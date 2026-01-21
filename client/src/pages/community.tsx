@@ -444,14 +444,14 @@ export default function CommunityPage() {
                 )}
               >
                 {!isOwn && (
-                  <div className="flex items-center justify-between w-full mb-1">
+                  <div className="flex items-center gap-2 mb-1 group">
                     <span className="text-xs text-muted-foreground">
                       {msg.session.pseudonym}
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                      className="h-4 w-4 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => setSessionToBlock(msg.sessionId)}
                       title={t('community.block')}
                     >
