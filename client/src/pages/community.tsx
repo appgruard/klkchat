@@ -501,8 +501,8 @@ export default function CommunityPage() {
                   className={cn(
                     "rounded-2xl px-3 py-2 shadow-sm border",
                     isOwn 
-                      ? "bg-primary text-primary-foreground border-primary rounded-tr-none" 
-                      : "bg-muted text-muted-foreground border-muted rounded-tl-none"
+                      ? "bg-muted border-border rounded-tr-none" 
+                      : "bg-muted border-border rounded-tl-none"
                   )}
                 >
                   {msg.contentType === 'text' && (
