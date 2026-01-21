@@ -472,27 +472,27 @@ export default function CommunityPage() {
                       {msg.session.pseudonym}
                     </span>
                   )}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1">
                     {!isOwn && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive"
                         onClick={() => setSessionToBlock(msg.sessionId)}
                         title={t('community.block')}
                       >
-                        <ShieldAlert className="h-3 w-3" />
+                        <ShieldAlert className="h-4 w-4" />
                       </Button>
                     )}
                     {isModerator && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                        className="h-6 w-6 text-muted-foreground hover:text-destructive"
                         onClick={() => handleDeleteMessage(msg.id)}
                         title={t('common.delete')}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
