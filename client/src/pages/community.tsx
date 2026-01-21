@@ -587,9 +587,9 @@ export default function CommunityPage() {
           ) : (
             <div className="flex items-center gap-2">
               {isRecording && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-destructive/10 text-destructive rounded-full animate-pulse">
+                <div className="flex items-center gap-2 px-3 h-9 bg-destructive/10 text-destructive rounded-full animate-pulse border border-destructive/20">
                   <div className="w-2 h-2 rounded-full bg-destructive" />
-                  <span className="text-xs font-mono">
+                  <span className="text-xs font-mono font-medium">
                     0:{recordingDuration.toString().padStart(2, '0')}
                   </span>
                 </div>
@@ -604,13 +604,14 @@ export default function CommunityPage() {
                     startRecording();
                   }
                 }}
-                disabled={cooldowns.audio > 0 || isLoading}
+                disabled={cooldowns.audio > 0 || (isLoading && !isRecording)}
                 data-testid="button-audio-community"
+                className="h-9 w-9 shrink-0"
               >
                 {cooldowns.audio > 0 ? (
                   <span className="text-xs">{Math.ceil(cooldowns.audio / 1000)}</span>
                 ) : (
-                  isRecording ? <Square className="h-5 w-5" /> : <Mic className="h-5 w-5" />
+                  isRecording ? <Square className="h-4 w-4" /> : <Mic className="h-5 w-5" />
                 )}
               </Button>
             </div>
