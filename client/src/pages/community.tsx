@@ -309,7 +309,7 @@ export default function CommunityPage() {
         const duration = Math.round((Date.now() - startTime) / 1000);
         const audioBlob = new Blob(chunks, { type: "audio/webm" });
         
-        // Upload file
+        // Upload file - matches normal chat naming
         const formData = new FormData();
         formData.append("file", audioBlob, `audio-${Date.now()}.webm`);
         
@@ -319,6 +319,7 @@ export default function CommunityPage() {
             body: formData,
           });
           const fileData = await uploadRes.json();
+          // For community messages, content is unused for non-text, but we should be consistent
           sendMessage('audio', fileData.url, duration);
         } catch (error) {
           console.error("Upload error:", error);
@@ -336,7 +337,7 @@ export default function CommunityPage() {
       mediaRecorder.start();
       setIsLoading(true);
       
-      // Auto-stop at 30s
+      // Auto-stop at 30s for community
       const timeoutId = setTimeout(() => {
         if (mediaRecorder.state === "recording") {
           mediaRecorder.stop();

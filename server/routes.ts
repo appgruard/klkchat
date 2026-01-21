@@ -1408,7 +1408,7 @@ export async function registerRoutes(
         sessionId,
         zoneId: session.zoneId,
         contentType,
-        content: contentType === 'text' ? content : undefined,
+        content: contentType === 'text' ? content : (content || ''), // Ensure content is never null
         fileUrl: contentType !== 'text' ? content : undefined,
         duration: contentType === 'audio' ? duration : undefined,
         expiresAt,
