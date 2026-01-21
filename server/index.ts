@@ -61,26 +61,31 @@ app.use((req, res, next) => {
         // Import dynamically to avoid loading it in all environments if not needed
         const { findNearbyPlaces } = await import("./geopify");
         const locations = [
+          // Santo Domingo
           { lat: 18.4861, lng: -69.9312 }, // Center
-          { lat: 18.4716, lng: -69.9218 }, // Gazcue
-          { lat: 18.4517, lng: -69.9389 }, // Piantini/Naco
+          { lat: 18.4517, lng: -69.9389 }, // Piantini
           { lat: 18.5123, lng: -69.8732 }, // SD Este
-          { lat: 18.4845, lng: -69.9612 }, // Herrera
           { lat: 18.5342, lng: -69.9211 }, // SD Norte
+          // Santiago
+          { lat: 19.4517, lng: -70.6970 }, // Santiago Center
+          { lat: 19.4350, lng: -70.6700 }, // Villa Olga
+          { lat: 19.4700, lng: -70.7100 }, // Los Jardines
+          // Moca
+          { lat: 19.3941, lng: -70.5250 }, // Moca Center
+          { lat: 19.3850, lng: -70.5150 }, // Moca Sur
+          // Sosúa
+          { lat: 19.7525, lng: -70.5186 }, // Sosua Center
+          { lat: 19.7600, lng: -70.5000 }, // El Batey
+          // Additional Coverage
+          { lat: 18.4716, lng: -69.9218 }, // Gazcue
+          { lat: 18.4845, lng: -69.9612 }, // Herrera
           { lat: 18.4321, lng: -69.9543 }, // Malecon
-          { lat: 18.4987, lng: -69.8923 }, // Los Mina
-          { lat: 18.4654, lng: -69.9765 }, // Luperon
-          { lat: 18.5234, lng: -69.9432 }, // Arroyo Hondo
-          { lat: 18.4812, lng: -69.9123 }, // San Carlos
-          { lat: 18.4756, lng: -69.9456 }, // Bella Vista
           { lat: 18.4623, lng: -69.9287 }, // Ciudad Universitaria
-          { lat: 18.5045, lng: -69.9512 }, // Los Rios
-          { lat: 18.5212, lng: -69.8912 }, // Alma Rosa
-          { lat: 18.4912, lng: -69.8512 }, // Lucerna
           { lat: 18.5512, lng: -69.9712 }, // Los Alcarrizos
-          { lat: 18.4412, lng: -69.9812 }, // Haina/Itabo
-          { lat: 18.5812, lng: -69.8212 }, // San Isidro
-          { lat: 18.5012, lng: -70.0112 }  // Pedro Brand
+          { lat: 19.4000, lng: -70.5000 }, // Moca Suburbs
+          { lat: 19.7400, lng: -70.5300 }, // Sosua West
+          { lat: 19.4600, lng: -70.6800 }, // Santiago North
+          { lat: 18.5812, lng: -69.8212 }  // San Isidro
         ];
 
         for (const loc of locations) {
