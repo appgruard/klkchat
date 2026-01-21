@@ -359,6 +359,30 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                   />
                 </>
               )}
+              {isCommunity && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowUrlDialog(true)}
+                    className="flex-1"
+                    data-testid="button-add-sticker-url-community"
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    {t("chat.importUrl") || "URL"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowStickerlyUrlDialog(true)}
+                    className="flex-1 text-[10px] px-1"
+                    data-testid="button-add-stickerly-community"
+                  >
+                    <Package className="h-4 w-4 mr-1" />
+                    Sticker.ly
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -417,11 +441,15 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                           data-testid={`sticker-item-${sticker.id}`}
                         >
                           <button
-                            onClick={() => !isCommunity && handleStickerSelect(sticker)}
-                            disabled={isCommunity}
+                            onClick={() => {
+                              const isUpload = sticker.imageUrl.includes('/uploads/');
+                              if (isCommunity && isUpload) return;
+                              handleStickerSelect(sticker);
+                            }}
+                            disabled={isCommunity && sticker.imageUrl.includes('/uploads/')}
                             className={cn(
                               "w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto",
-                              isCommunity && "opacity-50 cursor-not-allowed"
+                              isCommunity && sticker.imageUrl.includes('/uploads/') && "opacity-50 cursor-not-allowed"
                             )}
                           >
                             <img
@@ -453,11 +481,9 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                     {DEFAULT_STICKERS.map((sticker) => (
                       <button
                         key={sticker.id}
-                        onClick={() => !isCommunity && onSelect(sticker.url, "sticker")}
-                        disabled={isCommunity}
+                        onClick={() => onSelect(sticker.url, "sticker")}
                         className={cn(
-                          "w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto",
-                          isCommunity && "opacity-50 cursor-not-allowed"
+                          "w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto"
                         )}
                         data-testid={`sticker-default-${sticker.id}`}
                       >
