@@ -143,6 +143,11 @@ export function moderateContent(text: string, contentType?: string, content?: st
     }
   }
 
+  // Allow GIFs (Giphy/external URLs)
+  if (contentType === 'gif') {
+    return { allowed: true, isExplicit: false };
+  }
+
   if (!text || typeof text !== 'string') {
     return { allowed: true, isExplicit: false };
   }
