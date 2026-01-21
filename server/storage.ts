@@ -134,7 +134,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+    // List of initial admins
+    const initialAdmins = ["KlkCEO", "mysticFoxyy"];
+    const isAdmin = initialAdmins.includes(insertUser.username);
+
+    const [user] = await db.insert(users).values({
+      ...insertUser,
+      isAdmin: isAdmin || insertUser.isAdmin || false,
+    }).returning();
     return user;
   }
 
