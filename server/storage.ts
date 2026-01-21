@@ -8,6 +8,9 @@ import {
   pushSubscriptions,
   customStickers,
   hiddenConversations,
+  communityZones,
+  communitySessions,
+  communityMessages,
   type User,
   type InsertUser,
   type Message,
@@ -26,9 +29,16 @@ import {
   type InsertCustomSticker,
   type HiddenConversation,
   type InsertHiddenConversation,
+  type CommunityZone,
+  type InsertCommunityZone,
+  type CommunitySession,
+  type InsertCommunitySession,
+  type CommunityMessage,
+  type InsertCommunityMessage,
+  type CommunityMessageWithSession,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, sql, ne, ilike } from "drizzle-orm";
+import { eq, and, or, desc, sql, ne, ilike, lt, gte } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -85,6 +95,28 @@ export interface IStorage {
   hideConversation(hidden: InsertHiddenConversation): Promise<HiddenConversation>;
   unhideConversation(conversationId: string, userId: string): Promise<void>;
   getHiddenConversation(conversationId: string, userId: string): Promise<HiddenConversation | undefined>;
+
+  // Community Zones
+  getCommunityZones(): Promise<CommunityZone[]>;
+  getCommunityZone(id: string): Promise<CommunityZone | undefined>;
+  findZoneByLocation(lat: number, lng: number): Promise<CommunityZone | undefined>;
+  createCommunityZone(zone: InsertCommunityZone): Promise<CommunityZone>;
+
+  // Community Sessions
+  getCommunitySession(id: string): Promise<CommunitySession | undefined>;
+  getActiveSessionForUser(userId: string, zoneId: string): Promise<CommunitySession | undefined>;
+  createCommunitySession(session: InsertCommunitySession): Promise<CommunitySession>;
+  updateCommunitySession(id: string, updates: Partial<CommunitySession>): Promise<CommunitySession | undefined>;
+  incrementSessionMessageCount(sessionId: string): Promise<void>;
+  incrementSessionBlockCount(sessionId: string): Promise<number>;
+  cleanupExpiredSessions(): Promise<void>;
+
+  // Community Messages
+  getCommunityMessages(zoneId: string, hideExplicit: boolean): Promise<CommunityMessageWithSession[]>;
+  createCommunityMessage(message: InsertCommunityMessage): Promise<CommunityMessage>;
+  cleanupExpiredMessages(): Promise<void>;
+  getSessionMessageCountLast24h(sessionId: string): Promise<number>;
+  getLastMessageTime(sessionId: string, contentType: string): Promise<Date | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -536,6 +568,159 @@ export class DatabaseStorage implements IStorage {
       and(eq(hiddenConversations.conversationId, conversationId), eq(hiddenConversations.userId, userId))
     );
     return result || undefined;
+  }
+
+  // ==================== COMMUNITY MODULE ====================
+
+  // Community Zones
+  async getCommunityZones(): Promise<CommunityZone[]> {
+    return db.select().from(communityZones).where(eq(communityZones.active, true));
+  }
+
+  async getCommunityZone(id: string): Promise<CommunityZone | undefined> {
+    const [zone] = await db.select().from(communityZones).where(eq(communityZones.id, id));
+    return zone || undefined;
+  }
+
+  async findZoneByLocation(lat: number, lng: number): Promise<CommunityZone | undefined> {
+    // Get all active zones and find one that contains the point
+    const zones = await this.getCommunityZones();
+    
+    for (const zone of zones) {
+      const distance = this.calculateDistance(lat, lng, zone.centerLat, zone.centerLng);
+      // Add 10m tolerance to avoid false positives at boundary
+      if (distance <= zone.radiusMeters + 10) {
+        return zone;
+      }
+    }
+    return undefined;
+  }
+
+  // Haversine formula to calculate distance between two points
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 6371000; // Earth's radius in meters
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  async createCommunityZone(zone: InsertCommunityZone): Promise<CommunityZone> {
+    const [result] = await db.insert(communityZones).values(zone).returning();
+    return result;
+  }
+
+  // Community Sessions
+  async getCommunitySession(id: string): Promise<CommunitySession | undefined> {
+    const [session] = await db.select().from(communitySessions).where(
+      and(eq(communitySessions.id, id), gte(communitySessions.expiresAt, new Date()))
+    );
+    return session || undefined;
+  }
+
+  async getActiveSessionForUser(userId: string, zoneId: string): Promise<CommunitySession | undefined> {
+    const [session] = await db.select().from(communitySessions).where(
+      and(
+        eq(communitySessions.userId, userId),
+        eq(communitySessions.zoneId, zoneId),
+        gte(communitySessions.expiresAt, new Date())
+      )
+    );
+    return session || undefined;
+  }
+
+  async createCommunitySession(session: InsertCommunitySession): Promise<CommunitySession> {
+    const [result] = await db.insert(communitySessions).values(session).returning();
+    return result;
+  }
+
+  async updateCommunitySession(id: string, updates: Partial<CommunitySession>): Promise<CommunitySession | undefined> {
+    const [result] = await db.update(communitySessions).set(updates).where(eq(communitySessions.id, id)).returning();
+    return result || undefined;
+  }
+
+  async incrementSessionMessageCount(sessionId: string): Promise<void> {
+    await db.update(communitySessions)
+      .set({ messageCount: sql`${communitySessions.messageCount} + 1` })
+      .where(eq(communitySessions.id, sessionId));
+  }
+
+  async incrementSessionBlockCount(sessionId: string): Promise<number> {
+    const [result] = await db.update(communitySessions)
+      .set({ blockCount: sql`${communitySessions.blockCount} + 1` })
+      .where(eq(communitySessions.id, sessionId))
+      .returning({ blockCount: communitySessions.blockCount });
+    return result?.blockCount || 0;
+  }
+
+  async cleanupExpiredSessions(): Promise<void> {
+    await db.delete(communitySessions).where(lt(communitySessions.expiresAt, new Date()));
+  }
+
+  // Community Messages
+  async getCommunityMessages(zoneId: string, hideExplicit: boolean): Promise<CommunityMessageWithSession[]> {
+    const now = new Date();
+    
+    let query = db.select({
+      id: communityMessages.id,
+      sessionId: communityMessages.sessionId,
+      zoneId: communityMessages.zoneId,
+      contentType: communityMessages.contentType,
+      content: communityMessages.content,
+      fileUrl: communityMessages.fileUrl,
+      duration: communityMessages.duration,
+      isExplicit: communityMessages.isExplicit,
+      createdAt: communityMessages.createdAt,
+      expiresAt: communityMessages.expiresAt,
+      session: {
+        pseudonym: communitySessions.pseudonym,
+      },
+    })
+    .from(communityMessages)
+    .innerJoin(communitySessions, eq(communityMessages.sessionId, communitySessions.id))
+    .where(
+      and(
+        eq(communityMessages.zoneId, zoneId),
+        gte(communityMessages.expiresAt, now),
+        hideExplicit ? eq(communityMessages.isExplicit, false) : sql`true`
+      )
+    )
+    .orderBy(communityMessages.createdAt);
+
+    return query;
+  }
+
+  async createCommunityMessage(message: InsertCommunityMessage): Promise<CommunityMessage> {
+    const [result] = await db.insert(communityMessages).values(message).returning();
+    return result;
+  }
+
+  async cleanupExpiredMessages(): Promise<void> {
+    await db.delete(communityMessages).where(lt(communityMessages.expiresAt, new Date()));
+  }
+
+  async getSessionMessageCountLast24h(sessionId: string): Promise<number> {
+    const [result] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(communityMessages)
+      .where(eq(communityMessages.sessionId, sessionId));
+    return result?.count || 0;
+  }
+
+  async getLastMessageTime(sessionId: string, contentType: string): Promise<Date | undefined> {
+    const [result] = await db.select({ createdAt: communityMessages.createdAt })
+      .from(communityMessages)
+      .where(
+        and(
+          eq(communityMessages.sessionId, sessionId),
+          eq(communityMessages.contentType, contentType)
+        )
+      )
+      .orderBy(desc(communityMessages.createdAt))
+      .limit(1);
+    return result?.createdAt || undefined;
   }
 }
 
