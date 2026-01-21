@@ -172,6 +172,11 @@ export default function AdminZonesPage() {
   const [filterCountry, setFilterCountry] = useState("all");
   const [filterCity, setFilterCity] = useState("all");
 
+  const { data: zones, isLoading } = useQuery<CommunityZone[]>({
+    queryKey: ["/api/admin/zones"],
+    enabled: !!user?.isAdmin || user?.username === 'KlkCEO' || user?.username === 'mysticFoxyy',
+  });
+
   const filteredZones = zones?.filter(zone => {
     const matchesSearch = zone.name.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -192,11 +197,6 @@ export default function AdminZonesPage() {
       setMapCenter([city.lat, city.lng]);
     }
   };
-
-  const { data: zones, isLoading } = useQuery<CommunityZone[]>({
-    queryKey: ["/api/admin/zones"],
-    enabled: !!user?.isAdmin || user?.username === 'KlkCEO' || user?.username === 'mysticFoxyy',
-  });
 
   useEffect(() => {
     if (navigator.geolocation) {
