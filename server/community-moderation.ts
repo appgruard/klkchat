@@ -188,8 +188,7 @@ export function moderateContent(text: string): ModerationResult {
     return { allowed: true, isExplicit: false };
   }
 
-  const lowerText = text.toLowerCase();
-
+  // 1. Basic check for blocked patterns (un-normalized to catch specific formats)
   // Check for phone numbers
   for (const pattern of phonePatterns) {
     if (pattern.test(text)) {
@@ -199,7 +198,7 @@ export function moderateContent(text: string): ModerationResult {
         isExplicit: false 
       };
     }
-    pattern.lastIndex = 0; // Reset regex state
+    pattern.lastIndex = 0;
   }
 
   // Check for emails
@@ -262,10 +261,25 @@ export function moderateContent(text: string): ModerationResult {
     pattern.lastIndex = 0;
   }
 
-  // Check for explicit content (flag but don't block)
+  // 2. Normalize text for explicit content detection
+  // Lowercase, remove accents, remove all symbols and whitespace
+  const normalizedText = text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9]/g, '');      // Remove everything except letters and numbers
+
+  // 3. Check for explicit content using normalized text
   const isExplicit = explicitWords.some(word => {
-    const regex = new RegExp(`\\b${word}\\b`, 'i');
-    return regex.test(lowerText);
+    // Normalize the target word as well (just in case)
+    const normalizedWord = word
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]/g, '');
+    
+    // Check if the normalized text contains the normalized word
+    return normalizedText.includes(normalizedWord);
   });
 
   return { allowed: true, isExplicit };
