@@ -113,7 +113,16 @@ function normalizeAdvanced(text: string): string {
   return result.replace(/[^a-z0-9]/g, '');
 }
 
-export function moderateContent(text: string): ModerationResult {
+export function moderateContent(text: string, contentType?: string, content?: string): ModerationResult {
+  if (!text && !content) {
+    return { allowed: true, isExplicit: false };
+  }
+
+  // Block gallery stickers in community chat
+  if (contentType === 'sticker' && content && content.includes('/uploads/')) {
+    return { allowed: false, reason: 'gallery_stickers_blocked', isExplicit: false };
+  }
+
   if (!text || typeof text !== 'string') {
     return { allowed: true, isExplicit: false };
   }

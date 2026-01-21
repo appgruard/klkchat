@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -61,6 +62,7 @@ const DEFAULT_GIFS: GiphyGif[] = [
 export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const isCommunity = window.location.pathname.includes('/community');
   const [activeTab, setActiveTab] = useState<"gif" | "sticker">("gif");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -280,38 +282,42 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
 
           {activeTab === "sticker" && (
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={addStickerMutation.isPending}
-                className="flex-1"
-                data-testid="button-add-sticker"
-              >
-                {addStickerMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Plus className="h-4 w-4 mr-2" />
-                )}
-                {t("chat.addSticker") || "Add"}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowUrlDialog(true)}
-                className="flex-1"
-                data-testid="button-add-sticker-url"
-              >
-                <Link className="h-4 w-4 mr-2" />
-                {t("chat.importUrl") || "URL"}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
+              {!isCommunity && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={addStickerMutation.isPending}
+                    className="flex-1"
+                    data-testid="button-add-sticker"
+                  >
+                    {addStickerMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Plus className="h-4 w-4 mr-2" />
+                    )}
+                    {t("chat.addSticker") || "Add"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowUrlDialog(true)}
+                    className="flex-1"
+                    data-testid="button-add-sticker-url"
+                  >
+                    <Link className="h-4 w-4 mr-2" />
+                    {t("chat.importUrl") || "URL"}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                </>
+              )}
             </div>
           )}
         </div>
@@ -370,8 +376,12 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                           data-testid={`sticker-item-${sticker.id}`}
                         >
                           <button
-                            onClick={() => handleStickerSelect(sticker)}
-                            className="w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto"
+                            onClick={() => !isCommunity && handleStickerSelect(sticker)}
+                            disabled={isCommunity}
+                            className={cn(
+                              "w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto",
+                              isCommunity && "opacity-50 cursor-not-allowed"
+                            )}
                           >
                             <img
                               src={sticker.imageUrl}
@@ -402,8 +412,12 @@ export function GifStickerPicker({ onSelect, onClose }: GifStickerPickerProps) {
                     {DEFAULT_STICKERS.map((sticker) => (
                       <button
                         key={sticker.id}
-                        onClick={() => onSelect(sticker.url, "sticker")}
-                        className="w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto"
+                        onClick={() => !isCommunity && onSelect(sticker.url, "sticker")}
+                        disabled={isCommunity}
+                        className={cn(
+                          "w-full aspect-square max-w-[70px] max-h-[70px] rounded-md cursor-pointer bg-muted/50 hover:bg-muted transition-colors mx-auto",
+                          isCommunity && "opacity-50 cursor-not-allowed"
+                        )}
                         data-testid={`sticker-default-${sticker.id}`}
                       >
                         <img

@@ -1474,43 +1474,41 @@ export async function registerRoutes(
 
       // Moderate text content
       let isExplicit = false;
-      if (contentType === 'text' && content) {
-        const moderation = moderateContent(content);
-        if (!moderation.allowed) {
-          // Increment block count
-          const newBlockCount = await storage.incrementSessionBlockCount(sessionId);
+      const moderation = moderateContent(content || '', contentType, content);
+      if (!moderation.allowed) {
+        // Increment block count
+        const newBlockCount = await storage.incrementSessionBlockCount(sessionId);
+        
+        // Check if should be silenced
+        if (newBlockCount >= BLOCKS_BEFORE_SILENCE) {
+          const silencedUntil = new Date();
+          silencedUntil.setHours(silencedUntil.getHours() + SILENCE_DURATION_HOURS);
           
-          // Check if should be silenced
-          if (newBlockCount >= BLOCKS_BEFORE_SILENCE) {
-            const silencedUntil = new Date();
-            silencedUntil.setHours(silencedUntil.getHours() + SILENCE_DURATION_HOURS);
-            
-            // If already silenced before, expel until session expires
-            if (session.silencedUntil) {
-              await storage.updateCommunitySession(sessionId, {
-                expelledUntil: session.expiresAt
-              });
-              return res.status(403).json({
-                message: "expelled",
-                expelledUntil: session.expiresAt
-              });
-            }
-            
-            await storage.updateCommunitySession(sessionId, { silencedUntil });
+          // If already silenced before, expel until session expires
+          if (session.silencedUntil) {
+            await storage.updateCommunitySession(sessionId, {
+              expelledUntil: session.expiresAt
+            });
             return res.status(403).json({
-              message: "silenced",
-              silencedUntil,
-              reason: "blocked_content_repeated"
+              message: "expelled",
+              expelledUntil: session.expiresAt
             });
           }
-
-          return res.status(400).json({ 
-            message: "content_blocked",
-            details: "This message contains information that is not allowed in this channel"
+          
+          await storage.updateCommunitySession(sessionId, { silencedUntil });
+          return res.status(403).json({
+            message: "silenced",
+            silencedUntil,
+            reason: "blocked_content_repeated"
           });
         }
-        isExplicit = moderation.isExplicit;
+
+        return res.status(400).json({ 
+          message: "content_blocked",
+          details: "This message contains information that is not allowed in this channel"
+        });
       }
+      isExplicit = moderation.isExplicit;
 
       // Create message with 24h expiration
       const expiresAt = new Date();
