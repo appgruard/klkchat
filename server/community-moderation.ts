@@ -34,21 +34,22 @@ const socialPatterns = [
 const urlPatterns = [
   /https?:\/\/[^\s]+/gi,
   /www\.[^\s]+/gi,
-  /[a-zA-Z0-9-]+\.(com|net|org|io|co|app|dev|me)[^\s]*/gi,
+  /\b[a-z0-9-]+\.(?:com|net|org|io|co|app|dev|me|es|do|biz|info|us|uk|ca|fr|de|jp|cn|it|ru|br|in|au|mx|ar|cl|pe|ve|co|pa|sv|uy|online|site|tech|xyz|top|icu|club|vip|shop|store|link|work|pro|live)\b[^\s]*/gi,
 ];
 
 // Address patterns (basic)
 const addressPatterns = [
   /\b\d+\s+[A-Za-z]+\s+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|court|ct|way|circle|cir|place|pl)\b/gi,
   /\bcalle\s+[A-Za-z0-9\s]+(?:no?\.?\s*\d+)?/gi, // Spanish: Calle X No. 123
+  /\bc\/[a-z0-9\s]+/gi, // C/ Principal, C/ 1ra, etc.
   /\bavenida\s+[A-Za-z0-9\s]+/gi, // Spanish: Avenida X
   /\b(?:apt|apartment|suite|unit|#)\s*\d+/gi,
   /\bvivo\s+en\s+[A-Za-z0-9\s]+/gi, // "Vivo en X"
-  /\ben\s+la\s+milagrosa\b/gi, // Specific reference mentioned by user
+  /\bla\s+milagrosa\b/gi, // Case-insensitive specific reference
   /\bnos\s+vemos\s+en\s+[A-Za-z0-9\s]+/gi, // Meeting points: "Nos vemos en X"
   /\bquedamos\s+en\s+[A-Za-z0-9\s]+/gi, // Spanish meeting points
   /\ben\s+el\s+parque\s+[A-Za-z0-9\s]+/gi, // "En el parque X"
-  /\bparque\s+Cáceres\b/gi, // Specific location mentioned by user
+  /\bparque\s+caceres\b/gi, // Case-insensitive specific location
   /\bmi\s+ubicacion\s+es\b/gi, // "Mi ubicación es"
   /\bmi\s+casa\s+es\b/gi, // "Mi casa es"
   /\bestoy\s+en\b/gi, // "Estoy en"
