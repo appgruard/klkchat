@@ -301,6 +301,7 @@ export default function CommunityPage() {
 
   const startRecording = async () => {
     try {
+      console.log("Starting community recording...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -311,6 +312,7 @@ export default function CommunityPage() {
       };
 
       mediaRecorder.onstop = async () => {
+        console.log("Community recording stopped. Duration:", recordingDuration);
         const duration = recordingDuration;
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         
@@ -328,6 +330,7 @@ export default function CommunityPage() {
             method: "POST",
             body: formData,
           });
+          if (!uploadRes.ok) throw new Error("Upload failed");
           const fileData = await uploadRes.json();
           sendMessage('audio', fileData.url, duration);
         } catch (error) {
