@@ -2,7 +2,7 @@ import { findNearbyPlaces } from "../server/geopify";
 import { storage } from "../server/storage";
 
 async function populate() {
-  // Major coordinates in Santo Domingo to cover a wide area
+  // Expanded coordinates to cover more of Santo Domingo and surrounding areas
   const locations = [
     { lat: 18.4861, lng: -69.9312 }, // Center
     { lat: 18.4716, lng: -69.9218 }, // Gazcue
@@ -13,7 +13,12 @@ async function populate() {
     { lat: 18.4321, lng: -69.9543 }, // Malecon
     { lat: 18.4987, lng: -69.8923 }, // Los Mina
     { lat: 18.4654, lng: -69.9765 }, // Luperon
-    { lat: 18.5234, lng: -69.9432 }  // Arroyo Hondo
+    { lat: 18.5234, lng: -69.9432 }, // Arroyo Hondo
+    { lat: 18.4712, lng: -69.8921 }, // Villa Duarte
+    { lat: 18.4456, lng: -69.9612 }, // Haina
+    { lat: 18.5432, lng: -69.9876 }, // Los Alcarrizos
+    { lat: 18.5678, lng: -69.8543 }, // San Isidro
+    { lat: 18.4123, lng: -69.9876 }  // San Cristobal road
   ];
 
   let totalCreated = 0;

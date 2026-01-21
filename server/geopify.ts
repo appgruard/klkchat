@@ -16,7 +16,7 @@ export async function findNearbyPlaces(lat: number, lng: number): Promise<Insert
     "education.school"
   ];
 
-  const url = `https://api.geopify.com/v2/places?categories=${categories.join(",")}&filter=circle:${lng},${lat},5000&limit=20&apiKey=${API_KEY}`;
+  const url = `https://api.geopify.com/v2/places?categories=${categories.join(",")}&filter=circle:${lng},${lat},10000&limit=100&apiKey=${API_KEY}`;
 
   try {
     const response = await fetch(url);
