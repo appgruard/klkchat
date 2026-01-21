@@ -22,7 +22,8 @@ import {
   AlertCircle, 
   Radio,
   Loader2,
-  Clock
+  Clock,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GifStickerPicker } from "@/components/chat/gif-sticker-picker";
@@ -291,6 +292,25 @@ export default function CommunityPage() {
     setShowPicker(false);
   };
 
+  const handleBlockSession = async (targetSessionId: string) => {
+    try {
+      const res = await apiRequest('POST', `/api/community/sessions/${targetSessionId}/block`, {});
+      if (res.ok) {
+        toast({
+          title: t('community.userBlocked'),
+          description: t('community.userBlockedDesc'),
+        });
+      }
+    } catch (error) {
+      console.error('Failed to block user:', error);
+      toast({
+        title: t('error.title'),
+        description: t('error.generic'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -413,9 +433,20 @@ export default function CommunityPage() {
                 )}
               >
                 {!isOwn && (
-                  <span className="text-xs text-muted-foreground mb-1">
-                    {msg.session.pseudonym}
-                  </span>
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="text-xs text-muted-foreground">
+                      {msg.session.pseudonym}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleBlockSession(msg.sessionId)}
+                      title={t('community.block')}
+                    >
+                      <ShieldAlert className="h-3 w-3" />
+                    </Button>
+                  </div>
                 )}
                 <div
                   className={cn(

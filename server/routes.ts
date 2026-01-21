@@ -1273,6 +1273,39 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/community/sessions/:sessionId/block", requireAuth, async (req, res) => {
+    try {
+      const { sessionId: targetSessionId } = req.params;
+      const user = req.user as User;
+
+      const targetSession = await storage.getCommunitySession(targetSessionId);
+      if (!targetSession) {
+        return res.status(404).json({ message: "Target session not found" });
+      }
+
+      if (targetSession.userId === user.id) {
+        return res.status(400).json({ message: "You cannot block yourself" });
+      }
+
+      const updatedSession = await storage.updateCommunitySession(targetSessionId, {
+        blockCount: (targetSession.blockCount || 0) + 1,
+      });
+
+      if (updatedSession && updatedSession.blockCount >= BLOCKS_BEFORE_SILENCE) {
+        const silencedUntil = new Date();
+        silencedUntil.setHours(silencedUntil.getHours() + SILENCE_DURATION_HOURS);
+        await storage.updateCommunitySession(targetSessionId, {
+          silencedUntil,
+        });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Block community user error:", error);
+      res.status(500).json({ message: "Failed to block user" });
+    }
+  });
+
   // Get community messages
   app.get("/api/community/messages/:zoneId", requireAuth, async (req, res) => {
     try {
