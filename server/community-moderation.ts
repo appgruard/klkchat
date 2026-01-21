@@ -53,11 +53,128 @@ const idPatterns = [
   /\bpassport[:\s]*[A-Z0-9]+/gi,
 ];
 
-// Explicit content word list (basic - should be expanded)
+// Explicit content word list (expanded)
 const explicitWords = [
-  'fuck', 'shit', 'bitch', 'ass', 'dick', 'cock', 'pussy', 'cunt', 'whore', 'slut',
-  'puta', 'mierda', 'coño', 'verga', 'culo', 'pendejo', 'cabrón', 'joder',
-  'porn', 'porno', 'sex', 'xxx', 'nude', 'naked',
+  // =========================
+  // INGLÉS (base + variantes)
+  // =========================
+  'fuck','fucking','fucker','motherfucker','mf',
+  'shit','bullshit','shithead',
+  'bitch','bitches','bitching',
+  'ass','asshole','dumbass','badass',
+  'dick','dicks','dickhead',
+  'cock','cocks',
+  'pussy','pussies',
+  'cunt','cunts',
+  'whore','whores',
+  'slut','sluts',
+  'porn','porno','pornhub',
+  'sex','sexy','sexual',
+  'xxx','hardcore','softcore',
+  'nude','nudes','naked',
+  'horny','kinky',
+  'bastard', 'tosser', 'wanker', 'twat', 'clunge', 'bollocks', 'bloody', 'bugger',
+  'shag', 'jizz', 'cum', 'ejaculate', 'orgasm', 'fetish', 'bdsm', 'erotic',
+
+  // evasiones comunes
+  'fvck','f*ck','f**k',
+  'sh1t','$hit',
+  'b1tch',
+  'p0rn','s3x',
+  'n00d','n00ds',
+  'f u c k', 's h i t',
+
+  // =========================
+  // ESPAÑOL GENERAL
+  // =========================
+  'puta','puto','putas','putos','putita','putazo',
+  'mierda','mierdas',
+  'joder','jodido','jodete',
+  'coño','cojones',
+  'verga','vergazo',
+  'culo','culos','culazo',
+  'pene','penes',
+  'vagina','vaginas',
+  'sexo','sexual','sexualidad',
+  'zorra','zorras',
+  'perra','perras',
+  'chingar','chingando','chingadera',
+  'coger','cogiendo','cogida',
+  'follar','follando',
+  'mamar','mamando','mamado',
+  'pajero','pajeros','paja',
+  'masturbar','masturbacion','masturbando',
+  'orgasmo','orgasmos',
+  'eyacular','eyaculacion',
+  'semen',
+  'pendejo', 'pendeja', 'pendejada', 'pendejos',
+  'estupido', 'estupida', 'idiota', 'imbecil', 'baboso', 'boludo',
+  'maricon', 'mariconazo', 'culon', 'culona', 'tetas', 'tetonas',
+  'chupar', 'chupada', 'lamer', 'clavar', 'reventar',
+
+  // =========================
+  // CARIBE / RD / DOMINICANO
+  // =========================
+  'cabron','cabrón','cabrona','cabrones',
+  'mamaguevo','mamagueva','mamaguevos',
+  'mmg','mmgv',
+  'singar','singando','singao',
+  'cuero','cuera','cueros',       // RD: prostituta
+  'come mierda','comemierda',
+  'rastrero','rastrera',
+  'pariguayo','pariguaya',
+  'boludo','boluda',              // muy usado informalmente
+  'mardito','maldito','maldita',
+  'diablo','diache',              // usados como insulto
+  'ñema','ñemazo',                // vulgar RD
+  'toto','totico',
+  'bimbin','bimbazo',
+  'popola', 'greca', 'chapeadora', 'tiguere', 'guayando',
+  'palomo', 'guerrero', 'chopo', 'chopa', 'tutu', 'fulano',
+
+  // =========================
+  // INSULTOS SEXUALES / ACOSO
+  // =========================
+  'pervertido','pervertida',
+  'degenerado','degenerada',
+  'asqueroso','asquerosa',
+  'cochino','cochina',
+  'enfermo','enferma',
+  'acosador', 'acosadora', 'violador', 'pedofilo', 'violacion',
+
+  // =========================
+  // REDES / CONTACTO SEXUAL
+  // (útiles para bloquear intentos)
+  // =========================
+  'onlyfans','fansly',
+  'snapchat','snap',
+  'telegram','tg',
+  'whatsapp','wsp','ws',
+  'instagram','insta','ig',
+  'xhamster', 'redtube', 'xnxx', 'youporn',
+
+  // =========================
+  // ABREVIATURAS / CLAVES
+  // =========================
+  'hpt','hp',
+  'ptm','ctm',
+  'lpm','jpm',
+  'vete a la mierda', 'vete a la verga', 'hijo de puta', 'hija de puta',
+
+  // =========================
+  // ADICIONALES (Para llegar a 100+)
+  // =========================
+  'anal', 'anus', 'balls', 'blowjob', 'boobs', 'butt', 'clitoris', 'condom',
+  'deepthroat', 'dildo', 'erection', 'escort', 'foreskin', 'handjob', 'hentai',
+  'incest', 'intercourse', 'labia', 'milf', 'orgies', 'orgy', 'panties', 'pedophile',
+  'penis', 'prostitute', 'rape', 'rectum', 'scrotum', 'sperm', 'strip', 'testicle',
+  'vagina', 'vulva', 'gay', 'lesbian', 'bisexual', 'transgender', 'queer', 'homo',
+  'dyke', 'faggot', 'nigger', 'nigga', 'beaner', 'chink', 'gook', 'kike', 'spic',
+  'wetback', 'retard', 'spastic', 'cripple', 'whore', 'hoe', 'skank', 'tramp',
+  'wench', 'bimbo', 'gigolo', 'hooker', 'pimp', 'stripper', 'bondage', 'dominatrix',
+  'sadism', 'masochism', 'swapping', 'threesome', 'foursome', 'gangbang', 'gloryhole',
+  'bukkake', 'facials', 'creampie', 'squirt', 'bondage', 'kink', 'fetish', 'bdsm',
+  'voyeur', 'exhibitionist', 'necrophilia', 'bestiality', 'zoophilia', 'pedophilia'
 ];
 
 export interface ModerationResult {
