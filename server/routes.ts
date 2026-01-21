@@ -1214,6 +1214,7 @@ export async function registerRoutes(
           userId: user.id,
           zoneId: zone.id,
           pseudonym: generatePseudonym(),
+          avatarSeed: Math.random().toString(36).substring(2, 15),
           age,
           expiresAt,
         });
