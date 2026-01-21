@@ -419,6 +419,24 @@ export default function CommunityPage() {
 
   if (!user) return null;
 
+  if (user.isAnonymous) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center pb-20">
+        <ShieldAlert className="h-12 w-12 text-primary mb-4" />
+        <h2 className="text-xl font-semibold mb-2">{t('community.authRequired')}</h2>
+        <p className="text-muted-foreground mb-6">
+          {t('community.authRequiredDesc')}
+        </p>
+        <Button 
+          onClick={() => window.location.href = '/auth?mode=register'}
+          data-testid="button-register-redirect"
+        >
+          {t('auth.register')}
+        </Button>
+      </div>
+    );
+  }
+
   if (locationState === 'requesting' || locationState === 'checking') {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center pb-20">

@@ -243,6 +243,8 @@
     "checkAgain": "Verificar de nuevo",
     "error": "Algo salió mal",
     "errorDesc": "No pudimos acceder a tu ubicación. Por favor intenta de nuevo más tarde.",
+    "authRequired": "Registro Requerido",
+    "authRequiredDesc": "El chat comunitario solo está disponible para usuarios registrados. Por favor, crea una cuenta para unirte a la conversación e interactuar con usuarios cercanos.",
     "leftZone": "Saliste de la zona comunitaria",
     "leftZoneDesc": "Has salido del área comunitaria. Regresa para continuar chateando.",
     "messagesRemaining": "{{count}} mensajes restantes",

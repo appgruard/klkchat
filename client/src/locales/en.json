@@ -243,6 +243,8 @@
     "checkAgain": "Check Again",
     "error": "Something went wrong",
     "errorDesc": "We couldn't access your location. Please try again later.",
+    "authRequired": "Registration Required",
+    "authRequiredDesc": "The community chat is only available for registered users. Please create an account to join the conversation and interact with nearby users.",
     "leftZone": "Left Community Zone",
     "leftZoneDesc": "You've left the community area. Return to continue chatting.",
     "messagesRemaining": "{{count}} messages left",
