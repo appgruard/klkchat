@@ -97,18 +97,6 @@ export const customStickers = pgTable("custom_stickers", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Native push tokens (FCM/APNs) for mobile apps
-export const nativePushTokens = pgTable("native_push_tokens", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  token: text("token").notNull(),
-  platform: text("platform").notNull(), // 'android' or 'ios'
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-}, (table) => ({
-  uniqueUserPlatform: unique("unique_user_platform_token").on(table.userId, table.platform),
-}));
-
 // Hidden conversations (locked with PIN)
 export const hiddenConversations = pgTable("hidden_conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -141,13 +129,6 @@ export const pushSubscriptionsRelations = relations(pushSubscriptions, ({ one })
 export const customStickersRelations = relations(customStickers, ({ one }) => ({
   user: one(users, {
     fields: [customStickers.userId],
-    references: [users.id],
-  }),
-}));
-
-export const nativePushTokensRelations = relations(nativePushTokens, ({ one }) => ({
-  user: one(users, {
-    fields: [nativePushTokens.userId],
     references: [users.id],
   }),
 }));
@@ -186,16 +167,6 @@ export const insertHiddenConversationSchema = createInsertSchema(hiddenConversat
 
 export type HiddenConversation = typeof hiddenConversations.$inferSelect;
 export type InsertHiddenConversation = z.infer<typeof insertHiddenConversationSchema>;
-
-// Native push tokens schema for mobile apps
-export const insertNativePushTokenSchema = createInsertSchema(nativePushTokens).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-export type NativePushToken = typeof nativePushTokens.$inferSelect;
-export type InsertNativePushToken = z.infer<typeof insertNativePushTokenSchema>;
 
 export const blockedUsersRelations = relations(blockedUsers, ({ one }) => ({
   blocker: one(users, {

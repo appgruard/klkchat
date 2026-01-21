@@ -4,8 +4,3 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-# Secrets output
-secrets-output/
-*.jks
-*.p12
-*.mobileprovision
