@@ -576,7 +576,7 @@ export class DatabaseStorage implements IStorage {
 
   // Community Zones
   async getCommunityZones(): Promise<CommunityZone[]> {
-    return db.select().from(communityZones).where(eq(communityZones.active, true));
+    return db.select().from(communityZones);
   }
 
   async getCommunityZone(id: string): Promise<CommunityZone | undefined> {
