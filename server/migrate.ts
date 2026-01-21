@@ -1,6 +1,16 @@
 import { sql } from "drizzle-orm";
 import { db, pool } from "./db";
 
+export function log(message: string, source = "migrations") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+
 export async function runMigrations() {
   console.log("Running database schema sync...");
 
@@ -242,6 +252,12 @@ export async function runMigrations() {
     `);
     await db.execute(sql`
       ALTER TABLE community_messages ADD COLUMN IF NOT EXISTS content TEXT
+    `);
+
+    // Ensure admins are marked as admins in the database
+    log("Ensuring admin statuses are correct...", "migrations");
+    await db.execute(sql`
+      UPDATE users SET is_admin = true WHERE username IN ('KlkCEO', 'mysticFoxyy')
     `);
 
     console.log("Database schema sync completed successfully");
