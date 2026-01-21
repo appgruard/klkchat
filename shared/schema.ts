@@ -385,8 +385,8 @@ export const insertCommunityMessageSchema = createInsertSchema(communityMessages
   createdAt: true,
   isExplicit: true,
 }).extend({
-  contentType: z.enum(['text', 'audio', 'sticker', 'gif']),
-  duration: z.number().max(30).optional(), // Max 30 seconds for audio
+  contentType: z.enum(['text', 'sticker', 'gif']),
+  duration: z.number().max(30).optional(),
 });
 
 export type CommunityZone = typeof communityZones.$inferSelect;

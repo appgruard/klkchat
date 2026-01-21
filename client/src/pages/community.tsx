@@ -39,11 +39,10 @@ interface CommunitySession {
   expiresAt: string;
 }
 
-type CooldownType = 'text' | 'audio' | 'sticker' | 'gif';
+type CooldownType = 'text' | 'sticker' | 'gif';
 
 const COOLDOWNS: Record<CooldownType, number> = {
   text: 9000,
-  audio: 38000,
   sticker: 24000,
   gif: 24000,
 };
@@ -61,7 +60,7 @@ export default function CommunityPage() {
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const [cooldowns, setCooldowns] = useState<Record<CooldownType, number>>({ text: 0, audio: 0, sticker: 0, gif: 0 });
+  const [cooldowns, setCooldowns] = useState<Record<CooldownType, number>>({ text: 0, sticker: 0, gif: 0 });
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const locationCheckInterval = useRef<NodeJS.Timeout>();
@@ -200,7 +199,6 @@ export default function CommunityPage() {
         const now = Date.now();
         return {
           text: Math.max(0, prev.text - 1000),
-          audio: Math.max(0, prev.audio - 1000),
           sticker: Math.max(0, prev.sticker - 1000),
           gif: Math.max(0, prev.gif - 1000),
         };
@@ -300,86 +298,13 @@ export default function CommunityPage() {
   const recordingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startRecording = async () => {
-    try {
-      console.log("Starting community recording...");
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-      
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.onstop = async () => {
-        console.log("Community recording stopped. Duration:", recordingDuration);
-        const duration = recordingDuration;
-        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        
-        if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
-        setIsRecording(false);
-        setRecordingDuration(0);
-
-        // Upload file - matches normal chat naming
-        const formData = new FormData();
-        formData.append("file", audioBlob, `audio-${Date.now()}.webm`);
-        
-        setIsLoading(true);
-        try {
-          const uploadRes = await fetch("/api/upload", {
-            method: "POST",
-            body: formData,
-          });
-          if (!uploadRes.ok) throw new Error("Upload failed");
-          const fileData = await uploadRes.json();
-          sendMessage('audio', fileData.url, duration);
-        } catch (error) {
-          console.error("Upload error:", error);
-          toast({
-            title: t("error.title"),
-            description: t("error.uploadFailed"),
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-        
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingDuration(0);
-      
-      recordingIntervalRef.current = setInterval(() => {
-        setRecordingDuration(prev => {
-          if (prev >= 29) { // 30s limit for community
-            stopRecording();
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-
-    } catch (err) {
-      console.error("Mic access error:", err);
-      toast({
-        title: t("error.title"),
-        description: t("error.micAccess"),
-        variant: "destructive",
-      });
-      setIsRecording(false);
-    }
+    // Audio recording disabled
+    return;
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current);
-      }
-    }
+    // Audio recording disabled
+    return;
   };
 
   const formatTime = (date: string) => {
@@ -587,38 +512,7 @@ export default function CommunityPage() {
                 <Send className="h-5 w-5" />
               )}
             </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-              {isRecording && (
-                <div className="flex items-center gap-2 px-3 h-9 bg-destructive/10 text-destructive rounded-full animate-pulse border border-destructive/20">
-                  <div className="w-2 h-2 rounded-full bg-destructive" />
-                  <span className="text-xs font-mono font-medium">
-                    0:{recordingDuration.toString().padStart(2, '0')}
-                  </span>
-                </div>
-              )}
-              <Button
-                size="icon"
-                variant={isRecording ? "destructive" : "secondary"}
-                onClick={() => {
-                  if (isRecording) {
-                    stopRecording();
-                  } else {
-                    startRecording();
-                  }
-                }}
-                disabled={cooldowns.audio > 0 || (isLoading && !isRecording)}
-                data-testid="button-audio-community"
-                className="h-9 w-9 shrink-0"
-              >
-                {cooldowns.audio > 0 ? (
-                  <span className="text-xs">{Math.ceil(cooldowns.audio / 1000)}</span>
-                ) : (
-                  isRecording ? <Square className="h-4 w-4" /> : <Mic className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
