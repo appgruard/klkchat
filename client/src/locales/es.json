@@ -255,7 +255,8 @@
     "silencedDesc": "Has sido silenciado por 1 hora debido a violaciones repetidas.",
     "block": "Bloquear Usuario",
     "userBlocked": "Usuario Bloqueado",
-    "userBlockedDesc": "El usuario ha sido reportado. Reportes repetidos resultarán en silencio automático."
+    "userBlockedDesc": "El usuario ha sido reportado. Reportes repetidos resultarán en silencio automático.",
+    "blockConfirmDesc": "¿Estás seguro de que quieres reportar a este usuario? Esto contribuirá a su silencio automático si suficientes usuarios lo reportan."
   },
   "admin": {
     "zoneManagement": "Gestión de Zonas",

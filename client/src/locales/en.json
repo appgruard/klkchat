@@ -255,7 +255,8 @@
     "silencedDesc": "You've been silenced for 1 hour due to repeated violations.",
     "block": "Block User",
     "userBlocked": "User Blocked",
-    "userBlockedDesc": "The user has been reported. Repeated reports will lead to automatic silencing."
+    "userBlockedDesc": "The user has been reported. Repeated reports will lead to automatic silencing.",
+    "blockConfirmDesc": "Are you sure you want to report this user? This will count towards their automatic silencing if enough users report them."
   },
   "admin": {
     "zoneManagement": "Zone Management",

@@ -183,4 +183,4 @@ export const RATE_LIMITS = {
 export const MAX_MESSAGES_PER_24H = 100;
 export const MAX_AUDIO_DURATION = 30; // seconds
 export const SILENCE_DURATION_HOURS = 1;
-export const BLOCKS_BEFORE_SILENCE = 3;
+export const BLOCKS_BEFORE_SILENCE = 5;

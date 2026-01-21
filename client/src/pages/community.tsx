@@ -14,6 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   MapPin, 
   Send, 
@@ -62,6 +72,7 @@ export default function CommunityPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [cooldowns, setCooldowns] = useState<Record<CooldownType, number>>({ text: 0, sticker: 0, gif: 0 });
+  const [sessionToBlock, setSessionToBlock] = useState<string | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const locationCheckInterval = useRef<NodeJS.Timeout>();
@@ -441,7 +452,7 @@ export default function CommunityPage() {
                       variant="ghost"
                       size="icon"
                       className="h-4 w-4 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleBlockSession(msg.sessionId)}
+                      onClick={() => setSessionToBlock(msg.sessionId)}
                       title={t('community.block')}
                     >
                       <ShieldAlert className="h-3 w-3" />
@@ -546,6 +557,31 @@ export default function CommunityPage() {
           ) : null}
         </div>
       </div>
+
+      <AlertDialog open={!!sessionToBlock} onOpenChange={(open) => !open && setSessionToBlock(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('chat.blockUserTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('community.blockConfirmDesc') || "¿Estás seguro de que quieres reportar a este usuario? Esto contribuirá a su silencio automático."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (sessionToBlock) {
+                  handleBlockSession(sessionToBlock);
+                  setSessionToBlock(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('chat.blockUserTitle')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
