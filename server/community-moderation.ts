@@ -1,0 +1,186 @@
+// Content moderation for community chat
+// Detects and blocks: phone numbers, emails, social media handles, addresses, personal identifiers
+
+// Phone number patterns (various formats)
+const phonePatterns = [
+  /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g, // 123-456-7890, 123.456.7890, 123 456 7890
+  /\b\(\d{3}\)\s?\d{3}[-.\s]?\d{4}\b/g, // (123) 456-7890
+  /\b\+?\d{1,3}[-.\s]?\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/g, // +1 123 456 7890
+  /\b\d{10,15}\b/g, // 10-15 digit numbers
+  /\btel[:\s]?\d+/gi, // tel:123456
+];
+
+// Email patterns
+const emailPatterns = [
+  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
+  /\b[A-Za-z0-9._%+-]+\s*(?:@|arroba|at)\s*[A-Za-z0-9.-]+\s*(?:\.|punto|dot)\s*[A-Z|a-z]{2,}\b/gi,
+];
+
+// Social media patterns
+const socialPatterns = [
+  /@[a-zA-Z0-9_]{1,30}/g, // @username
+  /(?:instagram|ig|insta)[:\s]*@?[a-zA-Z0-9_.]+/gi,
+  /(?:twitter|x\.com|tw)[:\s]*@?[a-zA-Z0-9_]+/gi,
+  /(?:facebook|fb)[:\s]*[a-zA-Z0-9.]+/gi,
+  /(?:tiktok|tt)[:\s]*@?[a-zA-Z0-9_.]+/gi,
+  /(?:snapchat|snap)[:\s]*[a-zA-Z0-9_]+/gi,
+  /(?:whatsapp|wa)[:\s]*\+?[0-9]+/gi,
+  /(?:telegram|tg)[:\s]*@?[a-zA-Z0-9_]+/gi,
+  /(?:linkedin)[:\s]*[a-zA-Z0-9]+/gi,
+  /(?:discord)[:\s]*[a-zA-Z0-9#]+/gi,
+];
+
+// URL patterns
+const urlPatterns = [
+  /https?:\/\/[^\s]+/gi,
+  /www\.[^\s]+/gi,
+  /[a-zA-Z0-9-]+\.(com|net|org|io|co|app|dev|me)[^\s]*/gi,
+];
+
+// Address patterns (basic)
+const addressPatterns = [
+  /\b\d+\s+[A-Za-z]+\s+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|court|ct|way|circle|cir|place|pl)\b/gi,
+  /\bcalle\s+[A-Za-z0-9\s]+(?:no?\.?\s*\d+)?/gi, // Spanish: Calle X No. 123
+  /\bavenida\s+[A-Za-z0-9\s]+/gi, // Spanish: Avenida X
+  /\b(?:apt|apartment|suite|unit|#)\s*\d+/gi,
+];
+
+// Personal identifier patterns
+const idPatterns = [
+  /\b\d{3}-\d{2}-\d{4}\b/g, // SSN format
+  /\bcédula[:\s]*[\d-]+/gi, // Dominican cedula
+  /\b(?:rnc|cedula|dni|nif|nie)[:\s]*[\d-]+/gi,
+  /\bpassport[:\s]*[A-Z0-9]+/gi,
+];
+
+// Explicit content word list (basic - should be expanded)
+const explicitWords = [
+  'fuck', 'shit', 'bitch', 'ass', 'dick', 'cock', 'pussy', 'cunt', 'whore', 'slut',
+  'puta', 'mierda', 'coño', 'verga', 'culo', 'pendejo', 'cabrón', 'joder',
+  'porn', 'porno', 'sex', 'xxx', 'nude', 'naked',
+];
+
+export interface ModerationResult {
+  allowed: boolean;
+  reason?: string;
+  isExplicit: boolean;
+}
+
+export function moderateContent(text: string): ModerationResult {
+  if (!text || typeof text !== 'string') {
+    return { allowed: true, isExplicit: false };
+  }
+
+  const lowerText = text.toLowerCase();
+
+  // Check for phone numbers
+  for (const pattern of phonePatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'phone_number',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0; // Reset regex state
+  }
+
+  // Check for emails
+  for (const pattern of emailPatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'email',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0;
+  }
+
+  // Check for social media
+  for (const pattern of socialPatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'social_media',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0;
+  }
+
+  // Check for URLs/links
+  for (const pattern of urlPatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'external_link',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0;
+  }
+
+  // Check for addresses
+  for (const pattern of addressPatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'address',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0;
+  }
+
+  // Check for personal identifiers
+  for (const pattern of idPatterns) {
+    if (pattern.test(text)) {
+      return { 
+        allowed: false, 
+        reason: 'personal_id',
+        isExplicit: false 
+      };
+    }
+    pattern.lastIndex = 0;
+  }
+
+  // Check for explicit content (flag but don't block)
+  const isExplicit = explicitWords.some(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'i');
+    return regex.test(lowerText);
+  });
+
+  return { allowed: true, isExplicit };
+}
+
+// Generate random pseudonym for anonymous identity
+const adjectives = [
+  'Swift', 'Bright', 'Calm', 'Bold', 'Cool', 'Fast', 'Kind', 'Wise', 'Free', 'Pure',
+  'Veloz', 'Alegre', 'Sereno', 'Audaz', 'Fresco', 'Amable', 'Sabio', 'Libre', 'Noble', 'Fuerte'
+];
+
+const nouns = [
+  'Fox', 'Eagle', 'Wolf', 'Bear', 'Hawk', 'Lion', 'Tiger', 'Panda', 'Otter', 'Raven',
+  'Zorro', 'Aguila', 'Lobo', 'Oso', 'Halcon', 'Leon', 'Tigre', 'Delfin', 'Buho', 'Cuervo'
+];
+
+export function generatePseudonym(): string {
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const noun = nouns[Math.floor(Math.random() * nouns.length)];
+  const num = Math.floor(Math.random() * 100);
+  return `${adj}${noun}${num}`;
+}
+
+// Rate limit cooldowns in milliseconds
+export const RATE_LIMITS = {
+  text: 9000,      // 9 seconds
+  audio: 38000,    // 38 seconds
+  sticker: 24000,  // 24 seconds
+  gif: 24000,      // 24 seconds
+};
+
+export const MAX_MESSAGES_PER_24H = 100;
+export const MAX_AUDIO_DURATION = 30; // seconds
+export const SILENCE_DURATION_HOURS = 1;
+export const BLOCKS_BEFORE_SILENCE = 3;

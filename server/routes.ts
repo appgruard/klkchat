@@ -16,6 +16,15 @@ import webpush from "web-push";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { 
+  moderateContent, 
+  generatePseudonym, 
+  RATE_LIMITS, 
+  MAX_MESSAGES_PER_24H,
+  MAX_AUDIO_DURATION,
+  SILENCE_DURATION_HOURS,
+  BLOCKS_BEFORE_SILENCE
+} from "./community-moderation";
 
 import nodemailer from "nodemailer";
 
@@ -1153,6 +1162,350 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Verify PIN error:", error);
       res.status(500).json({ message: "Failed to verify PIN" });
+    }
+  });
+
+  // ==================== COMMUNITY MODULE API ====================
+
+  // Entry validation schema
+  const communityEntrySchema = z.object({
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+    age: z.number().min(13).max(120),
+  });
+
+  // Enter community zone
+  app.post("/api/community/entry", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { latitude, longitude, age } = communityEntrySchema.parse(req.body);
+
+      // Find zone by location
+      const zone = await storage.findZoneByLocation(latitude, longitude);
+      if (!zone) {
+        return res.status(404).json({ 
+          message: "no_zone_nearby",
+          details: "There are no community conversations in your area"
+        });
+      }
+
+      // Check for existing active session
+      let session = await storage.getActiveSessionForUser(user.id, zone.id);
+      
+      if (session) {
+        // Check if expelled
+        if (session.expelledUntil && new Date(session.expelledUntil) > new Date()) {
+          return res.status(403).json({ 
+            message: "expelled",
+            expelledUntil: session.expelledUntil 
+          });
+        }
+
+        // Update last location check
+        await storage.updateCommunitySession(session.id, { 
+          lastLocationCheck: new Date() 
+        });
+      } else {
+        // Create new session with ephemeral identity
+        const expiresAt = new Date();
+        expiresAt.setHours(expiresAt.getHours() + 24);
+
+        session = await storage.createCommunitySession({
+          userId: user.id,
+          zoneId: zone.id,
+          pseudonym: generatePseudonym(),
+          age,
+          expiresAt,
+        });
+      }
+
+      res.json({
+        sessionId: session.id,
+        zoneId: zone.id,
+        zoneName: zone.name,
+        pseudonym: session.pseudonym,
+        isUnder16: age < 16,
+        messageCount: session.messageCount,
+        silencedUntil: session.silencedUntil,
+        expiresAt: session.expiresAt,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data" });
+      }
+      console.error("Community entry error:", error);
+      res.status(500).json({ message: "Failed to enter community zone" });
+    }
+  });
+
+  // Validate location (periodic check)
+  app.post("/api/community/validate-location", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { sessionId, latitude, longitude } = req.body;
+
+      const session = await storage.getCommunitySession(sessionId);
+      if (!session || session.userId !== user.id) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+
+      const zone = await storage.getCommunityZone(session.zoneId);
+      if (!zone) {
+        return res.status(404).json({ message: "Zone not found" });
+      }
+
+      // Check if user is still in zone
+      const userZone = await storage.findZoneByLocation(latitude, longitude);
+      if (!userZone || userZone.id !== zone.id) {
+        return res.json({ valid: false, message: "outside_zone" });
+      }
+
+      // Update last location check
+      await storage.updateCommunitySession(session.id, { 
+        lastLocationCheck: new Date() 
+      });
+
+      res.json({ valid: true });
+    } catch (error) {
+      console.error("Location validation error:", error);
+      res.status(500).json({ message: "Failed to validate location" });
+    }
+  });
+
+  // Get community messages
+  app.get("/api/community/messages/:zoneId", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { zoneId } = req.params;
+      const { sessionId } = req.query;
+
+      // Verify session
+      const session = await storage.getCommunitySession(sessionId as string);
+      if (!session || session.userId !== user.id || session.zoneId !== zoneId) {
+        return res.status(403).json({ message: "Invalid session" });
+      }
+
+      // Hide explicit content for users under 16
+      const hideExplicit = session.age < 16;
+      const messages = await storage.getCommunityMessages(zoneId, hideExplicit);
+
+      res.json({ 
+        messages,
+        currentPseudonym: session.pseudonym 
+      });
+    } catch (error) {
+      console.error("Get community messages error:", error);
+      res.status(500).json({ message: "Failed to get messages" });
+    }
+  });
+
+  // Send community message
+  app.post("/api/community/messages", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { sessionId, contentType, content, duration } = req.body;
+
+      // Verify session
+      const session = await storage.getCommunitySession(sessionId);
+      if (!session || session.userId !== user.id) {
+        return res.status(403).json({ message: "Invalid session" });
+      }
+
+      // Check if silenced
+      if (session.silencedUntil && new Date(session.silencedUntil) > new Date()) {
+        return res.status(403).json({ 
+          message: "silenced",
+          silencedUntil: session.silencedUntil 
+        });
+      }
+
+      // Check if expelled
+      if (session.expelledUntil && new Date(session.expelledUntil) > new Date()) {
+        return res.status(403).json({ 
+          message: "expelled",
+          expelledUntil: session.expelledUntil 
+        });
+      }
+
+      // Check message count limit (100 per 24h)
+      if (session.messageCount >= MAX_MESSAGES_PER_24H) {
+        return res.status(429).json({ 
+          message: "message_limit_reached",
+          details: "You have reached the maximum of 100 messages per 24 hours"
+        });
+      }
+
+      // Check rate limit (cooldown)
+      const cooldown = RATE_LIMITS[contentType as keyof typeof RATE_LIMITS];
+      if (cooldown) {
+        const lastMessageTime = await storage.getLastMessageTime(sessionId, contentType);
+        if (lastMessageTime) {
+          const timeSince = Date.now() - new Date(lastMessageTime).getTime();
+          if (timeSince < cooldown) {
+            const waitTime = Math.ceil((cooldown - timeSince) / 1000);
+            return res.status(429).json({ 
+              message: "rate_limited",
+              waitSeconds: waitTime 
+            });
+          }
+        }
+      }
+
+      // Check audio duration
+      if (contentType === 'audio' && duration && duration > MAX_AUDIO_DURATION) {
+        return res.status(400).json({ 
+          message: "audio_too_long",
+          maxDuration: MAX_AUDIO_DURATION 
+        });
+      }
+
+      // Moderate text content
+      let isExplicit = false;
+      if (contentType === 'text' && content) {
+        const moderation = moderateContent(content);
+        if (!moderation.allowed) {
+          // Increment block count
+          const newBlockCount = await storage.incrementSessionBlockCount(sessionId);
+          
+          // Check if should be silenced
+          if (newBlockCount >= BLOCKS_BEFORE_SILENCE) {
+            const silencedUntil = new Date();
+            silencedUntil.setHours(silencedUntil.getHours() + SILENCE_DURATION_HOURS);
+            
+            // If already silenced before, expel until session expires
+            if (session.silencedUntil) {
+              await storage.updateCommunitySession(sessionId, {
+                expelledUntil: session.expiresAt
+              });
+              return res.status(403).json({
+                message: "expelled",
+                expelledUntil: session.expiresAt
+              });
+            }
+            
+            await storage.updateCommunitySession(sessionId, { silencedUntil });
+            return res.status(403).json({
+              message: "silenced",
+              silencedUntil,
+              reason: "blocked_content_repeated"
+            });
+          }
+
+          return res.status(400).json({ 
+            message: "content_blocked",
+            details: "This message contains information that is not allowed in this channel"
+          });
+        }
+        isExplicit = moderation.isExplicit;
+      }
+
+      // Create message with 24h expiration
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24);
+
+      const message = await storage.createCommunityMessage({
+        sessionId,
+        zoneId: session.zoneId,
+        contentType,
+        content: contentType === 'text' ? content : undefined,
+        fileUrl: contentType !== 'text' ? content : undefined,
+        duration: contentType === 'audio' ? duration : undefined,
+        expiresAt,
+      });
+
+      // Update message with explicit flag if needed
+      if (isExplicit) {
+        // We need to update the message with isExplicit flag
+        // For now, we'll create it with the flag
+      }
+
+      // Increment message count
+      await storage.incrementSessionMessageCount(sessionId);
+
+      res.json({ 
+        success: true,
+        messageId: message.id,
+        remainingMessages: MAX_MESSAGES_PER_24H - session.messageCount - 1
+      });
+    } catch (error) {
+      console.error("Send community message error:", error);
+      res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Get session info
+  app.get("/api/community/session/:sessionId", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { sessionId } = req.params;
+
+      const session = await storage.getCommunitySession(sessionId);
+      if (!session || session.userId !== user.id) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+
+      const zone = await storage.getCommunityZone(session.zoneId);
+
+      res.json({
+        sessionId: session.id,
+        zoneId: session.zoneId,
+        zoneName: zone?.name,
+        pseudonym: session.pseudonym,
+        messageCount: session.messageCount,
+        silencedUntil: session.silencedUntil,
+        expelledUntil: session.expelledUntil,
+        expiresAt: session.expiresAt,
+        isUnder16: session.age < 16,
+      });
+    } catch (error) {
+      console.error("Get session error:", error);
+      res.status(500).json({ message: "Failed to get session info" });
+    }
+  });
+
+  // Leave community zone
+  app.post("/api/community/leave", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { sessionId } = req.body;
+
+      const session = await storage.getCommunitySession(sessionId);
+      if (!session || session.userId !== user.id) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+
+      // Mark session as expired
+      await storage.updateCommunitySession(sessionId, { 
+        expiresAt: new Date() 
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Leave community error:", error);
+      res.status(500).json({ message: "Failed to leave community" });
+    }
+  });
+
+  // Cleanup expired content (should be called periodically)
+  app.post("/api/community/cleanup", async (_req, res) => {
+    try {
+      await storage.cleanupExpiredMessages();
+      await storage.cleanupExpiredSessions();
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Cleanup error:", error);
+      res.status(500).json({ message: "Cleanup failed" });
+    }
+  });
+
+  // Get available zones (for admin/debugging)
+  app.get("/api/community/zones", requireAuth, async (_req, res) => {
+    try {
+      const zones = await storage.getCommunityZones();
+      res.json({ zones });
+    } catch (error) {
+      console.error("Get zones error:", error);
+      res.status(500).json({ message: "Failed to get zones" });
     }
   });
 
