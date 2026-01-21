@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { runMigrations } from "./migrate";
+import { storage } from "./storage";
 
 const app = express();
 app.set("trust proxy", 1);
