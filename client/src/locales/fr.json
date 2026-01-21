@@ -201,7 +201,8 @@
     "cancel": "Annuler",
     "loading": "Chargement...",
     "confirm": "Confirmer",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "accessDenied": "Accès refusé"
   },
   "error": {
     "title": "Erreur",
@@ -225,7 +226,8 @@
   "nav": {
     "home": "Accueil",
     "community": "Communauté",
-    "profile": "Profil"
+    "profile": "Profil",
+    "admin": "Admin"
   },
   "community": {
     "checkingLocation": "Vérification de votre localisation",
@@ -251,5 +253,33 @@
     "contentBlockedDesc": "Ce message contient des informations qui ne sont pas autorisées dans ce canal.",
     "silenced": "Temporairement silencié",
     "silencedDesc": "Vous avez été silencié pendant 1 heure en raison de violations répétées."
+  },
+  "admin": {
+    "zoneManagement": "Gestion des Zones",
+    "createZone": "Créer une Zone",
+    "zoneName": "Nom de la Zone",
+    "zoneNamePlaceholder": "p. ex., Zone du Parc Central",
+    "radius": "Rayon",
+    "zoneType": "Type de Zone",
+    "selectLocation": "Sélectionner l'Emplacement",
+    "clickMap": "Cliquez sur la carte pour sélectionner le centre de la zone",
+    "selectedCoords": "Coordonnées sélectionnées",
+    "create": "Créer",
+    "success": "Succès",
+    "error": "Erreur",
+    "fillAllFields": "Veuillez remplir tous les champs requis et sélectionner un emplacement",
+    "zoneCreated": "Zone créée avec succès",
+    "zoneDeleted": "Zone supprimée avec succès",
+    "createError": "Échec de la création de la zone",
+    "deleteError": "Échec de la suppression de la zone",
+    "noZones": "Aucune zone communautaire pour le moment",
+    "types": {
+      "neighborhood": "Quartier",
+      "supermarket": "Supermarché",
+      "park": "Parc",
+      "school": "École",
+      "university": "Université",
+      "other": "Autre"
+    }
   }
 }

@@ -1509,5 +1509,92 @@ export async function registerRoutes(
     }
   });
 
+  // Admin zone schema
+  const adminZoneSchema = z.object({
+    name: z.string().min(1).max(100),
+    centerLat: z.number().min(-90).max(90),
+    centerLng: z.number().min(-180).max(180),
+    radiusMeters: z.number().min(50).max(500).default(100),
+    zoneType: z.enum(['neighborhood', 'supermarket', 'park', 'school', 'university', 'other']).default('neighborhood'),
+  });
+
+  // Helper to check if user is the main admin (KlkCEO)
+  const isMainAdmin = (user: User) => user.username === 'KlkCEO' || user.isAdmin;
+
+  // Admin: Get all zones
+  app.get("/api/admin/zones", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!isMainAdmin(user)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const zones = await storage.getCommunityZones();
+      res.json(zones);
+    } catch (error) {
+      console.error("Admin get zones error:", error);
+      res.status(500).json({ message: "Failed to get zones" });
+    }
+  });
+
+  // Admin: Create zone
+  app.post("/api/admin/zones", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!isMainAdmin(user)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const validatedData = adminZoneSchema.parse(req.body);
+      const zone = await storage.createCommunityZone(validatedData);
+      res.json(zone);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid zone data", errors: error.errors });
+      }
+      console.error("Admin create zone error:", error);
+      res.status(500).json({ message: "Failed to create zone" });
+    }
+  });
+
+  // Admin: Delete zone
+  app.delete("/api/admin/zones/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!isMainAdmin(user)) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const zoneId = req.params.id;
+      if (!zoneId || typeof zoneId !== 'string') {
+        return res.status(400).json({ message: "Invalid zone ID" });
+      }
+
+      await storage.deleteCommunityZone(zoneId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Admin delete zone error:", error);
+      res.status(500).json({ message: "Failed to delete zone" });
+    }
+  });
+
+  // Update user age verification
+  app.post("/api/auth/verify-age", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      const { age } = req.body;
+
+      if (!age || age < 13 || age > 120) {
+        return res.status(400).json({ message: "Invalid age" });
+      }
+
+      await storage.updateUser(user.id, { ageVerified: age });
+      res.json({ success: true, ageVerified: age });
+    } catch (error) {
+      console.error("Age verification error:", error);
+      res.status(500).json({ message: "Failed to verify age" });
+    }
+  });
+
   return httpServer;
 }

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -170,9 +170,15 @@ export default function CommunityPage() {
         setLocationState('error');
         return;
       }
-      setShowAgeDialog(true);
+      
+      // If user already has verified age, skip the dialog
+      if (user?.ageVerified) {
+        requestLocationAndEntry(user.ageVerified);
+      } else {
+        setShowAgeDialog(true);
+      }
     }
-  }, [locationState]);
+  }, [locationState, user?.ageVerified, requestLocationAndEntry]);
 
   useEffect(() => {
     if (session) {
@@ -203,7 +209,7 @@ export default function CommunityPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleAgeSubmit = () => {
+  const handleAgeSubmit = async () => {
     const userAge = parseInt(age);
     if (isNaN(userAge) || userAge < 13 || userAge > 120) {
       toast({
@@ -212,6 +218,16 @@ export default function CommunityPage() {
       });
       return;
     }
+    
+    // Save age verification to user profile
+    try {
+      await apiRequest('POST', '/api/auth/verify-age', { age: userAge });
+      // Refresh user data to update ageVerified in session
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+    } catch (error) {
+      console.error('Failed to save age verification:', error);
+    }
+    
     setShowAgeDialog(false);
     requestLocationAndEntry(userAge);
   };

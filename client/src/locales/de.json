@@ -201,7 +201,8 @@
     "cancel": "Abbrechen",
     "loading": "Laden...",
     "confirm": "Bestätigen",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "accessDenied": "Zugriff verweigert"
   },
   "error": {
     "title": "Fehler",
@@ -225,7 +226,8 @@
   "nav": {
     "home": "Startseite",
     "community": "Gemeinschaft",
-    "profile": "Profil"
+    "profile": "Profil",
+    "admin": "Admin"
   },
   "community": {
     "checkingLocation": "Überprüfung Ihres Standorts",
@@ -251,5 +253,33 @@
     "contentBlockedDesc": "Diese Nachricht enthält Informationen, die in diesem Kanal nicht zulässig sind.",
     "silenced": "Vorübergehend stummgeschaltet",
     "silencedDesc": "Sie wurden aufgrund wiederholter Verstöße für 1 Stunde stummgeschaltet."
+  },
+  "admin": {
+    "zoneManagement": "Zonenverwaltung",
+    "createZone": "Zone erstellen",
+    "zoneName": "Zonenname",
+    "zoneNamePlaceholder": "z. B. Bereich Zentralpark",
+    "radius": "Radius",
+    "zoneType": "Zonentyp",
+    "selectLocation": "Ort auswählen",
+    "clickMap": "Klicken Sie auf die Karte, um das Zonen-Zentrum auszuwählen",
+    "selectedCoords": "Ausgewählte Koordinaten",
+    "create": "Erstellen",
+    "success": "Erfolg",
+    "error": "Fehler",
+    "fillAllFields": "Bitte füllen Sie alle erforderlichen Felder aus und wählen Sie einen Ort",
+    "zoneCreated": "Zone erfolgreich erstellt",
+    "zoneDeleted": "Zone erfolgreich gelöscht",
+    "createError": "Zone konnte nicht erstellt werden",
+    "deleteError": "Zone konnte nicht gelöscht werden",
+    "noZones": "Noch keine Community-Zonen",
+    "types": {
+      "neighborhood": "Nachbarschaft",
+      "supermarket": "Supermarkt",
+      "park": "Park",
+      "school": "Schule",
+      "university": "Universität",
+      "other": "Sonstiges"
+    }
   }
 }

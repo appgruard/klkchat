@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { Home, Radio, User } from "lucide-react";
+import { Home, Radio, User, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth-context";
@@ -28,6 +28,12 @@ export function BottomNav({ onProfileClick }: BottomNavProps) {
       label: t("nav.community"),
       path: "/community",
     },
+    ...((user?.isAdmin || user?.username === 'KlkCEO') ? [{
+      id: "admin",
+      icon: Settings,
+      label: t("nav.admin"),
+      path: "/admin/zones",
+    }] : []),
   ];
 
   const isActive = (path: string) => {

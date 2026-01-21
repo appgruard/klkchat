@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import AuthPage from "@/pages/auth";
 import ChatPage from "@/pages/chat";
 import CommunityPage from "@/pages/community";
+import AdminZonesPage from "@/pages/admin-zones";
 import NotFound from "@/pages/not-found";
 import { PWAInstallDialog } from "@/components/pwa-install-dialog";
 import { BottomNav } from "@/components/bottom-nav";
@@ -88,6 +89,7 @@ function AppRouter() {
           <Route path="/" component={ChatPage} />
           <Route path="/conversations/:id" component={ChatPage} />
           <Route path="/community" component={CommunityPage} />
+          <Route path="/admin/zones" component={AdminZonesPage} />
           <Route component={NotFound} />
         </Switch>
       </div>

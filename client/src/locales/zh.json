@@ -201,7 +201,8 @@
     "cancel": "取消",
     "loading": "加载中...",
     "confirm": "确认",
-    "retry": "重试"
+    "retry": "重试",
+    "accessDenied": "访问被拒绝"
   },
   "error": {
     "title": "错误",
@@ -225,7 +226,8 @@
   "nav": {
     "home": "首页",
     "community": "社区",
-    "profile": "个人资料"
+    "profile": "个人资料",
+    "admin": "管理员"
   },
   "community": {
     "checkingLocation": "正在检查您的位置",
@@ -251,5 +253,33 @@
     "contentBlockedDesc": "此消息包含此频道不允许的信息。",
     "silenced": "暂时被禁言",
     "silencedDesc": "由于重复违规，您被禁言 1 小时。"
+  },
+  "admin": {
+    "zoneManagement": "区域管理",
+    "createZone": "创建区域",
+    "zoneName": "区域名称",
+    "zoneNamePlaceholder": "例如，中央公园区域",
+    "radius": "半径",
+    "zoneType": "区域类型",
+    "selectLocation": "选择位置",
+    "clickMap": "点击地图以选择区域中心",
+    "selectedCoords": "选定的坐标",
+    "create": "创建",
+    "success": "成功",
+    "error": "错误",
+    "fillAllFields": "请填写所有必需字段并选择位置",
+    "zoneCreated": "区域创建成功",
+    "zoneDeleted": "区域删除成功",
+    "createError": "无法创建区域",
+    "deleteError": "无法删除区域",
+    "noZones": "暂无社区区域",
+    "types": {
+      "neighborhood": "邻里",
+      "supermarket": "超市",
+      "park": "公园",
+      "school": "学校",
+      "university": "大学",
+      "other": "其他"
+    }
   }
 }

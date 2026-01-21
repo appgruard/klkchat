@@ -201,7 +201,8 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "confirm": "Confirm",
-    "retry": "Retry"
+    "retry": "Retry",
+    "accessDenied": "Access denied"
   },
   "error": {
     "title": "Error",
@@ -225,7 +226,8 @@
   "nav": {
     "home": "Home",
     "community": "Community",
-    "profile": "Profile"
+    "profile": "Profile",
+    "admin": "Admin"
   },
   "community": {
     "checkingLocation": "Checking your location",
@@ -251,5 +253,33 @@
     "contentBlockedDesc": "This message contains information that is not allowed in this channel.",
     "silenced": "Temporarily Silenced",
     "silencedDesc": "You've been silenced for 1 hour due to repeated violations."
+  },
+  "admin": {
+    "zoneManagement": "Zone Management",
+    "createZone": "Create Zone",
+    "zoneName": "Zone Name",
+    "zoneNamePlaceholder": "e.g., Central Park Area",
+    "radius": "Radius",
+    "zoneType": "Zone Type",
+    "selectLocation": "Select Location",
+    "clickMap": "Click on the map to select the zone center",
+    "selectedCoords": "Selected coordinates",
+    "create": "Create",
+    "success": "Success",
+    "error": "Error",
+    "fillAllFields": "Please fill all required fields and select a location",
+    "zoneCreated": "Zone created successfully",
+    "zoneDeleted": "Zone deleted successfully",
+    "createError": "Failed to create zone",
+    "deleteError": "Failed to delete zone",
+    "noZones": "No community zones yet",
+    "types": {
+      "neighborhood": "Neighborhood",
+      "supermarket": "Supermarket",
+      "park": "Park",
+      "school": "School",
+      "university": "University",
+      "other": "Other"
+    }
   }
 }

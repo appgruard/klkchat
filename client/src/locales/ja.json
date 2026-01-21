@@ -201,7 +201,8 @@
     "cancel": "キャンセル",
     "loading": "読み込み中...",
     "confirm": "確認",
-    "retry": "再試行"
+    "retry": "再試行",
+    "accessDenied": "アクセス拒否"
   },
   "error": {
     "title": "エラー",
@@ -225,7 +226,8 @@
   "nav": {
     "home": "ホーム",
     "community": "コミュニティ",
-    "profile": "プロフィール"
+    "profile": "プロフィール",
+    "admin": "管理者"
   },
   "community": {
     "checkingLocation": "あなたの位置を確認中",
@@ -251,5 +253,33 @@
     "contentBlockedDesc": "このメッセージには、このチャネルで許可されていない情報が含まれています。",
     "silenced": "一時的に沈黙しています",
     "silencedDesc": "繰り返される違反のため、1 時間の沈黙を与えられました。"
+  },
+  "admin": {
+    "zoneManagement": "ゾーン管理",
+    "createZone": "ゾーンを作成",
+    "zoneName": "ゾーン名",
+    "zoneNamePlaceholder": "例：中央公園エリア",
+    "radius": "半径",
+    "zoneType": "ゾーンタイプ",
+    "selectLocation": "位置を選択",
+    "clickMap": "地図をクリックしてゾーン中心を選択",
+    "selectedCoords": "選択された座標",
+    "create": "作成",
+    "success": "成功",
+    "error": "エラー",
+    "fillAllFields": "すべての必須フィールドに入力し、位置を選択してください",
+    "zoneCreated": "ゾーンが正常に作成されました",
+    "zoneDeleted": "ゾーンが正常に削除されました",
+    "createError": "ゾーンの作成に失敗しました",
+    "deleteError": "ゾーンの削除に失敗しました",
+    "noZones": "コミュニティゾーンがまだありません",
+    "types": {
+      "neighborhood": "近所",
+      "supermarket": "スーパーマーケット",
+      "park": "公園",
+      "school": "学校",
+      "university": "大学",
+      "other": "その他"
+    }
   }
 }
