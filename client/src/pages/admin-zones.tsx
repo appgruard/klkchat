@@ -56,6 +56,7 @@ export default function AdminZonesPage() {
   const { toast } = useToast();
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingZone, setEditingZone] = useState<CommunityZone | null>(null);
   const [zoneName, setZoneName] = useState("");
   const [zoneRadius, setZoneRadius] = useState("100");
   const [zoneType, setZoneType] = useState<string>("neighborhood");
@@ -63,6 +64,26 @@ export default function AdminZonesPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([18.4861, -69.9312]);
+
+  const cities = [
+    { name: "Santo Domingo", lat: 18.4861, lng: -69.9312 },
+    { name: "Santiago", lat: 19.4517, lng: -70.6970 },
+    { name: "Moca", lat: 19.3941, lng: -70.5250 },
+    { name: "Sosúa", lat: 19.7525, lng: -70.5186 },
+    { name: "Puerto Plata", lat: 19.7934, lng: -70.6884 },
+    { name: "La Romana", lat: 18.4274, lng: -68.9728 },
+    { name: "Punta Cana", lat: 18.5601, lng: -68.3725 },
+    { name: "San Francisco de Macorís", lat: 19.3000, lng: -70.2500 },
+    { name: "Bonao", lat: 18.9400, lng: -70.4000 },
+    { name: "Baní", lat: 18.2800, lng: -70.3300 },
+  ];
+
+  const handleCitySelect = (cityName: string) => {
+    const city = cities.find(c => c.name === cityName);
+    if (city) {
+      setMapCenter([city.lat, city.lng]);
+    }
+  };
 
   const { data: zones, isLoading } = useQuery<CommunityZone[]>({
     queryKey: ["/api/admin/zones"],
@@ -114,6 +135,15 @@ export default function AdminZonesPage() {
     );
   }
 
+  const handleEditZone = (zone: CommunityZone) => {
+    setEditingZone(zone);
+    setZoneName(zone.name);
+    setZoneRadius(zone.radiusMeters.toString());
+    setZoneType(zone.zoneType);
+    setSelectedPosition({ lat: zone.centerLat, lng: zone.centerLng });
+    setShowCreateDialog(true);
+  };
+
   const handleCreateZone = async () => {
     if (!zoneName.trim() || !selectedPosition) {
       toast({
@@ -126,24 +156,31 @@ export default function AdminZonesPage() {
 
     setIsCreating(true);
     try {
-      await apiRequest("POST", "/api/admin/zones", {
-        name: zoneName.trim(),
-        centerLat: selectedPosition.lat,
-        centerLng: selectedPosition.lng,
-        radiusMeters: parseInt(zoneRadius),
-        zoneType,
-      });
+      if (editingZone) {
+        await apiRequest("PATCH", `/api/admin/zones/${editingZone.id}`, {
+          name: zoneName.trim(),
+          centerLat: selectedPosition.lat,
+          centerLng: selectedPosition.lng,
+          radiusMeters: parseInt(zoneRadius),
+          zoneType,
+        });
+      } else {
+        await apiRequest("POST", "/api/admin/zones", {
+          name: zoneName.trim(),
+          centerLat: selectedPosition.lat,
+          centerLng: selectedPosition.lng,
+          radiusMeters: parseInt(zoneRadius),
+          zoneType,
+        });
+      }
 
       queryClient.invalidateQueries({ queryKey: ["/api/admin/zones"] });
       setShowCreateDialog(false);
-      setZoneName("");
-      setZoneRadius("100");
-      setZoneType("neighborhood");
-      setSelectedPosition(null);
+      resetForm();
 
       toast({
         title: t("admin.success"),
-        description: t("admin.zoneCreated"),
+        description: editingZone ? "Zona actualizada" : t("admin.zoneCreated"),
       });
     } catch (error) {
       toast({
@@ -154,6 +191,14 @@ export default function AdminZonesPage() {
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const resetForm = () => {
+    setEditingZone(null);
+    setZoneName("");
+    setZoneRadius("100");
+    setZoneType("neighborhood");
+    setSelectedPosition(null);
   };
 
   const handleDeleteZone = async (zoneId: string) => {
@@ -181,6 +226,16 @@ export default function AdminZonesPage() {
           <h1 className="text-lg font-semibold">{t("admin.zoneManagement")}</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Select onValueChange={handleCitySelect}>
+            <SelectTrigger className="w-[150px] h-8">
+              <SelectValue placeholder="Ir a ciudad..." />
+            </SelectTrigger>
+            <SelectContent>
+              {cities.map(city => (
+                <SelectItem key={city.name} value={city.name}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button 
             variant="outline"
             size="sm"
@@ -197,7 +252,10 @@ export default function AdminZonesPage() {
           </Button>
           <Button 
             size="sm" 
-            onClick={() => setShowCreateDialog(true)}
+            onClick={() => {
+              resetForm();
+              setShowCreateDialog(true);
+            }}
             data-testid="button-create-zone"
           >
             <Plus className="h-4 w-4 mr-1" />
@@ -218,14 +276,24 @@ export default function AdminZonesPage() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between gap-2">
                     <CardTitle className="text-base">{zone.name}</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteZone(zone.id)}
-                      data-testid={`button-delete-zone-${zone.id}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditZone(zone)}
+                        data-testid={`button-edit-zone-${zone.id}`}
+                      >
+                        <Search className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteZone(zone.id)}
+                        data-testid={`button-delete-zone-${zone.id}`}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -252,7 +320,7 @@ export default function AdminZonesPage() {
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t("admin.createZone")}</DialogTitle>
+            <DialogTitle>{editingZone ? "Editar Zona" : t("admin.createZone")}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -337,7 +405,10 @@ export default function AdminZonesPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button variant="outline" onClick={() => {
+              setShowCreateDialog(false);
+              resetForm();
+            }}>
               {t("common.cancel")}
             </Button>
             <Button 
@@ -346,7 +417,7 @@ export default function AdminZonesPage() {
               data-testid="button-confirm-create-zone"
             >
               {isCreating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {t("admin.create")}
+              {editingZone ? "Guardar Cambios" : t("admin.create")}
             </Button>
           </DialogFooter>
         </DialogContent>

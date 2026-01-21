@@ -490,6 +490,26 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/admin/zones/:id", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!user.isAdmin && user.username !== 'KlkCEO' && user.username !== 'mysticFoxyy') {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const id = req.params.id;
+      const updatedZone = await storage.updateCommunityZone(id, req.body);
+      if (!updatedZone) {
+        return res.status(404).json({ message: "Zone not found" });
+      }
+
+      res.json(updatedZone);
+    } catch (error) {
+      console.error("Update zone error:", error);
+      res.status(500).json({ message: "Failed to update zone" });
+    }
+  });
+
   app.post("/api/admin/zones/discover", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;

@@ -101,6 +101,7 @@ export interface IStorage {
   getCommunityZone(id: string): Promise<CommunityZone | undefined>;
   findZoneByLocation(lat: number, lng: number): Promise<CommunityZone | undefined>;
   createCommunityZone(zone: InsertCommunityZone): Promise<CommunityZone>;
+  updateCommunityZone(id: string, updates: Partial<CommunityZone>): Promise<CommunityZone | undefined>;
   deleteCommunityZone(id: string): Promise<void>;
 
   // Community Sessions
@@ -620,6 +621,11 @@ export class DatabaseStorage implements IStorage {
   async createCommunityZone(zone: InsertCommunityZone): Promise<CommunityZone> {
     const [result] = await db.insert(communityZones).values(zone).returning();
     return result;
+  }
+
+  async updateCommunityZone(id: string, updates: Partial<CommunityZone>): Promise<CommunityZone | undefined> {
+    const [result] = await db.update(communityZones).set(updates).where(eq(communityZones.id, id)).returning();
+    return result || undefined;
   }
 
   async deleteCommunityZone(id: string): Promise<void> {
