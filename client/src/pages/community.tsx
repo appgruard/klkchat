@@ -295,23 +295,24 @@ export default function CommunityPage() {
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const recordingIntervalRef = useRef<NodeJS.Timeout>();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
       
       mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
       };
 
-      const startTime = Date.now();
-      
       mediaRecorder.onstop = async () => {
-        const duration = Math.round((Date.now() - startTime) / 1000);
-        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const duration = recordingDuration;
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         
         if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
         setIsRecording(false);
@@ -336,10 +337,11 @@ export default function CommunityPage() {
             description: t("error.uploadFailed"),
             variant: "destructive",
           });
+        } finally {
+          setIsLoading(false);
         }
         
         stream.getTracks().forEach(track => track.stop());
-        setIsLoading(false);
       };
 
       mediaRecorder.start();
@@ -349,19 +351,12 @@ export default function CommunityPage() {
       recordingIntervalRef.current = setInterval(() => {
         setRecordingDuration(prev => {
           if (prev >= 29) { // 30s limit for community
-            if (mediaRecorder.state === "recording") mediaRecorder.stop();
+            stopRecording();
             return prev;
           }
           return prev + 1;
         });
       }, 1000);
-
-      // We need a way to stop it manually
-      (window as any).stopCommunityRecording = () => {
-        if (mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-        }
-      };
 
     } catch (err) {
       console.error("Mic access error:", err);
@@ -370,6 +365,16 @@ export default function CommunityPage() {
         description: t("error.micAccess"),
         variant: "destructive",
       });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
     }
   };
 
@@ -593,7 +598,7 @@ export default function CommunityPage() {
                 variant={isRecording ? "destructive" : "secondary"}
                 onClick={() => {
                   if (isRecording) {
-                    if ((window as any).stopCommunityRecording) (window as any).stopCommunityRecording();
+                    stopRecording();
                   } else {
                     startRecording();
                   }
