@@ -52,6 +52,42 @@ app.use((req, res, next) => {
 (async () => {
   if (process.env.NODE_ENV === "production") {
     await runMigrations();
+    
+    // Auto-populate zones in production if needed
+    try {
+      const zones = await storage.getCommunityZones();
+      if (zones.length < 10) {
+        log("Production database has few zones. Starting auto-population...");
+        // Import dynamically to avoid loading it in all environments if not needed
+        const { findNearbyPlaces } = await import("./geopify");
+        const locations = [
+          { lat: 18.4861, lng: -69.9312 }, // Center
+          { lat: 18.4716, lng: -69.9218 }, // Gazcue
+          { lat: 18.4517, lng: -69.9389 }, // Piantini/Naco
+          { lat: 18.5123, lng: -69.8732 }, // SD Este
+          { lat: 18.4845, lng: -69.9612 }, // Herrera
+          { lat: 18.5342, lng: -69.9211 }, // SD Norte
+          { lat: 18.4321, lng: -69.9543 }, // Malecon
+          { lat: 18.4987, lng: -69.8923 }, // Los Mina
+          { lat: 18.4654, lng: -69.9765 }, // Luperon
+          { lat: 18.5234, lng: -69.9432 }  // Arroyo Hondo
+        ];
+
+        for (const loc of locations) {
+          const places = await findNearbyPlaces(loc.lat, loc.lng);
+          for (const place of places) {
+            const currentZones = await storage.getCommunityZones();
+            const exists = currentZones.find(z => z.name === place.name);
+            if (!exists) {
+              await storage.createCommunityZone(place);
+            }
+          }
+        }
+        log("Auto-population completed.");
+      }
+    } catch (err) {
+      console.error("Failed to auto-populate zones:", err);
+    }
   }
   
   await registerRoutes(httpServer, app);
