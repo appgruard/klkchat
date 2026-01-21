@@ -51,61 +51,14 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  if (process.env.NODE_ENV === "production") {
+  // Run database schema sync on startup
+  try {
+    log("Running database schema sync...");
     await runMigrations();
-    
-    // Auto-populate zones in production if needed
-    try {
-      const zones = await storage.getCommunityZones();
-      if (zones.length < 10) {
-        log("Production database has few zones. Starting auto-population...");
-        // Import dynamically to avoid loading it in all environments if not needed
-        const { findNearbyPlaces } = await import("./geopify");
-        const locations = [
-          // Santo Domingo
-          { lat: 18.4861, lng: -69.9312 }, // Center
-          { lat: 18.4517, lng: -69.9389 }, // Piantini
-          { lat: 18.5123, lng: -69.8732 }, // SD Este
-          { lat: 18.5342, lng: -69.9211 }, // SD Norte
-          // Santiago
-          { lat: 19.4517, lng: -70.6970 }, // Santiago Center
-          { lat: 19.4350, lng: -70.6700 }, // Villa Olga
-          { lat: 19.4700, lng: -70.7100 }, // Los Jardines
-          // Moca
-          { lat: 19.3941, lng: -70.5250 }, // Moca Center
-          { lat: 19.3850, lng: -70.5150 }, // Moca Sur
-          // Sosúa
-          { lat: 19.7525, lng: -70.5186 }, // Sosua Center
-          { lat: 19.7600, lng: -70.5000 }, // El Batey
-          // Additional Coverage
-          { lat: 18.4716, lng: -69.9218 }, // Gazcue
-          { lat: 18.4845, lng: -69.9612 }, // Herrera
-          { lat: 18.4321, lng: -69.9543 }, // Malecon
-          { lat: 18.4623, lng: -69.9287 }, // Ciudad Universitaria
-          { lat: 18.5512, lng: -69.9712 }, // Los Alcarrizos
-          { lat: 19.4000, lng: -70.5000 }, // Moca Suburbs
-          { lat: 19.7400, lng: -70.5300 }, // Sosua West
-          { lat: 19.4600, lng: -70.6800 }, // Santiago North
-          { lat: 18.5812, lng: -69.8212 }  // San Isidro
-        ];
-
-        for (const loc of locations) {
-          const places = await findNearbyPlaces(loc.lat, loc.lng);
-          for (const place of places) {
-            const currentZones = await storage.getCommunityZones();
-            const exists = currentZones.find(z => z.name === place.name);
-            if (!exists) {
-              await storage.createCommunityZone(place);
-            }
-          }
-        }
-        log("Auto-population completed.");
-      }
-    } catch (err) {
-      console.error("Failed to auto-populate zones:", err);
-    }
+  } catch (err) {
+    log(`Migration failed: ${err}`);
   }
-  
+
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

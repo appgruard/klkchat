@@ -84,9 +84,6 @@ export default function CommunityPage() {
   const requestLocationAndEntry = useCallback(async (userAge: number) => {
     setLocationState('checking');
     
-    // Admin bypass for debugging or if location is failing
-    const isAdmin = user?.username === 'KlkCEO' || user?.username === 'mysticFoxyy';
-
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         if (!navigator.geolocation) {
@@ -95,27 +92,17 @@ export default function CommunityPage() {
         }
 
         navigator.geolocation.getCurrentPosition(resolve, (err) => {
-          // If admin, we can provide a fallback location if real one fails
-          if (isAdmin) {
-            console.warn("Location failed for admin, using fallback", err);
-            resolve({
-              coords: {
-                latitude: 18.4861,
-                longitude: -69.9312,
-                accuracy: 0,
-                altitude: null,
-                altitudeAccuracy: null,
-                heading: null,
-                speed: null
-              },
-              timestamp: Date.now()
-            } as GeolocationPosition);
-          } else {
-            reject(err);
-          }
+          console.error("Geolocation error detail:", {
+            code: err.code,
+            message: err.message,
+            PERMISSION_DENIED: err.PERMISSION_DENIED,
+            POSITION_UNAVAILABLE: err.POSITION_UNAVAILABLE,
+            TIMEOUT: err.TIMEOUT
+          });
+          reject(err);
         }, {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000,
           maximumAge: 0
         });
       });
