@@ -168,6 +168,24 @@ export default function AdminZonesPage() {
     { name: "Chiclayo, PE", lat: -6.7719, lng: -79.8406 },
   ];
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterCountry, setFilterCountry] = useState("all");
+  const [filterCity, setFilterCity] = useState("all");
+
+  const filteredZones = zones?.filter(zone => {
+    const matchesSearch = zone.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Simple heuristic to extract city/country from zone name if not explicitly stored
+    // Ideally the schema should have city/country fields, but for now we search in name
+    const matchesCountry = filterCountry === "all" || zone.name.includes(filterCountry);
+    const matchesCity = filterCity === "all" || zone.name.includes(filterCity);
+    
+    return matchesSearch && matchesCountry && matchesCity;
+  });
+
+  const uniqueCountries = Array.from(new Set(cities.map(c => c.name.split(', ')[1]).filter(Boolean)));
+  const filteredCitiesList = cities.filter(c => filterCountry === "all" || c.name.endsWith(`, ${filterCountry}`));
+
   const handleCitySelect = (cityName: string) => {
     const city = cities.find(c => c.name === cityName);
     if (city) {
@@ -354,14 +372,55 @@ export default function AdminZonesPage() {
         </div>
       </div>
 
+      <div className="p-4 border-b space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar zonas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Select value={filterCountry} onValueChange={setFilterCountry}>
+              <SelectTrigger className="w-[130px]">
+                <SelectValue placeholder="País" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los países</SelectItem>
+                {uniqueCountries.map(country => (
+                  <SelectItem key={country} value={country}>{country}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={filterCity} onValueChange={(val) => {
+              setFilterCity(val);
+              if (val !== "all") handleCitySelect(val);
+            }}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Ciudad" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las ciudades</SelectItem>
+                {filteredCitiesList.map(city => (
+                  <SelectItem key={city.name} value={city.name}>{city.name.split(', ')[0]}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-3">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
-          ) : zones && zones.length > 0 ? (
-            zones.map((zone) => (
+          ) : filteredZones && filteredZones.length > 0 ? (
+            filteredZones.map((zone) => (
               <Card key={zone.id}>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between gap-2">
