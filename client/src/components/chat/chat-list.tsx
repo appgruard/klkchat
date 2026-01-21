@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Search, Plus, MessageCircle, Shield, Lock, EyeOff } from "lucide-react";
+import { Search, Plus, MessageCircle, Shield, Lock, EyeOff, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -43,6 +43,13 @@ export function ChatList({
   const { data: hiddenConversationIds = [] } = useQuery<string[]>({
     queryKey: ["/api/hidden-conversations"],
   });
+
+  // Auto-close hidden section when all chats are unhidden
+  useEffect(() => {
+    if (showHidden && hiddenConversationIds.length === 0) {
+      setShowHidden(false);
+    }
+  }, [hiddenConversationIds.length, showHidden]);
 
   const unhideChatMutation = useMutation({
     mutationFn: async ({ conversationId, pin }: { conversationId: string; pin: string }) => {
@@ -134,16 +141,37 @@ export function ChatList({
       </div>
 
       <div className="p-3 border-b border-sidebar-border">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t("chat.searchOrStart")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-sidebar-accent border-0"
-            data-testid="input-search-chat"
-          />
-        </div>
+        {showHidden ? (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowHidden(false)}
+              className="flex-shrink-0"
+              data-testid="button-back-from-hidden"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-2 flex-1">
+              <Lock className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium text-sm">{t("chat.showHiddenChats") || "Secret Chats"}</span>
+              <span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                {hiddenConversationIds.length}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t("chat.searchOrStart")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-sidebar-accent border-0"
+              data-testid="input-search-chat"
+            />
+          </div>
+        )}
       </div>
 
       <ScrollArea className="flex-1">
@@ -161,15 +189,38 @@ export function ChatList({
           </div>
         ) : filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center">
-            <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-medium text-sidebar-foreground mb-1">{t("chat.noConversations")}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t("chat.startNewChat")}
-            </p>
-            <Button onClick={onNewChat} className="gap-2" data-testid="button-start-chat-empty">
-              <Plus className="h-4 w-4" />
-              {t("chat.newChat")}
-            </Button>
+            {showHidden ? (
+              <>
+                <Lock className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="font-medium text-sidebar-foreground mb-1">
+                  {t("chat.noHiddenChats") || "No secret chats"}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("chat.noHiddenChatsDesc") || "You don't have any hidden chats yet"}
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowHidden(false)} 
+                  className="gap-2" 
+                  data-testid="button-back-to-chats"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  {t("chat.backToChats") || "Back to chats"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <MessageCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="font-medium text-sidebar-foreground mb-1">{t("chat.noConversations")}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("chat.startNewChat")}
+                </p>
+                <Button onClick={onNewChat} className="gap-2" data-testid="button-start-chat-empty">
+                  <Plus className="h-4 w-4" />
+                  {t("chat.newChat")}
+                </Button>
+              </>
+            )}
           </div>
         ) : (
           <div className="py-1">

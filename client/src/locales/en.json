@@ -103,7 +103,10 @@
     "stickerAdded": "Sticker added",
     "stickerAddedDesc": "The sticker has been added to your collection",
     "stickerAddFailed": "Failed to add sticker. Please check the URL.",
-    "addSticker": "Add"
+    "addSticker": "Add",
+    "noHiddenChats": "No secret chats",
+    "noHiddenChatsDesc": "You don't have any hidden chats yet",
+    "backToChats": "Back to chats"
   },
   "common": {
     "cancel": "Cancel"

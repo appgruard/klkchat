@@ -103,7 +103,10 @@
     "stickerAdded": "Стикер добавлен",
     "stickerAddedDesc": "Стикер добавлен в вашу коллекцию",
     "stickerAddFailed": "Не удалось добавить стикер. Проверьте ссылку.",
-    "addSticker": "Добавить"
+    "addSticker": "Добавить",
+    "noHiddenChats": "Нет секретных чатов",
+    "noHiddenChatsDesc": "У вас пока нет скрытых чатов",
+    "backToChats": "Вернуться к чатам"
   },
   "common": {
     "cancel": "Отмена"

@@ -103,7 +103,10 @@
     "stickerAdded": "Sticker ajouté",
     "stickerAddedDesc": "Le sticker a été ajouté à votre collection",
     "stickerAddFailed": "Échec de l'ajout du sticker. Vérifiez l'URL.",
-    "addSticker": "Ajouter"
+    "addSticker": "Ajouter",
+    "noHiddenChats": "Pas de discussions secrètes",
+    "noHiddenChatsDesc": "Vous n'avez pas encore de discussions masquées",
+    "backToChats": "Retour aux discussions"
   },
   "common": {
     "cancel": "Annuler"

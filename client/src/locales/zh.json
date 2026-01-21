@@ -103,7 +103,10 @@
     "stickerAdded": "贴纸已添加",
     "stickerAddedDesc": "贴纸已添加到您的收藏",
     "stickerAddFailed": "添加贴纸失败。请检查网址。",
-    "addSticker": "添加"
+    "addSticker": "添加",
+    "noHiddenChats": "没有隐私对话",
+    "noHiddenChatsDesc": "您还没有隐藏的对话",
+    "backToChats": "返回对话"
   },
   "common": {
     "cancel": "取消"

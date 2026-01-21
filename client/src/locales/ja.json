@@ -103,7 +103,10 @@
     "stickerAdded": "スタンプを追加しました",
     "stickerAddedDesc": "スタンプがコレクションに追加されました",
     "stickerAddFailed": "スタンプの追加に失敗しました。URLを確認してください。",
-    "addSticker": "追加"
+    "addSticker": "追加",
+    "noHiddenChats": "秘密のチャットがありません",
+    "noHiddenChatsDesc": "非表示のチャットはまだありません",
+    "backToChats": "チャットに戻る"
   },
   "common": {
     "cancel": "キャンセル"

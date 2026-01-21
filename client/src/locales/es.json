@@ -103,7 +103,10 @@
     "stickerAdded": "Sticker agregado",
     "stickerAddedDesc": "El sticker ha sido agregado a tu colección",
     "stickerAddFailed": "Error al agregar sticker. Verifica la URL.",
-    "addSticker": "Agregar"
+    "addSticker": "Agregar",
+    "noHiddenChats": "Sin chats secretos",
+    "noHiddenChatsDesc": "Aún no tienes chats ocultos",
+    "backToChats": "Volver a chats"
   },
   "common": {
     "cancel": "Cancelar"

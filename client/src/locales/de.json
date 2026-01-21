@@ -103,7 +103,10 @@
     "stickerAdded": "Sticker hinzugefügt",
     "stickerAddedDesc": "Der Sticker wurde Ihrer Sammlung hinzugefügt",
     "stickerAddFailed": "Sticker konnte nicht hinzugefügt werden. Überprüfen Sie die URL.",
-    "addSticker": "Hinzufügen"
+    "addSticker": "Hinzufügen",
+    "noHiddenChats": "Keine geheimen Chats",
+    "noHiddenChatsDesc": "Sie haben noch keine versteckten Chats",
+    "backToChats": "Zurück zu Chats"
   },
   "common": {
     "cancel": "Abbrechen"
