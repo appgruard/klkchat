@@ -293,6 +293,10 @@ export default function CommunityPage() {
     setShowPicker(false);
   };
 
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const recordingIntervalRef = useRef<NodeJS.Timeout>();
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -309,17 +313,21 @@ export default function CommunityPage() {
         const duration = Math.round((Date.now() - startTime) / 1000);
         const audioBlob = new Blob(chunks, { type: "audio/webm" });
         
+        if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
+        setIsRecording(false);
+        setRecordingDuration(0);
+
         // Upload file - matches normal chat naming
         const formData = new FormData();
         formData.append("file", audioBlob, `audio-${Date.now()}.webm`);
         
+        setIsLoading(true);
         try {
           const uploadRes = await fetch("/api/upload", {
             method: "POST",
             body: formData,
           });
           const fileData = await uploadRes.json();
-          // For community messages, content is unused for non-text, but we should be consistent
           sendMessage('audio', fileData.url, duration);
         } catch (error) {
           console.error("Upload error:", error);
@@ -335,18 +343,21 @@ export default function CommunityPage() {
       };
 
       mediaRecorder.start();
-      setIsLoading(true);
+      setIsRecording(true);
+      setRecordingDuration(0);
       
-      // Auto-stop at 30s for community
-      const timeoutId = setTimeout(() => {
-        if (mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-        }
-      }, 30000);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingDuration(prev => {
+          if (prev >= 29) { // 30s limit for community
+            if (mediaRecorder.state === "recording") mediaRecorder.stop();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
 
       // We need a way to stop it manually
       (window as any).stopCommunityRecording = () => {
-        clearTimeout(timeoutId);
         if (mediaRecorder.state === "recording") {
           mediaRecorder.stop();
         }
@@ -474,26 +485,42 @@ export default function CommunityPage() {
                 )}
                 <div
                   className={cn(
-                    "rounded-lg px-3 py-2",
-                    isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
+                    "rounded-2xl px-3 py-2 shadow-sm border",
+                    isOwn 
+                      ? "bg-[#E2FDC5] dark:bg-[#005C4B] text-foreground dark:text-white border-[#C8EAB0] dark:border-[#005C4B] rounded-tr-none" 
+                      : "bg-white dark:bg-[#202C33] text-foreground dark:text-white border-white dark:border-[#202C33] rounded-tl-none"
                   )}
                 >
                   {msg.contentType === 'text' && (
                     <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                   )}
                   {(msg.contentType === 'sticker' || msg.contentType === 'gif') && (
-                    <img 
-                      src={msg.fileUrl || msg.content || ''} 
-                      alt={msg.contentType} 
-                      className="max-w-[140px] max-h-[140px] rounded object-contain"
-                    />
+                    <div className="relative">
+                      <img 
+                        src={msg.fileUrl || msg.content || ''} 
+                        alt={msg.contentType} 
+                        className="max-w-[140px] max-h-[140px] rounded object-contain"
+                      />
+                    </div>
                   )}
                   {msg.contentType === 'audio' && (
-                    <div className="flex items-center gap-2 p-1 min-w-[200px]">
-                      <Mic className="h-4 w-4 opacity-70" />
-                      <audio controls className="h-8 w-full filter grayscale contrast-125">
-                        <source src={msg.fileUrl || ''} type="audio/webm" />
-                      </audio>
+                    <div className="flex items-center gap-2 p-1 min-w-[220px]">
+                      <div className={cn(
+                        "p-2 rounded-full",
+                        isOwn ? "bg-black/5 dark:bg-white/10" : "bg-muted"
+                      )}>
+                        <Mic className="h-4 w-4 opacity-70" />
+                      </div>
+                      <div className="flex-1">
+                        <audio controls className="h-8 w-full filter grayscale contrast-125 dark:invert">
+                          <source src={msg.fileUrl || ''} type="audio/webm" />
+                        </audio>
+                      </div>
+                      {msg.duration && (
+                        <span className="text-[10px] opacity-70 font-mono">
+                          {Math.floor(msg.duration / 60)}:{(msg.duration % 60).toString().padStart(2, '0')}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -549,25 +576,35 @@ export default function CommunityPage() {
               )}
             </Button>
           ) : (
-            <Button
-              size="icon"
-              variant={isLoading ? "destructive" : "secondary"}
-              onClick={() => {
-                if (isLoading) {
-                  if ((window as any).stopCommunityRecording) (window as any).stopCommunityRecording();
-                } else {
-                  startRecording();
-                }
-              }}
-              disabled={cooldowns.audio > 0}
-              data-testid="button-audio-community"
-            >
-              {cooldowns.audio > 0 ? (
-                <span className="text-xs">{Math.ceil(cooldowns.audio / 1000)}</span>
-              ) : (
-                <Mic className={cn("h-5 w-5", isLoading && "animate-pulse")} />
+            <div className="flex items-center gap-2">
+              {isRecording && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-destructive/10 text-destructive rounded-full animate-pulse">
+                  <div className="w-2 h-2 rounded-full bg-destructive" />
+                  <span className="text-xs font-mono">
+                    0:{recordingDuration.toString().padStart(2, '0')}
+                  </span>
+                </div>
               )}
-            </Button>
+              <Button
+                size="icon"
+                variant={isRecording ? "destructive" : "secondary"}
+                onClick={() => {
+                  if (isRecording) {
+                    if ((window as any).stopCommunityRecording) (window as any).stopCommunityRecording();
+                  } else {
+                    startRecording();
+                  }
+                }}
+                disabled={cooldowns.audio > 0 || isLoading}
+                data-testid="button-audio-community"
+              >
+                {cooldowns.audio > 0 ? (
+                  <span className="text-xs">{Math.ceil(cooldowns.audio / 1000)}</span>
+                ) : (
+                  isRecording ? <Square className="h-5 w-5" /> : <Mic className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           )}
         </div>
       </div>
