@@ -1406,11 +1406,17 @@ export async function registerRoutes(
         return res.status(400).json({ message: "You cannot block yourself" });
       }
 
-      const updatedSession = await storage.updateCommunitySession(targetSessionId, {
-        blockCount: (targetSession.blockCount || 0) + 1,
-      });
+      // Check if already blocked by this user in this session (ephemeral block)
+      // Note: community sessions blocks are aggregated, but we should prevent same user spamming blocks
+      // We can use a simple cache or check if the user has already blocked this session
+      // For now, let's implement a more robust check in storage or use a temporary session-based store
+      
+      const updatedSession = await storage.incrementSessionBlockCount(targetSessionId, user.id);
+      if (!updatedSession) {
+        return res.status(400).json({ message: "You have already reported this user" });
+      }
 
-      if (updatedSession && updatedSession.blockCount >= BLOCKS_BEFORE_SILENCE) {
+      if (updatedSession.blockCount >= BLOCKS_BEFORE_SILENCE) {
         const silencedUntil = new Date();
         silencedUntil.setHours(silencedUntil.getHours() + SILENCE_DURATION_HOURS);
         await storage.updateCommunitySession(targetSessionId, {

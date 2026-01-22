@@ -110,7 +110,7 @@ export interface IStorage {
   createCommunitySession(session: InsertCommunitySession): Promise<CommunitySession>;
   updateCommunitySession(id: string, updates: Partial<CommunitySession>): Promise<CommunitySession | undefined>;
   incrementSessionMessageCount(sessionId: string): Promise<void>;
-  incrementSessionBlockCount(sessionId: string): Promise<number>;
+  incrementSessionBlockCount(sessionId: string, reporterId: string): Promise<CommunitySession | null>;
   cleanupExpiredSessions(): Promise<void>;
 
   // Community Messages
@@ -667,12 +667,21 @@ export class DatabaseStorage implements IStorage {
       .where(eq(communitySessions.id, sessionId));
   }
 
-  async incrementSessionBlockCount(sessionId: string): Promise<number> {
-    const [result] = await db.update(communitySessions)
+  async incrementSessionBlockCount(sessionId: string, reporterId: string): Promise<CommunitySession | null> {
+    const [session] = await db.select().from(communitySessions).where(eq(communitySessions.id, sessionId));
+    if (!session) return null;
+
+    const alreadyBlocked = await this.isUserBlocked(reporterId, session.userId);
+    if (alreadyBlocked) return null;
+
+    await this.blockUser(reporterId, session.userId);
+
+    const [updated] = await db
+      .update(communitySessions)
       .set({ blockCount: sql`${communitySessions.blockCount} + 1` })
       .where(eq(communitySessions.id, sessionId))
-      .returning({ blockCount: communitySessions.blockCount });
-    return result?.blockCount || 0;
+      .returning();
+    return updated || null;
   }
 
   async cleanupExpiredSessions(): Promise<void> {

@@ -74,6 +74,7 @@ export default function CommunityPage() {
   const [showPicker, setShowPicker] = useState(false);
   const [cooldowns, setCooldowns] = useState<Record<CooldownType, number>>({ text: 0, sticker: 0, gif: 0 });
   const [resetTimer, setResetTimer] = useState<string>("");
+  const [silenceTimer, setSilenceTimer] = useState<string>("");
   const [sessionToBlock, setSessionToBlock] = useState<string | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -268,9 +269,28 @@ export default function CommunityPage() {
           );
         }
       }
+
+      if (session?.silencedUntil) {
+        const silenced = new Date(session.silencedUntil).getTime();
+        const now = new Date().getTime();
+        const diff = silenced - now;
+        
+        if (diff <= 0) {
+          setSilenceTimer("");
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setSilenceTimer(
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+          );
+        }
+      } else {
+        setSilenceTimer("");
+      }
     }, 1000);
     return () => clearInterval(interval);
-  }, [session?.expiresAt]);
+  }, [session?.expiresAt, session?.silencedUntil]);
 
   const handleAgeSubmit = async () => {
     const userAge = parseInt(age);
@@ -533,9 +553,17 @@ export default function CommunityPage() {
   return (
     <div className="flex-1 flex flex-col h-full pb-14">
       <div className="p-3 border-b bg-card/50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span className="font-medium">{session.zoneName}</span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-primary" />
+            <span className="font-medium">{session.zoneName}</span>
+          </div>
+          {silenceTimer && (
+            <div className="flex items-center gap-1.5 text-destructive font-bold text-[10px] animate-pulse">
+              <ShieldAlert className="h-3 w-3" />
+              <span>{t('community.silencedUntil')}: {silenceTimer}</span>
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-end gap-1 text-[10px] text-muted-foreground">
           <div className="flex items-center gap-1">
