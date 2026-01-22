@@ -13,7 +13,10 @@ export async function findNearbyPlaces(lat: number, lng: number): Promise<Insert
     "commercial.supermarket",
     "leisure.park",
     "education.university",
-    "education.school"
+    "education.school",
+    "activity.community_center",
+    "entertainment.culture.museum",
+    "tourism.sights.place_of_worship"
   ];
 
   const url = `https://api.geoapify.com/v2/places?categories=${categories.join(",")}&filter=circle:${lng},${lat},10000&limit=100&apiKey=${API_KEY}`;

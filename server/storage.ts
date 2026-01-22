@@ -169,6 +169,8 @@ export class DatabaseStorage implements IStorage {
         emailVerified: users.emailVerified,
         avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
+        ageVerified: users.ageVerified,
+        isAdmin: users.isAdmin,
       })
       .from(users)
       .where(
@@ -221,6 +223,8 @@ export class DatabaseStorage implements IStorage {
         emailVerified: users.emailVerified,
         avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
+        ageVerified: users.ageVerified,
+        isAdmin: users.isAdmin,
       })
       .from(conversationParticipants)
       .innerJoin(users, eq(conversationParticipants.userId, users.id))
@@ -364,6 +368,8 @@ export class DatabaseStorage implements IStorage {
           emailVerified: users.emailVerified,
           avatarUrl: users.avatarUrl,
           createdAt: users.createdAt,
+          ageVerified: users.ageVerified,
+          isAdmin: users.isAdmin,
         },
       })
       .from(messages)
@@ -512,6 +518,8 @@ export class DatabaseStorage implements IStorage {
         emailVerified: users.emailVerified,
         avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
+        ageVerified: users.ageVerified,
+        isAdmin: users.isAdmin,
       })
       .from(blockedUsers)
       .innerJoin(users, eq(blockedUsers.blockedId, users.id))
