@@ -491,6 +491,32 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/zones", requireAuth, async (req, res) => {
+    try {
+      const user = req.user as User;
+      if (!user.isAdmin && user.username !== 'KlkCEO' && user.username !== 'mysticFoxyy') {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const { name, centerLat, centerLng, radius } = req.body;
+      if (!name || centerLat === undefined || centerLng === undefined || !radius) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      const newZone = await storage.createCommunityZone({
+        name,
+        centerLat: parseFloat(centerLat),
+        centerLng: parseFloat(centerLng),
+        radius: parseInt(radius),
+      });
+
+      res.json(newZone);
+    } catch (error) {
+      console.error("Create zone error:", error);
+      res.status(500).json({ message: "Failed to create zone" });
+    }
+  });
+
   app.patch("/api/admin/zones/:id", requireAuth, async (req, res) => {
     try {
       const user = req.user as User;
