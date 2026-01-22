@@ -693,14 +693,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async cleanupExpiredSessions(): Promise<void> {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    // Delete sessions that are either expired OR older than 24h
-    await db.delete(communitySessions).where(
-      or(
-        lt(communitySessions.expiresAt, new Date()),
-        lt(communitySessions.createdAt, twentyFourHoursAgo)
-      )
-    );
+    // Delete ALL community sessions to "empty" the chat
+    await db.delete(communitySessions);
   }
 
   // Community Messages
@@ -746,14 +740,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async cleanupExpiredMessages(): Promise<void> {
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    // Delete messages that are either expired OR older than 24h
-    await db.delete(communityMessages).where(
-      or(
-        lt(communityMessages.expiresAt, new Date()),
-        lt(communityMessages.createdAt, twentyFourHoursAgo)
-      )
-    );
+    // Delete ALL community messages to "empty" the chat
+    await db.delete(communityMessages);
   }
 
   async getSessionMessageCountLast24h(sessionId: string): Promise<number> {
