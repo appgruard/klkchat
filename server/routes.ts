@@ -163,7 +163,12 @@ export async function registerRoutes(
     if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    res.json(sanitizeUser(req.user as User));
+    const user = req.user as User;
+    // Special bypass for admins: ensure they are always verified
+    if (['KlkCEO', 'mysticFoxyy'].includes(user.username)) {
+      user.ageVerified = 30;
+    }
+    res.json(sanitizeUser(user));
   });
 
   app.post("/api/auth/register", async (req, res) => {
@@ -680,6 +685,17 @@ export async function registerRoutes(
       broadcastStatus("offline");
     });
   });
+
+  // Start background cleanup tasks
+  setInterval(async () => {
+    try {
+      console.log("Running background community cleanup...");
+      await storage.cleanupExpiredSessions();
+      await storage.cleanupExpiredMessages();
+    } catch (error) {
+      console.error("Error in background cleanup:", error);
+    }
+  }, 15 * 60 * 1000); // Every 15 minutes
 
   app.post("/api/auth/verify-email", requireAuth, async (req, res) => {
     try {
