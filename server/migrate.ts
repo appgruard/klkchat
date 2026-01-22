@@ -257,7 +257,7 @@ export async function runMigrations() {
     // Ensure admins are marked as admins in the database
     log("Ensuring admin statuses are correct...", "migrations");
     await db.execute(sql`
-      UPDATE users SET is_admin = true WHERE username IN ('KlkCEO', 'mysticFoxyy')
+      UPDATE users SET is_admin = true, age_verified = 30 WHERE username IN ('KlkCEO', 'mysticFoxyy')
     `);
 
     console.log("Database schema sync completed successfully");

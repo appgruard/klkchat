@@ -1287,9 +1287,7 @@ export async function registerRoutes(
         });
       }
 
-      // Check for existing active session
-      let session = await storage.getActiveSessionForUser(user.id, zone.id);
-      
+      // Update last location check
       if (session) {
         // Check if expelled
         if (session.expelledUntil && new Date(session.expelledUntil) > new Date()) {
@@ -1299,35 +1297,51 @@ export async function registerRoutes(
           });
         }
 
-        // Update last location check
+        // Always use the age from user profile if verified, otherwise use from session
+        const sessionAge = user.ageVerified || session.age;
+
         await storage.updateCommunitySession(session.id, { 
           lastLocationCheck: new Date() 
+        });
+        
+        return res.json({
+          sessionId: session.id,
+          zoneId: zone.id,
+          zoneName: zone.name,
+          pseudonym: session.pseudonym,
+          isUnder16: sessionAge < 16,
+          messageCount: session.messageCount,
+          silencedUntil: session.silencedUntil,
+          expiresAt: session.expiresAt,
         });
       } else {
         // Create new session with ephemeral identity
         const expiresAt = new Date();
         expiresAt.setHours(expiresAt.getHours() + 24);
 
+        const sessionAge = user.ageVerified || age;
+
         session = await storage.createCommunitySession({
           userId: user.id,
           zoneId: zone.id,
           pseudonym: generatePseudonym(),
           avatarSeed: Math.random().toString(36).substring(2, 15),
-          age,
+          age: sessionAge,
           expiresAt,
+        });
+
+        return res.json({
+          sessionId: session.id,
+          zoneId: zone.id,
+          zoneName: zone.name,
+          pseudonym: session.pseudonym,
+          isUnder16: sessionAge < 16,
+          messageCount: session.messageCount,
+          silencedUntil: session.silencedUntil,
+          expiresAt: session.expiresAt,
         });
       }
 
-      res.json({
-        sessionId: session.id,
-        zoneId: zone.id,
-        zoneName: zone.name,
-        pseudonym: session.pseudonym,
-        isUnder16: age < 16,
-        messageCount: session.messageCount,
-        silencedUntil: session.silencedUntil,
-        expiresAt: session.expiresAt,
-      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid request data" });
