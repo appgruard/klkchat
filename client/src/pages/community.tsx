@@ -253,21 +253,29 @@ export default function CommunityPage() {
         };
       });
 
-      if (session?.expiresAt) {
-        const expires = new Date(session.expiresAt).getTime();
-        const now = new Date().getTime();
-        const diff = expires - now;
-        
-        if (diff <= 0) {
-          setResetTimer("00:00:00");
-        } else {
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-          setResetTimer(
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-          );
+      const getNextCleanupTime = () => {
+        const now = new Date();
+        const cleanup = new Date();
+        cleanup.setHours(6, 0, 0, 0);
+        if (now.getHours() >= 6) {
+          cleanup.setDate(cleanup.getDate() + 1);
         }
+        return cleanup.getTime();
+      };
+
+      const expires = getNextCleanupTime();
+      const now = new Date().getTime();
+      const diff = expires - now;
+      
+      if (diff <= 0) {
+        setResetTimer("00:00:00");
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        setResetTimer(
+          `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        );
       }
 
       if (session?.silencedUntil) {
