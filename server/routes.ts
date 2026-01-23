@@ -1335,31 +1335,32 @@ export async function registerRoutes(
       }
 
       // Update last location check
-      if (session) {
+      const currentSession = await storage.getActiveSessionForUser(user.id, zone.id);
+      if (currentSession) {
         // Check if expelled
-        if (session.expelledUntil && new Date(session.expelledUntil) > new Date()) {
+        if (currentSession.expelledUntil && new Date(currentSession.expelledUntil) > new Date()) {
           return res.status(403).json({ 
             message: "expelled",
-            expelledUntil: session.expelledUntil 
+            expelledUntil: currentSession.expelledUntil 
           });
         }
 
         // Always use the age from user profile if verified, otherwise use from session
-        const sessionAge = user.ageVerified || session.age;
+        const sessionAge = user.ageVerified || currentSession.age;
 
-        await storage.updateCommunitySession(session.id, { 
+        await storage.updateCommunitySession(currentSession.id, { 
           lastLocationCheck: new Date() 
         });
         
         return res.json({
-          sessionId: session.id,
+          sessionId: currentSession.id,
           zoneId: zone.id,
           zoneName: zone.name,
-          pseudonym: session.pseudonym,
+          pseudonym: currentSession.pseudonym,
           isUnder16: sessionAge < 16,
-          messageCount: session.messageCount,
-          silencedUntil: session.silencedUntil,
-          expiresAt: session.expiresAt,
+          messageCount: currentSession.messageCount,
+          silencedUntil: currentSession.silencedUntil,
+          expiresAt: currentSession.expiresAt,
         });
       } else {
         // Create new session with ephemeral identity
@@ -1368,7 +1369,7 @@ export async function registerRoutes(
 
         const sessionAge = user.ageVerified || age;
 
-        session = await storage.createCommunitySession({
+        const newSession = await storage.createCommunitySession({
           userId: user.id,
           zoneId: zone.id,
           pseudonym: generatePseudonym(),
@@ -1378,14 +1379,14 @@ export async function registerRoutes(
         });
 
         return res.json({
-          sessionId: session.id,
+          sessionId: newSession.id,
           zoneId: zone.id,
           zoneName: zone.name,
-          pseudonym: session.pseudonym,
+          pseudonym: newSession.pseudonym,
           isUnder16: sessionAge < 16,
-          messageCount: session.messageCount,
-          silencedUntil: session.silencedUntil,
-          expiresAt: session.expiresAt,
+          messageCount: newSession.messageCount,
+          silencedUntil: newSession.silencedUntil,
+          expiresAt: newSession.expiresAt,
         });
       }
 
