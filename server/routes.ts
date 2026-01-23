@@ -687,13 +687,18 @@ export async function registerRoutes(
   });
 
   // Start background cleanup tasks
+  // Fixed time cleanup (6 AM every day)
   setInterval(async () => {
-    try {
-      console.log("Running background community cleanup...");
-      await storage.cleanupExpiredSessions();
-      await storage.cleanupExpiredMessages();
-    } catch (error) {
-      console.error("Error in background cleanup:", error);
+    const now = new Date();
+    // Check if it's 6:00 AM (within the 15-minute interval)
+    if (now.getHours() === 6 && now.getMinutes() < 15) {
+      try {
+        console.log("Running scheduled 6AM community cleanup...");
+        await storage.cleanupExpiredSessions();
+        await storage.cleanupExpiredMessages();
+      } catch (error) {
+        console.error("Error in background cleanup:", error);
+      }
     }
   }, 15 * 60 * 1000); // Every 15 minutes
 
